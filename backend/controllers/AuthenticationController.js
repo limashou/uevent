@@ -54,16 +54,13 @@ async function login(req, res) {
                     if (await bcrypt.compare(password, usersFound[0].password)) {
                         const token = token_controller.generateToken({ userId: usersFound[0].id });
                         res.cookie('auth_token', token, { httpOnly: true, maxAge: 3600000 });
-                        res.json(new Response(true, 'Успешный вход', {
-                            user_id: usersFound[0].id,
-                            auth_key: token
-                        }));
+                        res.json(new Response(true, 'Успешный вход', { user_id: usersFound[0].id }));
                     } else {
                         res.json(new Response(false, 'Неправильный пароль!'));
                     }
                 } catch (error) {
                     console.error(error);
-                    res.json(new Response(false, 'Ошибка проверки пароля'));
+                    res.json(new Response(false, error.toString()));
                 }
             }
         })
