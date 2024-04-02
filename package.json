@@ -1,0 +1,14 @@
+{
+  "name": "u_event",
+  "version": "1.0.0",
+  "scripts": {
+    "install-backend": "cd ./backend && npm install",
+    "install-frontend": "cd ./frontend && npm install",
+    "start-backend": "cd ./backend && node index.js",
+    "start-frontend": "cd ./frontend && npm start",
+    "start": "npm run start-backend & npm run start-frontend",
+    "install": "npm run install-backend & npm run install-frontend"
+  },
+  "dependencies": {
+  }
+}
