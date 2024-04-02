@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require('express-session');
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 const router = require('./routers/main');
 const cors = require('cors');
 const client = require("./db");
@@ -8,7 +9,7 @@ const client = require("./db");
 const app = express();
 
 app.use(cors({
-    origin: '*',
+    origin: 'http://localhost:3000',
     credentials: true,
 }));
 
@@ -19,6 +20,7 @@ app.use(
         saveUninitialized: true
     })
 );
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(router);

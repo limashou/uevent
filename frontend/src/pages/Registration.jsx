@@ -15,6 +15,17 @@ function Registration() {
         helper: '',
         error: false
     });
+    const [email, setEmail] = useState({
+        input: '',
+        helper: '',
+        error: false
+    });
+    const [fullName, setFullName] = useState({
+        input: '',
+        helper: '',
+        error: false
+    });
+
     const [inlineAlert, setInlineAlert] = useState({
         severity: 'success',
         message: null,
@@ -35,13 +46,13 @@ function Registration() {
             return;
         }
         try {
-            const resp = await Requests.login(username.input, password.input);
+            const resp = await Requests.registration(username.input, password.input, email.input, fullName.input);
             if (resp.state === true){
                 setInlineAlert({
                     severity: 'success',
                     message: 'Success',
                 });
-                window.location.href = '/profile';
+                // window.location.href = '/profile';
             }
             else {
                 setInlineAlert({
@@ -121,6 +132,38 @@ function Registration() {
                                 input: inputValue,
                                 error: isError,
                                 helper: helperText,
+                            });
+                        }}
+                    />
+                    <TextField
+                        id="email"
+                        label="Email"
+                        variant="filled"
+                        type="email"
+                        error={email.error}
+                        helperText={email.helper}
+                        onChange={(event) => {
+                            const inputValue = event.target.value;
+                            setEmail({
+                                input: inputValue,
+                                error: false,
+                                helper: '',
+                            });
+                        }}
+                    />
+                    <TextField
+                        id="fullName"
+                        label="Full name"
+                        variant="filled"
+                        type="text"
+                        error={fullName.error}
+                        helperText={fullName.helper}
+                        onChange={(event) => {
+                            const inputValue = event.target.value;
+                            setFullName({
+                                input: inputValue,
+                                error: false,
+                                helper: '',
                             });
                         }}
                     />

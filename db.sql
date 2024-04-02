@@ -12,7 +12,6 @@ END $$;
 GRANT ALL PRIVILEGES ON DATABASE uevent_lubiviy_poliatskiy TO mpoljatsky;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO mpoljatsky;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO mpoljatsky;
-GRANT INSERT ON TABLE companies TO mpoljatsky;
 
 \c uevent_lubiviy_poliatskiy;
 
@@ -120,6 +119,9 @@ CREATE TABLE IF NOT EXISTS event_comments(
     CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+GRANT INSERT ON TABLE companies TO mpoljatsky;
+
 
 -- BEGIN TRANSACTION;
 --

@@ -1,4 +1,4 @@
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import Login from "./pages/Login";
 import Registration from "./pages/Registration";
 import {createTheme, ThemeProvider} from "@mui/material";
@@ -28,7 +28,7 @@ function App() {
               <Routes>
                   <Route path="/login" exact element={<Login />} />
                   <Route path="/registration" exact element={<Registration />} />
-                  {/*<Route path="/contact" component={Contact} />*/}
+                  <Route path="*" element={<Navigate to="/login" />} />
               </Routes>
           </ThemeProvider>
       </BrowserRouter>

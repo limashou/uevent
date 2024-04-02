@@ -8,31 +8,9 @@ const axiosInstance = axios.create({
     headers: {
         'Content-Type':'application/json',
         'Accept':'application/json'
-    }
+    },
+    withCredentials: true
 });
-
-axiosInstance.interceptors.response.use(response => {
-    return response;
-}, error => {
-    if (error.response) {
-        const statusCode = error.response.status;
-        if (statusCode === 401) {
-            return Promise.reject({ state: false, message: 'Authorization error: Unauthorized' });
-        } else {
-            // Общая обработка других ошибок от сервера
-            const errorMessage = error.response.data.message || 'Unknown server error';
-            return Promise.reject({ state: false, message: errorMessage });
-        }
-    } else if (error.request) {
-        // Запрос был сделан, но ответ не был получен
-        return Promise.reject({ state: false, message: 'Request error: no response received' });
-    } else {
-        // Что-то пошло не так при настройке запроса
-        return Promise.reject({ state: false, message: 'Request setup error: ' + error.message });
-    }
-});
-
-
 
 export default class Requests {
     // AUTH

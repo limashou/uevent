@@ -41,7 +41,7 @@ function Login() {
                     severity: 'success',
                     message: 'Success',
                 });
-                window.location.href = '/profile';
+                // window.location.href = '/profile';
             }
             else {
                 setInlineAlert({
