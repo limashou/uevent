@@ -1,10 +1,7 @@
--- Удаляем базу данных, если она существует
 DROP DATABASE IF EXISTS uevent_lubiviy_poliatskiy;
 
--- Создаем базу данных, если она не существует
 CREATE DATABASE uevent_lubiviy_poliatskiy;
 
--- Создаем пользователя, если он не существует
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'mpoljatsky') THEN
@@ -12,15 +9,13 @@ BEGIN
     END IF;
 END $$;
 
--- Предоставляем все привилегии пользователю на базу данных
 GRANT ALL PRIVILEGES ON DATABASE uevent_lubiviy_poliatskiy TO mpoljatsky;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO mpoljatsky;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO mpoljatsky;
+GRANT INSERT ON TABLE companies TO mpoljatsky;
 
--- Подключаемся к базе данных
 \c uevent_lubiviy_poliatskiy;
 
--- Создаем таблицу пользователей
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(45) NOT NULL UNIQUE,
@@ -63,6 +58,8 @@ CREATE TYPE themes AS ENUM('business','politics','psychology');
 CREATE TABLE IF NOT EXISTS events(
     id SERIAL PRIMARY KEY,
     name VARCHAR(70) NOT NULL,
+    poster VARCHAR(256) NOT NULL,
+    notification BOOLEAN DEFAULT FALSE,
     description TEXT,
     date TIMESTAMP,
     format formats,
@@ -71,7 +68,7 @@ CREATE TABLE IF NOT EXISTS events(
     CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
-CREATE TYPE statuses AS ENUM('available','sold', 'reserved');
+CREATE TYPE statuses AS ENUM('available');
 CREATE TYPE ticket_types AS ENUM('common','VIP');
 
 CREATE TABLE IF NOT EXISTS tickets (
@@ -81,32 +78,38 @@ CREATE TABLE IF NOT EXISTS tickets (
     price DECIMAL(10, 2) NOT NULL,
     available_tickets INT NOT NULL,
     status statuses,
-    buyer_name VARCHAR(100),
-    buyer_email VARCHAR(100),
-    purchase_date TIMESTAMP,
     CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
 );
 
-CREATE TYPE ticket_status AS ENUM ('sold', 'reserved');
+CREATE TYPE ticket_status AS ENUM ('buy', 'reserved');
 
 CREATE TABLE IF NOT EXISTS user_tickets (
     id SERIAL PRIMARY KEY,
     ticket_status ticket_types,
     user_id INT NOT NULL,
     ticket_id INT NOT NULL,
+    show_username BOOLEAN DEFAULT TRUE,
     purchase_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_ticket_id FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS list_of_users_who_will_come (
-    id SERIAL PRIMARY KEY,
-    visitor_name VARCHAR(90),
-    show_name BOOLEAN DEFAULT FALSE,
-    event_id INTEGER NOT NULL,
-    user_tickets_id INTEGER NOT NULL,
-    CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
-    CONSTRAINT fk_user_tickets_id FOREIGN KEY (user_tickets_id) REFERENCES users(id) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS company_notification (
+    id SERIAL PRIMARY KEY ,
+    title VARCHAR(50),
+    description TEXT,
+    company_id INTEGER NOT NULL,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_notification (
+    id SERIAL PRIMARY KEY ,
+    title VARCHAR(50),
+    description TEXT,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+--     type ("companiya, events"),
+--     company_id INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS event_comments(
