@@ -6,6 +6,10 @@ body {
   color: var(--text-color);
 }
 
+a {
+  color: #00f56a;
+}
+
 * {
   box-sizing: border-box;
 }

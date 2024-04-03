@@ -9,7 +9,7 @@ const client = require("./db");
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'http://192.168.1.2:3000', 'http://192.168.1.3:3000'],
     credentials: true,
 }));
 

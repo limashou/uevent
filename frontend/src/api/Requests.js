@@ -46,6 +46,10 @@ export default class Requests {
         return resp.data;
     }
 
+    static async logout(){
+        return {state: true, message: 'success'};
+    }
+
     // USER
     static async users_all(page = 1, order = 'ASC', field = 'id'){
         const config = {
@@ -62,7 +66,7 @@ export default class Requests {
     }
     static async user_by_id(user_id){
         const resp = await
-            axiosInstance.get(`/user/${user_id}`);
+            axiosInstance.get(`/users/${user_id}`);
         return resp.data;
     }
     static async avatarUpload(file, account_id, token){
@@ -76,10 +80,10 @@ export default class Requests {
             }
         };
         return await
-            axiosInstance.patch(`/user/avatar`, data, config);
+            axiosInstance.patch(`/users/avatar`, data, config);
     }
     static get_img_link(user_id){
-        return `${domain}/user/${user_id}/avatar`;
+        return `${domain}/users/${user_id}/avatar`;
     }
 
     static async findUsername(token, body) {

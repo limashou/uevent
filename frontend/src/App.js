@@ -1,7 +1,15 @@
-import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
-import Login from "./pages/Login";
-import Registration from "./pages/Registration";
-import {createTheme, ThemeProvider} from "@mui/material";
+import { lazy } from "react";
+import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom";
+import { createTheme, ThemeProvider } from "@mui/material";
+
+import AuthLayout from "./pages/auth/AuthLayout";
+import UserLayout from "./pages/users/UserLayout";
+import Profile from "./pages/users/Profile";
+
+const Login = lazy(() => import("./pages/auth/Login"));
+const Registration = lazy(() => import("./pages/auth/Registration"));
+const PasswordRecovery = lazy(() => import("./pages/auth/PasswordRecovery"));
+const PasswordReset = lazy(() => import("./pages/auth/PasswordReset"));
 
 function App() {
     const theme = createTheme({
@@ -22,17 +30,36 @@ function App() {
             },
         },
     });
-  return (
-      <BrowserRouter>
-          <ThemeProvider theme={theme}>
-              <Routes>
-                  <Route path="/login" exact element={<Login />} />
-                  <Route path="/registration" exact element={<Registration />} />
-                  <Route path="*" element={<Navigate to="/login" />} />
-              </Routes>
-          </ThemeProvider>
-      </BrowserRouter>
-  );
+
+    const router = createBrowserRouter(
+        [
+            { path: "/", element: <Navigate to="auth" /> },
+            {
+                path: "auth",
+                element: <AuthLayout />,
+                children: [
+                    { path: "login", element: <Login /> },
+                    { path: "registration", element: <Registration /> },
+                    { path: "password-recovery", element: <PasswordRecovery /> },
+                    { path: "password-reset/:token", element: <PasswordReset /> },
+                ],
+            },
+            {
+                path: "users",
+                element: <UserLayout />,
+                children: [
+                    { path: ":user_id", element: <Profile /> },
+                ]
+            },
+            { path: "*", element: <Navigate to="/auth/login" /> }
+        ]
+    );
+
+    return (
+        <ThemeProvider theme={theme}>
+            <RouterProvider router={router}/>
+        </ThemeProvider>
+    );
 }
 
 export default App;
