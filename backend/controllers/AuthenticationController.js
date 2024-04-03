@@ -79,7 +79,7 @@ async function password_reset(req, res) {
 
     const token = token_controller.generateToken({username: find_results[0].username}, '10m');
 
-    const link = `${req.headers.origin}/password-reset/${token}`;
+    const link = `${req.headers.origin}/auth/password-reset/${token}`;
     const mailOptions = {
         to: find_results[0].email,
         subject: 'Password reset',

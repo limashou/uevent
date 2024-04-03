@@ -26,18 +26,21 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS companies(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(30),
-    email VARCHAR(80),
-    location VARCHAR(80),
+    name VARCHAR(30) NOT NULL ,
+    email VARCHAR(80) NOT NULL ,
+    location VARCHAR(80) NOT NULL ,
+    photo VARCHAR(256),
     founder_id INTEGER NOT NULL,
     CONSTRAINT fk_user_id FOREIGN KEY (founder_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TYPE roles AS ENUM('worker','news_maker','editor');
 
 CREATE TABLE IF NOT EXISTS company_members(
     id SERIAL PRIMARY KEY,
     company_id INTEGER NOT NULL,
     member_id INTEGER NOT NULL,
-    role VARCHAR(10),
+    role roles,
     CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE,
     CONSTRAINT fk_user_id FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -45,7 +48,8 @@ CREATE TABLE IF NOT EXISTS company_members(
 CREATE TABLE IF NOT EXISTS company_news(
     id SERIAL PRIMARY KEY,
     company_id INTEGER NOT NULL ,
-    title varchar(90) NOT NULL,
+    poster VARCHAR(256),
+    title VARCHAR(90) NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE

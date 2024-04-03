@@ -21,7 +21,7 @@ async function getAllUser(req, res){
 }
 
 async function updateUser(req, res) {
-    const { password, email, full_name } = req.body;
+    const { old_password,password, email, full_name } = req.body;
     const user = new User();
     try {
         const usersFound = await user.find({ id: req.senderData.id });
@@ -30,6 +30,9 @@ async function updateUser(req, res) {
         }
         let updatedFields = { email, full_name };
         if (password !== undefined) {
+            if(!(await bcrypt.compare(old_password, usersFound[0].password))) {
+                return res.json(new Response(false,"incorrect password"));
+            }
             updatedFields.password = await bcrypt.hash(password, 10);
         }
         await user.updateById({ id: usersFound[0].id, ...updatedFields });
@@ -40,13 +43,17 @@ async function updateUser(req, res) {
     }
 }
 
-
 async function getById(req,res){
     try {
         let user = new User();
         const { id } = req.params;
         const userById = await user.find({ id: id });
-        const filteredUser = userById.map(({ id, full_name }) => ({ id, full_name }));
+        let filteredUser;
+        if(req.senderData.id === id) {
+            filteredUser = userById.map(({ id, email,full_name }) => ({ id, email,full_name }));
+        }else {
+            filteredUser = userById.map(({ id, full_name }) => ({ id, full_name }));
+        }
         if (userById.length === 0){
             return res.json(new Response(false, "not found"));
         }
