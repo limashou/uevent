@@ -47,7 +47,7 @@ async function editCompany(req,res){
         }
         let updatedFields = { name, email, location };
         await company.updateById({ id: companyFound[0].id, ...updatedFields });
-        return res.json(new Response(true, 'Данные пользователя успешно обновлены'));
+        res.json(new Response(true, 'Данные пользователя успешно обновлены'));
     } catch (error) {
         console.log(error);
         res.json(new Response(false,error.toString()))
@@ -90,18 +90,17 @@ async function addMember(req,res){
                 subject: 'Invite',
                 text: `${companyFound[0].name} invites you to join his company. Click the link to accept:  ${req.headers.origin}/accept-invitation/${invitationCode}`
             };
-            transporter.sendMail(mailOptions, (error, info) => {
+            await transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
                     console.error(error);
-                    return res.json(false, "Can't send invitation" + error.message)
+                    res.json(false, "Can't send invitation" + error.message)
                 } else {
                     console.log('Email sent: ', info);
-                    return res.json(new Response(true, "Send invitation"));
+                    res.json(new Response(true, "Send invitation"));
                 }
             });
         } else {
-            return res.json(new Response(false, "Not found company"));
-
+             res.json(new Response(false, "Not found company"));
         }
     } catch (error) {
         console.log(error);
@@ -122,11 +121,11 @@ async function acceptMember(req,res) {
                         res.json(new Response(true, 'User successfully add'));
                     });
             }).catch((error) => {
-            return res.json(new Response(false, error.toString()));
+                res.json(new Response(false, error.toString()));
         });
     } catch (error) {
         console.log(error);
-        return res.json(new Response(false, error.toString()));
+        res.json(new Response(false, error.toString()));
     }
 }
 
@@ -143,7 +142,7 @@ async function ejectMember(req,res){
             return res.json(new Response(false,"deny permission "));
         }
         await company_member.deleteRecord({ id: memberFound[0].id });
-        return res.json(new Response(true, 'Successfully delete member'));
+        res.json(new Response(true, 'Successfully delete member'));
     } catch (error) {
         console.log(error);
         res.json(new Response(false, error.toString()));
@@ -164,7 +163,7 @@ async function changeRole(req,res){
             return res.json(new Response(false, 'Пользователь не найден'));
         }
         await company.updateById({ id: companyMemberFound[0].id, role });
-        return res.json(new Response(true, 'Данные пользователя успешно обновлены'));
+        res.json(new Response(true, 'Данные пользователя успешно обновлены'));
     } catch (error) {
         console.log(error);
         res.json(new Response(false,error.toString()))
@@ -201,7 +200,7 @@ async function editNews(req,res){
         }
         let updatedFields = { title, content };
         await companyNewsFound.updateById({ id: companyNewsFound[0].id, ...updatedFields });
-        return res.json(new Response(true, 'Данные пользователя успешно обновлены'));
+        res.json(new Response(true, 'Данные пользователя успешно обновлены'));
     } catch (error) {
         console.log(error);
         res.json(new Response(false,error.toString()))
