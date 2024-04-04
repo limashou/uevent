@@ -29,12 +29,13 @@ CREATE TABLE IF NOT EXISTS companies(
     name VARCHAR(30) NOT NULL ,
     email VARCHAR(80) NOT NULL ,
     location VARCHAR(80) NOT NULL ,
+    description TEXT,
     photo VARCHAR(256),
     founder_id INTEGER NOT NULL,
     CONSTRAINT fk_user_id FOREIGN KEY (founder_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TYPE roles AS ENUM('worker','news_maker','editor');
+CREATE TYPE roles AS ENUM('worker','news_maker','editor','founder');
 
 CREATE TABLE IF NOT EXISTS company_members(
     id SERIAL PRIMARY KEY,

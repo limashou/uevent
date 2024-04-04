@@ -73,7 +73,7 @@ async function userAvatar(req, res) {
             }
             else{
                 let filename = users[0].photo
-                const filePath = path.join(__dirname, '../images', filename);
+                const filePath = path.join(__dirname, '../images/avatar', filename);
                 res.sendFile(filePath);
             }
         }).catch((error)=>{
@@ -81,20 +81,20 @@ async function userAvatar(req, res) {
     });
 }
 
-// async function findByFullName(req,res) {
-//     try {
-//         let user = new User();
-//         const { username_part , user_ids_to_exclude } = req.body;
-//         const result = await user.findByFullName(user_ids_to_exclude,username_part);
-//         if(result !== null) {
-//             res.json(new Response(true," all user what found by " + username_part, result));
-//         } else {
-//             res.json(new Response(true,"not found any user by stringValue " + username_part));
-//         }
-//     } catch (error) {
-//         res.json(new Response(false,error.toString()));
-//     }
-// }
+async function findByFullName(req,res) {
+    try {
+        let user = new User();
+        const { username_part , user_ids_to_exclude } = req.body;
+        const result = await user.findByFullName(user_ids_to_exclude,username_part);
+        if(result !== null) {
+            res.json(new Response(true," all user what found by " + username_part, result));
+        } else {
+            res.json(new Response(true,"not found any user by stringValue " + username_part));
+        }
+    } catch (error) {
+        res.json(new Response(false,error.toString()));
+    }
+}
 async function avatarUpload(req, res) {
     if (!req.file) {
         return res.json(new Response(false, 'Ошибка загрузки файла!'));
@@ -137,6 +137,6 @@ module.exports = {
     getById,
     avatarUpload,
     userAvatar,
-    updateUser
-    // findByFullName
+    updateUser,
+    findByFullName
 }

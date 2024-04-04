@@ -9,5 +9,5 @@ router.get('/:id', user.getById)
 router.patch('/update', token_controller.verifyToken, user.updateUser);
 router.patch('/avatar', token_controller.verifyToken, upload.single('photo'), user.avatarUpload);
 router.get('/:user_id/avatar', user.userAvatar);
-// router.post('/findBy', token_controller.verifyToken, user.findByFullName);
+router.post('/findBy', token_controller.verifyToken, user.findByFullName);
 module.exports = router;
