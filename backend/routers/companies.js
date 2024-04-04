@@ -22,4 +22,7 @@ router.get('/member/:company_id',company_controller.allCompanyMember);
 router.post('/news/create', token_controller.verifyToken, company_controller.createNews);
 router.patch('/news/edit', token_controller.verifyToken, company_controller.editNews);
 router.delete('/news/delete/:id', token_controller.verifyToken, company_controller.deleteNews);
+router.patch('/poster', token_controller.verifyToken, upload.single('poster'), company_controller.companyNewsPosterUpload);
+router.get('/:news_id/poster', company_controller.companyNewsPoster);
+
 module.exports = router;

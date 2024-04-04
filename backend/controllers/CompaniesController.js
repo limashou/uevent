@@ -363,7 +363,7 @@ async function companyNewsPosterUpload(req, res) {
         return res.json(new Response(false, 'Ошибка загрузки файла!'));
     }
     let company_news = new CompanyNews();
-    const photo = req.file;
+    const poster = req.file;
     const {news_id,company_id} = req.body;
     if (!news_id){
         return res.json(new Response(false, 'Company id is empty!'));
@@ -371,11 +371,11 @@ async function companyNewsPosterUpload(req, res) {
     if (!(await company_news.havePermission(company_id, req.senderData.id))) {
         return res.json(new Response(false, "deny permission "));
     }
-    const filename = photo.filename.toString().toLowerCase();
+    const filename = poster.filename.toString().toLowerCase();
     if (filename.endsWith('.png') || filename.endsWith('.jpg') || filename.endsWith('.jpeg')){
         company_news.find({id: news_id}).then((results) => {
             let companyData = results[0];
-            companyData.photo = photo.filename;
+            companyData.poster = poster.filename;
             console.log(companyData);
             company_news.updateById(companyData).then(() => {
                 res.json(new Response(true, 'Фото успешно обновлено'));
@@ -389,7 +389,7 @@ async function companyNewsPosterUpload(req, res) {
     }
     else {
         res.json(new Response(false, 'Данный тип изображения не поддерживается'));
-        fs.unlink(photo.path, (err) => {
+        fs.unlink(poster.path, (err) => {
             if (err) {
                 console.error(`Ошибка при удалении файла: ${err}`);
             }
@@ -417,6 +417,8 @@ module.exports = {
     //  news
     createNews,
     editNews,
-    deleteNews
+    deleteNews,
+    companyNewsPoster,
+    companyNewsPosterUpload
 
 }
