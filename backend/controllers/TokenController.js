@@ -11,9 +11,17 @@ function generateToken(payload, expires = '24h') {
 }
 
 function deactivateToken(req, res) {
-    const token = req.headers.authorization ? req.headers.authorization.replaceAll('Bearer ', '') : undefined;
+    let token;
+    try {
+        if (req.cookies.auth_token) {
+            token = req.cookies.auth_token.replace('Bearer ', '');
+        } else if (req.cookies.session_token) {
+            token = req.cookies.session_token.replace('Bearer ', '');
+        }
+    } catch (e) {}
+
     if (!token) {
-        return res.json(new Response(false, 'Отсутствует токен авторизации'));
+        return res.json(new Response(false, 'Отсутствует токен'));
     }
     if (blackStarBurger.has(token)){
         return res.json(new Response(false, 'Токен уже удален!'));
@@ -23,10 +31,16 @@ function deactivateToken(req, res) {
 }
 
 function verifyToken(req, res, next) {
-    let token = '';
+    let token;
     try {
-        token = req.cookies?.auth_token;
-    } catch (e){}
+        if (req.cookies.auth_token) {
+            token = req.cookies.auth_token.replace('Bearer ', '');
+            console.log(req.cookies.auth_token);
+        } else if (req.cookies.session_token) {
+            console.log(req.cookies.session_token);
+            token = req.cookies.session_token.replace('Bearer ', '');
+        }
+    } catch (e) {}
 
     if (!token) {
         return res.status(401).json(new Response(false, 'Отсутствует токен авторизации'));
@@ -57,10 +71,29 @@ function verifyLogin(req, res, next) {
     });
 }
 
+async function createSession(req, res) {
+    const sessionData = {
+        sessionId: generateRandomSessionId()
+    };
+    const sessionToken = generateToken(sessionData);
+    res.cookie('session_token', sessionToken, { httpOnly: true, maxAge: 3600000 });
+    res.json(new Response(true, 'Сеанс создан'));
+}
+
+function generateRandomSessionId() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const sessionIdLength = 8;
+    let sessionId = '';
+    for (let i = 0; i < sessionIdLength; i++) {
+        sessionId += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return sessionId;
+}
 module.exports = {
     generateToken,
     verifyToken,
     deactivateToken,
-    verifyLogin
+    verifyLogin,
+    createSession
 }
 

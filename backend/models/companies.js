@@ -13,6 +13,24 @@ class Companies extends Model {
         this.founder_id = founder_id;
         return this.insert();
     }
+    async findByName(stringValue) {
+        const selectColumns = ['id', 'name'];
+        const query = `
+        SELECT ${selectColumns.join(', ')}
+        FROM companies
+        WHERE LOWER(name) LIKE $1
+        LIMIT 5
+    `;
+        const values = [`%${stringValue.toLowerCase()}%`];
+
+        try {
+            const { rows } = await client.query(query, values);
+            return rows;
+        } catch (error) {
+            console.error("Error finding by name part:", error);
+            return  false;
+        }
+    }
     async isFounder(founder_id, company_id){
         const query = `
         SELECT COUNT(*) 

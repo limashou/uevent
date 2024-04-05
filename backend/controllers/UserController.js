@@ -16,6 +16,7 @@ async function getAllUser(req, res){
             res.json(new Response(false,"incorrect page, page must be more or equals than 1, but your page " + page));
         }
     } catch (error) {
+        console.log(error);
         res.status(500).json(new Response(false, "Internal server error"));
     }
 }
@@ -46,27 +47,17 @@ async function updateUser(req, res) {
 async function getById(req,res){
     try {
         let user = new User();
+        // console.log(req);
         const { id } = req.params;
-        const usersById = await user.find({ id: id });
-        let filteredUsers = usersById.map(({ id, full_name }) => ({ id, full_name }));
-        if (usersById.length === 0){
-            return res.json(new Response(false, "not found"));
+        const userById = await user.find({ id: id });
+        let filteredUser;
+        console.log(req.senderData.id,id);
+        if(req.senderData.id === userById[0].id ) {
+            filteredUser = userById.map(({ id, email,full_name }) => ({ id, email,full_name }));
+        }else {
+            filteredUser = userById.map(({ id, full_name }) => ({ id, full_name }));
         }
-        res.json(new Response(true, "users by id", filteredUsers[0]));
-    } catch (error) {
-        res.status(500).json(new Response(false, "Internal server error"));
-    }
-}
-
-async function getSelf(req, res){
-    try {
-        let user = new User();
-        const userById = await user.find({ id: req.senderData.id });
-        let filteredUsers = userById.map(({ id, email,full_name }) => ({ id, email,full_name }));
-        if (userById.length === 0){
-            return res.json(new Response(false, "not found"));
-        }
-        res.json(new Response(true, 'Userdata', filteredUsers[0]));
+        res.json(new Response(true, "users by id", filteredUser));
     } catch (error) {
         res.status(500).json(new Response(false, "Internal server error"));
     }
@@ -143,5 +134,4 @@ module.exports = {
     userAvatar,
     updateUser,
     findByFullName,
-    getSelf
 }
