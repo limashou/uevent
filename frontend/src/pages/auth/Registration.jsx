@@ -4,28 +4,14 @@ import {Link as MuiLink} from "@mui/material";
 import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
+import CustomInputField from "../../components/CustomInputField";
+import {emailValidation, fullNameValidation, passwordValidation, usernameValidation} from "../../Utils/InputHandlers";
 
 function Registration() {
-    const [username, setUsername] = useState({
-        input: '',
-        helper: '',
-        error: false
-    });
-    const [password, setPassword] = useState({
-        input: '',
-        helper: '',
-        error: false
-    });
-    const [email, setEmail] = useState({
-        input: '',
-        helper: '',
-        error: false
-    });
-    const [fullName, setFullName] = useState({
-        input: '',
-        helper: '',
-        error: false
-    });
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+    const [fullName, setFullName] = useState('');
 
     const [inlineAlert, setInlineAlert] = useState({
         severity: 'success',
@@ -33,8 +19,7 @@ function Registration() {
     });
 
     async function checkEntities() {
-        if (username.error || password.error || email.error || fullName.error
-            || username.input === '' || password.input === '' || email.input === '' || fullName.input === '') {
+        if (username === '' || password === '' || email === '' || fullName === '') {
             setInlineAlert({
                 severity: 'warning',
                 message: 'Fill all fields correctly',
@@ -49,7 +34,7 @@ function Registration() {
         }
         try {
             const resp = await Requests.registration(
-                username.input, password.input, email.input, fullName.input
+                username, password, email, fullName
             );
             if (resp.state === true){
                 setInlineAlert({
@@ -75,137 +60,33 @@ function Registration() {
     return (
         <>
             <h1>Registration</h1>
-            <TextField
+            <CustomInputField
+                handleInput={usernameValidation}
+                onChangeChecked={(key, value) => setUsername(value)}
                 id="username"
                 label="Username"
-                variant="filled"
                 type="text"
-                error={username.error}
-                helperText={username.helper}
-                onBlur={(event) => {
-                    const inputValue = event.target.value;
-                    let isError = false;
-                    let helperText = '';
-
-                    if (inputValue.length < 3) {
-                        isError = true;
-                        helperText = 'Username should be at least 3 characters long';
-                    }
-                    if (!/^[a-zA-Z0-9]+$/.test(inputValue)) {
-                        isError = true;
-                        helperText = 'Username should contain only English letters and numbers';
-                    }
-
-                    setUsername({
-                        input: inputValue,
-                        error: isError,
-                        helper: helperText,
-                    });
-                }}
-                onChange={(event) => {
-                    setUsername({
-                        input: event.target.value,
-                        error: false,
-                        helper: '',
-                    });
-                }}
             />
-            <TextField
+            <CustomInputField
+                handleInput={passwordValidation}
+                onChangeChecked={(ket, value) => setPassword(value)}
                 id="password"
                 label="Password"
-                variant="filled"
                 type="password"
-                error={password.error}
-                helperText={password.helper}
-                onBlur={(event) => {
-                    const inputValue = event.target.value;
-                    let isError = false;
-                    let helperText = '';
-
-                    if (inputValue.length < 6) {
-                        isError = true;
-                        helperText = 'Password should be at least 6 characters long';
-                    }
-                    else if (!/^[a-zA-Z0-9]+$/.test(inputValue)) {
-                        isError = true;
-                        helperText = 'Password should contain only English letters and numbers';
-                    }
-
-                    setPassword({
-                        input: inputValue,
-                        error: isError,
-                        helper: helperText,
-                    });
-                }}
-                onChange={(event) => {
-                    setPassword({
-                        input: event.target.value,
-                        error: false,
-                        helper: '',
-                    });
-                }}
             />
-            <TextField
+            <CustomInputField
+                handleInput={emailValidation}
+                onChangeChecked={(ket, value) => setEmail(value)}
                 id="email"
                 label="Email"
-                variant="filled"
                 type="email"
-                error={email.error}
-                helperText={email.helper}
-                onBlur={(event) => {
-                    const inputValue = event.target.value;
-                    let isError = false;
-                    let helperText = '';
-
-                    if (!/\S+@\S+\.\S+/.test(inputValue)) {
-                        isError = true;
-                        helperText = 'Please enter a valid email address';
-                    }
-
-                    setEmail({
-                        input: inputValue,
-                        error: isError,
-                        helper: helperText,
-                    });
-                }}
-                onChange={(event) => {
-                    const inputValue = event.target.value;
-                    setEmail({
-                        input: inputValue,
-                        error: false,
-                        helper: '',
-                    });
-                }}
             />
-            <TextField
+            <CustomInputField
+                handleInput={fullNameValidation}
+                onChangeChecked={(ket, value) => setFullName(value)}
                 id="fullName"
                 label="Full name"
-                variant="filled"
                 type="text"
-                error={fullName.error}
-                helperText={fullName.helper}
-                onBlur={(event) => {
-                    const inputValue = event.target.value;
-                    let isError = false;
-                    let helperText = '';
-
-                    if (inputValue.length < 1) {
-                        isError = true;
-                        helperText = 'Please enter your real name';
-                    }
-                    setFullName({
-                        input: inputValue,
-                        error: isError,
-                        helper: helperText,
-                    });
-                }}
-                onChange={(event) => {
-                    setFullName({
-                        input: event.target.value,
-                        error: false,
-                        helper: '',
-                    });
-                }}
             />
             {inlineAlert.message &&
                 <Alert severity={`${inlineAlert.severity}`}>

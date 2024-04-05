@@ -5,7 +5,8 @@ const upload = require('./multer');
 const token_controller = require('../controllers/TokenController');
 
 router.get('/all',user.getAllUser);
-router.get('/:id', user.getById)
+router.get('/me', token_controller.verifyToken, user.getSelf);
+router.get('/:id', user.getById);
 router.patch('/update', token_controller.verifyToken, user.updateUser);
 router.patch('/avatar', token_controller.verifyToken, upload.single('photo'), user.avatarUpload);
 router.get('/:user_id/avatar', user.userAvatar);

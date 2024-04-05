@@ -3,13 +3,11 @@ import {Link} from 'react-router-dom';
 import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
+import {emailValidation} from "../../Utils/InputHandlers";
+import CustomInputField from "../../components/CustomInputField";
 
 function PasswordRecovery() {
-    const [email, setEmail] = useState({
-        input: '',
-        helper: '',
-        error: false
-    });
+    const [email, setEmail] = useState('');
 
     const [inlineAlert, setInlineAlert] = useState({
         severity: 'success',
@@ -35,7 +33,7 @@ function PasswordRecovery() {
     };
 
     async function checkEntities() {
-        if (email.error || email.input === '') {
+        if (email === '') {
             setInlineAlert({
                 severity: 'warning',
                 message: 'Fill all fields correctly',
@@ -51,13 +49,12 @@ function PasswordRecovery() {
         }
         try {
             disableButtonFor60Sec();
-            const resp = await Requests.passwordResetCreate(email.input);
+            const resp = await Requests.passwordResetCreate(email);
             if (resp.state === true){
                 setInlineAlert({
                     severity: 'success',
                     message: 'Recover link was send to your email',
                 });
-                // window.location.href = '/profile';
             }
             else {
                 setInlineAlert({
@@ -76,40 +73,15 @@ function PasswordRecovery() {
     return (
         <>
             <h1>Password recovery</h1>
-            <TextField
+            <CustomInputField
+                handleInput={emailValidation}
+                onChangeChecked={(ket, value) => setEmail(value)}
                 id="email"
                 label="Email"
-                variant="filled"
                 type="email"
-                error={email.error}
-                helperText={email.helper}
-                onBlur={(event) => {
-                    const inputValue = event.target.value;
-                    let isError = false;
-                    let helperText = '';
-
-                    if (!/\S+@\S+\.\S+/.test(inputValue)) {
-                        isError = true;
-                        helperText = 'Please enter a valid email address';
-                    }
-
-                    setEmail({
-                        input: inputValue,
-                        error: isError,
-                        helper: helperText,
-                    });
-                }}
-                onChange={(event) => {
-                    const inputValue = event.target.value;
-                    setEmail({
-                        input: inputValue,
-                        error: false,
-                        helper: '',
-                    });
-                }}
             />
             {inlineAlert.message &&
-                <Alert severity={`${inlineAlert.severity}`}>
+                <Alert severity={inlineAlert.severity}>
                     {inlineAlert.message}
                 </Alert>
             }

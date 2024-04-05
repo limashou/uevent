@@ -4,20 +4,14 @@ import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
 import {useParams} from "react-router-dom";
+import CustomInputField from "../../components/CustomInputField";
+import {passwordValidation} from "../../Utils/InputHandlers";
 
 function PasswordRecovery() {
     const { token } = useParams();
 
-    const [password, setPassword] = useState({
-        input: '',
-        helper: '',
-        error: false
-    });
-    const [passwordConfirm, setPasswordConfirm] = useState({
-        input: '',
-        helper: '',
-        error: false
-    });
+    const [password, setPassword] = useState('');
+    const [passwordConfirm, setPasswordConfirm] = useState('');
 
     const [inlineAlert, setInlineAlert] = useState({
         severity: 'success',
@@ -27,7 +21,7 @@ function PasswordRecovery() {
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
     async function checkEntities() {
-        if (password.error || passwordConfirm.error || password.input === '' || passwordConfirm.input === '') {
+        if (password === '' || passwordConfirm === '') {
             setInlineAlert({
                 severity: 'warning',
                 message: 'Fill all fields correctly',
@@ -42,13 +36,12 @@ function PasswordRecovery() {
             return;
         }
         try {
-            const resp = await Requests.passwordResetConfirm(token, password.input);
+            const resp = await Requests.passwordResetConfirm(token, password);
             if (resp.state === true){
                 setInlineAlert({
                     severity: 'success',
-                    message: 'Recover link was send to your email',
+                    message: 'Password was successfully changed',
                 });
-                // window.location.href = '/profile';
             }
             else {
                 setInlineAlert({
@@ -68,82 +61,22 @@ function PasswordRecovery() {
     return (
         <>
             <h1>Enter new password</h1>
-            <TextField
+            <CustomInputField
+                handleInput={passwordValidation}
+                onChangeChecked={(key, value) => setPassword(value)}
                 id="password"
                 label="Password"
-                variant="filled"
                 type="password"
-                error={password.error}
-                helperText={password.helper}
-                onBlur={(event) => {
-                    const inputValue = event.target.value;
-                    let isError = false;
-                    let helperText = '';
-
-                    if (inputValue.length < 6) {
-                        isError = true;
-                        helperText = 'Password should be at least 6 characters long';
-                    }
-                    else if (!/^[a-zA-Z0-9]+$/.test(inputValue)) {
-                        isError = true;
-                        helperText = 'Password should contain only English letters and numbers';
-                    }
-
-                    setPassword({
-                        input: inputValue,
-                        error: isError,
-                        helper: helperText,
-                    });
-                }}
-                onChange={(event) => {
-                    setPassword({
-                        input: event.target.value,
-                        error: false,
-                        helper: '',
-                    });
-                }}
             />
-            <TextField
+            <CustomInputField
+                handleInput={passwordValidation}
+                onChangeChecked={(key, value) => setPasswordConfirm(value)}
                 id="passwordConfirm"
-                label="Password confirmation"
-                variant="filled"
+                label="Password confirm"
                 type="password"
-                error={passwordConfirm.error}
-                helperText={passwordConfirm.helper}
-                onBlur={(event) => {
-                    const inputValue = event.target.value;
-                    let isError = false;
-                    let helperText = '';
-
-                    if (inputValue.length < 6) {
-                        isError = true;
-                        helperText = 'Password should be at least 6 characters long';
-                    }
-                    else if (!/^[a-zA-Z0-9]+$/.test(inputValue)) {
-                        isError = true;
-                        helperText = 'Password should contain only English letters and numbers';
-                    }
-                    else if (password.input !== passwordConfirm.input) {
-                        isError = true;
-                        helperText = 'Passwords different'
-                    }
-
-                    setPasswordConfirm({
-                        input: inputValue,
-                        error: isError,
-                        helper: helperText,
-                    });
-                }}
-                onChange={(event) => {
-                    setPasswordConfirm({
-                        input: event.target.value,
-                        error: false,
-                        helper: '',
-                    });
-                }}
             />
             {inlineAlert.message &&
-                <Alert severity={`${inlineAlert.severity}`}>
+                <Alert severity={inlineAlert.severity}>
                     {inlineAlert.message}
                 </Alert>
             }

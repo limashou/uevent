@@ -1,4 +1,5 @@
 import axios from "axios";
+import {logout} from "../Utils/Utils";
 
 const ip = new URL(window.location.origin).hostname;
 const domain = `http://${ip}:3001/api`;
@@ -11,6 +12,18 @@ const axiosInstance = axios.create({
     },
     withCredentials: true
 });
+
+axiosInstance.interceptors.response.use(
+    response => {
+        return response;
+    },
+    async error => {
+        if (error.response.status === 401) {
+            await logout();
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default class Requests {
     // AUTH
@@ -69,14 +82,12 @@ export default class Requests {
             axiosInstance.get(`/users/${user_id}`);
         return resp.data;
     }
-    static async avatarUpload(file, account_id, token){
+    static async avatarUpload(file){
         const data = new FormData();
         data.append('photo', file);
         const config = {
             headers: {
                 'Content-Type': 'multipart/form-data',
-                'account_id': account_id,
-                'Authorization': `Bearer ${token}`
             }
         };
         return await
@@ -95,17 +106,9 @@ export default class Requests {
         const resp = await axiosInstance.post(`/user/findBy`, body, config);
         return resp.data;
     }
-    static async edit_user(edited_data, user_id, token){
-        let obj = {
-            data: edited_data,
-        };
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        };
+    static async edit_user(edited_data){
         const resp = await
-            axiosInstance.patch(`/users/${user_id}`, obj, config);
+            axiosInstance.patch(`/users/update`, edited_data);
         return resp.data;
     }
     static async delete_user(user_id){

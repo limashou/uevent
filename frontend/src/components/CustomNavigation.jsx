@@ -1,4 +1,3 @@
-import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -10,33 +9,26 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import Requests from "../api/Requests";
-import {deleteAllCookies} from "../Utils";
+import {Link} from "react-router-dom";
+import {useContext, useState} from "react";
+import {UserContext} from "../pages/users/UserLayout";
+import {logout} from "../Utils/Utils";
 
 const pages = ['Events', '...2', '...3'];
-const settings = ['Profile', 'Logout'];
-
-const logout = async () => {
-    localStorage.removeItem('user_id');
-    deleteAllCookies();
-    await Requests.logout();
-    window.location.href = '/auth/login';
-}
-
-const myProfile = () => {
-  window.location.href = '/users/me';
-}
+const settings = [
+    {to: '/users/me', text: 'Profile'},
+    {to: '/users/me/settings', text: 'Settings'},
+];
 
 function CustomNavigation() {
-    const [anchorElUser, setAnchorElUser] = React.useState(null);
+    const [anchorElUser, setAnchorElUser] = useState(null);
+    const [userData] = useContext(UserContext) || [{}];
+
     const handleOpenUserMenu = (event) => {
-        console.log('handleOpenUserMenu');
         setAnchorElUser(event.currentTarget);
     };
 
     const handleCloseUserMenu = () => {
-        console.log('handleCloseUserMenu');
-
         setAnchorElUser(null);
     };
 
@@ -78,7 +70,7 @@ function CustomNavigation() {
                             <Box sx={{ flexGrow: 0 }}>
                                 <Tooltip title="Open settings">
                                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                        <Avatar alt="NN" src={Requests.get_img_link(localStorage.getItem('user_id'))} />
+                                        <Avatar alt="NN" src={userData.avatar} />
                                     </IconButton>
                                 </Tooltip>
                                 <Menu
@@ -99,17 +91,19 @@ function CustomNavigation() {
                                 >
                                     {settings.map((setting) => (
                                         <MenuItem
-                                            key={setting}
-                                            onClick={async () => {
-                                                if (setting === 'Logout')
-                                                    logout();
-                                                if (setting === 'Profile')
-                                                    myProfile();
-                                                handleCloseUserMenu();
-                                            }}>
-                                            <Typography textAlign="center">{setting}</Typography>
+                                            key={setting.to}
+                                            onClick={handleCloseUserMenu}>
+                                            <Link to={setting.to}>{setting.text}</Link>
                                         </MenuItem>
                                     ))}
+                                    <MenuItem
+                                        key={'logout'}
+                                        onClick={() => {
+                                            logout();
+                                            handleCloseUserMenu();
+                                        }}>
+                                        <Typography textAlign="center">Logout</Typography>
+                                    </MenuItem>
                                 </Menu>
                             </Box>
                         </div>

@@ -3,25 +3,19 @@ import {Link} from 'react-router-dom';
 import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
+import {passwordValidation, usernameValidation} from "../../Utils/InputHandlers";
+import CustomInputField from "../../components/CustomInputField";
 
 function Login() {
-    const [username, setUsername] = useState({
-        input: '',
-        helper: '',
-        error: false
-    });
-    const [password, setPassword] = useState({
-        input: '',
-        helper: '',
-        error: false
-    });
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [inlineAlert, setInlineAlert] = useState({
         severity: 'success',
         message: null,
     });
 
     async function checkEntities() {
-        if (username.error || password.error || username.input === '' || password.input === '') {
+        if (username === '' || password === '') {
             setInlineAlert({
                 severity: 'warning',
                 message: 'Fill all fields correctly',
@@ -35,7 +29,7 @@ function Login() {
             return;
         }
         try {
-            const resp = await Requests.login(username.input, password.input);
+            const resp = await Requests.login(username, password);
             if (resp.state === true){
                 setInlineAlert({
                     severity: 'success',
@@ -61,75 +55,19 @@ function Login() {
     return (
         <>
             <h1>Login</h1>
-            <TextField
+            <CustomInputField
+                handleInput={usernameValidation}
+                onChangeChecked={(key, value) => setUsername(value)}
                 id="username"
                 label="Username"
-                variant="filled"
                 type="text"
-                error={username.error}
-                helperText={username.helper}
-                onBlur={(event) => {
-                    const inputValue = event.target.value;
-                    let isError = false;
-                    let helperText = '';
-
-                    if (inputValue.length < 3) {
-                        isError = true;
-                        helperText = 'Username should be at least 3 characters long';
-                    }
-                    if (!/^[a-zA-Z0-9]+$/.test(inputValue)) {
-                        isError = true;
-                        helperText = 'Username should contain only English letters and numbers';
-                    }
-
-                    setUsername({
-                        input: inputValue,
-                        error: isError,
-                        helper: helperText,
-                    });
-                }}
-                onChange={(event) => {
-                    setUsername({
-                        input: event.target.value,
-                        error: false,
-                        helper: '',
-                    });
-                }}
             />
-            <TextField
+            <CustomInputField
+                handleInput={passwordValidation}
+                onChangeChecked={(ket, value) => setPassword(value)}
                 id="password"
                 label="Password"
-                variant="filled"
                 type="password"
-                error={password.error}
-                helperText={password.helper}
-                onBlur={(event) => {
-                    const inputValue = event.target.value;
-                    let isError = false;
-                    let helperText = '';
-
-                    if (inputValue.length < 6) {
-                        isError = true;
-                        helperText = 'Password should be at least 6 characters long';
-                    }
-                    else if (!/^[a-zA-Z0-9]+$/.test(inputValue)) {
-                        isError = true;
-                        helperText = 'Password should contain only English letters and numbers';
-                    }
-
-                    setPassword({
-                        input: inputValue,
-                        error: isError,
-                        helper: helperText,
-                    });
-                }}
-                onChange={(event) => {
-                    setPassword({
-                        input: event.target.value,
-                        error: false,
-                        helper: '',
-                    });
-                }}
             />
             {inlineAlert.message &&
                 <Alert severity={`${inlineAlert.severity}`}>

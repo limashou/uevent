@@ -1,3 +1,5 @@
+import Requests from "../api/Requests";
+
 export function hexToRgba(hex, alpha = 1) {
     const hexColor = hex.replace(/^#/, '');
     const bigint = parseInt(hexColor, 16);
@@ -20,4 +22,11 @@ export function deleteAllCookies() {
         // Устанавливаем срок действия куки в прошлое, чтобы удалить его
         document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     });
+}
+
+export async function logout(){
+    localStorage.removeItem('user_id');
+    deleteAllCookies();
+    await Requests.logout();
+    window.location.href = '/auth/login';
 }

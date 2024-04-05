@@ -1,10 +1,11 @@
-import { lazy } from "react";
+import {lazy} from "react";
 import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material";
 
 import AuthLayout from "./pages/auth/AuthLayout";
 import UserLayout from "./pages/users/UserLayout";
 import Profile from "./pages/users/Profile";
+import ProfileSettings from "./pages/users/ProfileSettings";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registration = lazy(() => import("./pages/auth/Registration"));
@@ -30,7 +31,6 @@ function App() {
             },
         },
     });
-
     const router = createBrowserRouter(
         [
             { path: "/", element: <Navigate to="auth" /> },
@@ -48,7 +48,14 @@ function App() {
                 path: "users",
                 element: <UserLayout />,
                 children: [
-                    { path: ":user_id", element: <Profile /> },
+                    {
+                        path: "me/settings",
+                        element: <ProfileSettings />
+                    },
+                    {
+                        path: ":user_id",
+                        element: <Profile />
+                    }
                 ]
             },
             { path: "*", element: <Navigate to="/auth/login" /> }

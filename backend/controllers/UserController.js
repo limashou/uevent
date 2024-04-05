@@ -21,7 +21,7 @@ async function getAllUser(req, res){
 }
 
 async function updateUser(req, res) {
-    const { old_password,password, email, full_name } = req.body;
+    const { old_password, password, email, full_name } = req.body;
     const user = new User();
     try {
         const usersFound = await user.find({ id: req.senderData.id });
@@ -47,17 +47,26 @@ async function getById(req,res){
     try {
         let user = new User();
         const { id } = req.params;
-        const userById = await user.find({ id: id });
-        let filteredUser;
-        if(req.senderData.id === id) {
-            filteredUser = userById.map(({ id, email,full_name }) => ({ id, email,full_name }));
-        }else {
-            filteredUser = userById.map(({ id, full_name }) => ({ id, full_name }));
+        const usersById = await user.find({ id: id });
+        let filteredUsers = usersById.map(({ id, full_name }) => ({ id, full_name }));
+        if (usersById.length === 0){
+            return res.json(new Response(false, "not found"));
         }
+        res.json(new Response(true, "users by id", filteredUsers[0]));
+    } catch (error) {
+        res.status(500).json(new Response(false, "Internal server error"));
+    }
+}
+
+async function getSelf(req, res){
+    try {
+        let user = new User();
+        const userById = await user.find({ id: req.senderData.id });
+        let filteredUsers = userById.map(({ id, email,full_name }) => ({ id, email,full_name }));
         if (userById.length === 0){
             return res.json(new Response(false, "not found"));
         }
-        res.json(new Response(true, "users by id", filteredUser));
+        res.json(new Response(true, 'Userdata', filteredUsers[0]));
     } catch (error) {
         res.status(500).json(new Response(false, "Internal server error"));
     }
@@ -100,18 +109,13 @@ async function avatarUpload(req, res) {
         return res.json(new Response(false, 'Ошибка загрузки файла!'));
     }
     const photo = req.file;
-    const account_id = Number.parseInt(req.headers.account_id);
-    if (!account_id)
-        return res.json(new Response(false, 'Не указан id аккаунта!'));
-    if (account_id !== req.senderData.id && req.senderData.role !== 'admin')
-        return res.json(new Response(false, 'Access denied!'));
+    const account_id = req.senderData.id;
     const filename = photo.filename.toString().toLowerCase();
     if (filename.endsWith('.png') || filename.endsWith('.jpg') || filename.endsWith('.jpeg')){
         let user = new User();
         user.find({id: account_id}).then((results) => {
             let userdata = results[0];
             userdata.photo = photo.filename;
-            console.log(userdata);
             user.updateById(userdata).then(() => {
                 res.json(new Response(true, 'Фото успешно обновлено'));
             })
@@ -138,5 +142,6 @@ module.exports = {
     avatarUpload,
     userAvatar,
     updateUser,
-    findByFullName
+    findByFullName,
+    getSelf
 }

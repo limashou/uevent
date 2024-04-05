@@ -25,7 +25,7 @@ function deactivateToken(req, res) {
 function verifyToken(req, res, next) {
     let token = '';
     try {
-        token = req.headers.authorization.replaceAll('Bearer ', '');
+        token = req.cookies?.auth_token;
     } catch (e){}
 
     if (!token) {
