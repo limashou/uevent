@@ -25,6 +25,9 @@ async function updateUser(req, res) {
     const { old_password, password, email, full_name } = req.body;
     const user = new User();
     try {
+        if(Object.keys(req.body).length === 0) {
+            return res.json(new Response(false,"Empty body"));
+        }
         const usersFound = await user.find({ id: req.senderData.id });
         if (usersFound.length === 0) {
             return res.json(new Response(false, 'Пользователь не найден'));
