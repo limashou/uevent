@@ -9,7 +9,7 @@ async function createEvent(req,res){
         let event = new Events();
         const { company_id } = req.params;
         const {name, notification, description, date, format, theme} = req.body;
-        if (name === undefined || notification === undefined || date === undefined || format === undefined || theme === undefined) {
+        if (name === undefined || date === undefined || format === undefined || theme === undefined) {
             return res.json(new Response(false, "Some parameters are missing"));
         }
         if(!(await event.havePermission(company_id,req.senderData.id))) {
