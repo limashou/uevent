@@ -1,17 +1,14 @@
-import {Link, useParams} from "react-router-dom";
+// import {useParams} from "react-router-dom";
 import {useContext} from "react";
-import Requests from "../../api/Requests";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import Button from "@mui/material/Button";
-import {UserContext} from "./UserLayout";
+import {UserContext} from "../RootLayout";
 
 function Profile() {
-    const {user_id} = useParams();
-    const userProfileId = user_id === 'me' ?
-        parseInt(localStorage.getItem('user_id')) : parseInt(user_id);
+    // const {user_id} = useParams();
+    // const userProfileId = user_id === 'me' ?
+    //     parseInt(localStorage.getItem('user_id')) : parseInt(user_id);
 
     const [userData] = useContext(UserContext);
 
@@ -25,7 +22,8 @@ function Profile() {
             >
                 <Avatar
                     alt={userData.full_name}
-                    src={userData.avatar}
+                    // src={userData.avatar}
+                    src="https://mir-s3-cdn-cf.behance.net/project_modules/hd/5eeea355389655.59822ff824b72.gif"
                     sx={{ width: 100, height: 100 }}
                 />
                 <Typography variant="h3">

@@ -1,14 +1,14 @@
 import {useContext, useState} from "react";
-import { useDropzone, DropzoneOptions } from 'react-dropzone';
+import {useDropzone} from 'react-dropzone';
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import {UserContext} from "./UserLayout";
-import {Alert, TextField} from "@mui/material";
+import {Alert} from "@mui/material";
 import Requests from "../../api/Requests";
 import CustomInputField from "../../components/CustomInputField";
 import {emailValidation, fullNameValidation, passwordValidation} from "../../Utils/InputHandlers";
+import {UserContext} from "../RootLayout";
 
 function ProfileSettings() {
     const [userData, setUserData] = useContext(UserContext);
@@ -92,6 +92,10 @@ function ProfileSettings() {
 
             if (validFiles.length > 0) {
                 const file = acceptedFiles[0];
+                Requests.avatarUpload(file).then((resp) => {
+                    if (resp.state !== true)
+                        window.location.reload();
+                });
                 const reader = new FileReader();
                 reader.onload = () => {
                     setUserData({...userData, avatar: reader.result});
@@ -103,37 +107,20 @@ function ProfileSettings() {
 
     return (
         <>
-            <Box
-                gap={4}
-                p={2}
-            >
-                <Box
-                    {...getRootProps()}
-                    sx={{
-                        textAlign: 'center',
-                        mt: 2,
-                        border: '2px dashed',
-                        padding: '10px',
-                        borderRadius: '8px',
-                    }}
-                >
+            <Box gap={4} p={1}>
+                <Box {...getRootProps()} sx={{ textAlign: 'center', mt: 2, border: '2px dashed',
+                    padding: '10px', borderRadius: '8px', cursor: 'copy'}}>
                     <input {...getInputProps()} />
                     <Avatar
-                        alt="Uploaded Avatar"
-                        variant="square"
+                        variant="rounded"
                         src={userData.avatar}
-                        sx={{ width: 100, height: 100, margin: 'auto' }}
-                    />
-                    <Typography variant="body1" gutterBottom>
-                        Drag & drop a photo here, or click to select a photo
-                    </Typography>
+                        sx={{ width: 500, height: 'auto', minHeight: 100, margin: 'auto' }}
+                    >Drop avatar here</Avatar>
+                    {/*<Typography variant="body1" gutterBottom>*/}
+                    {/*    Drag & drop a photo here, or click to select a photo*/}
+                    {/*</Typography>*/}
                 </Box>
-                <Box sx={{
-                    display: 'grid',
-                    gap: 1,
-                    textAlign: 'center',
-                    mt: 2,
-                }} >
+                <Box sx={{ display: 'grid', gap: 1, textAlign: 'center', mt: 2,}} >
                     <CustomInputField
                         defaultValue={userData.full_name}
                         handleInput={fullNameValidation}
@@ -175,7 +162,7 @@ function ProfileSettings() {
                         type="password"
                     />
                     {inlineAlert.message &&
-                        <Alert severity={`${inlineAlert.severity}`}>
+                        <Alert severity={inlineAlert.severity}>
                             {inlineAlert.message}
                         </Alert>
                     }

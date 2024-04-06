@@ -5,14 +5,15 @@ const token_controller = require('../controllers/TokenController');
 const {uploadCompany, uploadEvent, uploadNews} = require("./multer");
 
 //company
+router.get('/', token_controller.verifyToken, company_controller.allCompanies);
 router.post('/create', token_controller.verifyToken, company_controller.createCompanies);
-router.patch('/edit', token_controller.verifyToken, company_controller.editCompany);
-router.delete('/delete/:id', token_controller.verifyToken, company_controller.deleteCompany);
+router.patch(':company_id/edit', token_controller.verifyToken, company_controller.editCompany);
+router.delete('/:company_id/delete', token_controller.verifyToken, company_controller.deleteCompany);
 router.patch('/logo', token_controller.verifyToken, uploadCompany.single('photo'), company_controller.companyLogoUpload);
+router.get('/:company_id',token_controller.verifyToken, company_controller.getById);
 router.get('/:company_id/logo',token_controller.verifyToken ,company_controller.companyLogo);
-router.get('/all', token_controller.verifyToken, company_controller.allCompanies);
 router.get('/byFounder/:founder_id',token_controller.verifyToken ,company_controller.companiesByFounder);
-router.post('/search', token_controller.verifyToken, company_controller.searchByCompanyName);
+// router.post('/search', token_controller.verifyToken, company_controller.searchByCompanyName);
 //member
 router.post('/member/invite', token_controller.verifyToken, company_controller.addMember);
 router.post('/member/accept-invitation/:invitationCode', token_controller.verifyToken, company_controller.acceptMember);

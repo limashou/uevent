@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { TextField } from "@mui/material";
 
-function CustomInputField({ defaultValue = '', handleInput, onChangeChecked, ...otherProps }) {
+function CustomInputField({
+                              defaultValue = '',
+                              handleInput = (event) => {return { input: event.target.value, helper: '', error: false}},
+                              onChangeChecked,
+                              ...otherProps
+}) {
     const [fields, setFields] = useState({
         input: defaultValue,
         helper: '',

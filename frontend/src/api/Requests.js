@@ -58,25 +58,11 @@ export default class Requests {
             axiosInstance.post(`/auth/password-reset/${confirm_token}`, obj);
         return resp.data;
     }
-
     static async logout(){
         return {state: true, message: 'success'};
     }
 
     // USER
-    static async users_all(page = 1, order = 'ASC', field = 'id'){
-        const config = {
-            headers: {
-                'field': field,
-                'order': order,
-                'page': page
-            }
-        };
-        console.log(config.headers);
-        const resp = await
-            axiosInstance.get(`/users/`, config);
-        return resp.data;
-    }
     static async user_by_id(user_id){
         const resp = await
             axiosInstance.get(`/users/${user_id}`);
@@ -93,7 +79,7 @@ export default class Requests {
         return await
             axiosInstance.patch(`/users/avatar`, data, config);
     }
-    static get_img_link(user_id){
+    static get_avatar_link(user_id){
         return `${domain}/users/${user_id}/avatar`;
     }
 
@@ -117,128 +103,34 @@ export default class Requests {
         return resp.data;
     }
 
-    // CALENDAR
-    static async allCalendars(token){
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        };
+    // COMPANIES
+    static get_company_logo_link(company_id){
+        return `${domain}/companies/${company_id}/logo`;
+    }
+    static async createCompany(data){
+        //{ name, email, location, description }
         const resp = await
-            axiosInstance.get(`/calendar/all`, config);
+            axiosInstance.post('/companies/create', data);
         return resp.data;
     }
-    static async calendarById(token, calendarId) {
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
+    static async allCompanies(page = 1, limit = 20, order = 'ASC', searchValue = '') {
+        const resp = await axiosInstance.get(
+            `/companies`,
+            {
+                params: {
+                    page: page,
+                    limit: limit,
+                    order: order,
+                    search: searchValue
+                }
             }
-        };
-        const resp = await
-            axiosInstance.get(`/calendar/${calendarId}`, config);
-        return resp.data;
-    }
-    static async createCalendar(token) {
-        //title, description, color
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-        };
-        const resp = await axiosInstance.post('/calendar/create', {
-            title: 'Новий календар'
-        }, config);
-        return resp.data;
-    }
-    static async editCalendar(token, editedFields){
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-        };
-        const resp = await axiosInstance.patch(`/calendar/update`, editedFields, config);
-        return resp.data;
-    }
-    static async usersByCalendar(token, calendarId){
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-        };
-        const resp = await axiosInstance.get(`/calendar/users/${calendarId}`, config);
-        return resp.data;
-    }
-    static async deleteCalendar(token, calendarId){
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-        };
-        const resp = await axiosInstance.delete(`/calendar/${calendarId}/delete`, config);
-        return resp.data;
-    }
-
-    static async shareCalendar(token, data) {
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-        };
-        const resp = await axiosInstance.post(`/calendar/invite`, data, config);
-        return resp.data;
-    }
-
-    static async acceptInvitation(invitationToken) {
-        const resp = await axiosInstance.post(`/calendar/accept-invitation/${invitationToken}`);
-        return resp.data;
-    }
-
-    static async updateRole(token, data) {
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-        };
-        const resp = await axiosInstance.patch('/calendar/update_role', data, config);
-        return resp.data;
-    }
-
-    // EVENTS
-    static async createEvent(token, data) {
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-        };
-        const resp = await axiosInstance.post('/events/new_events', data, config);
-        return resp.data;
-    }
-
-    static async editEvent(token, data) {
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-        };
-        const resp = await axiosInstance.patch('/events/edit', data, config);
-        return resp.data;
-    }
-
-    static async deleteEvent(token, event_id) {
-        const resp = await axiosInstance.delete(`/events/${event_id}/delete`);
-        return resp.data;
-    }
-
-    UTILS
-    static async getMyLocation(){
-        const resp = await axiosInstance.get('http://ip-api.com/json');
-        return resp.data;
-    }
-
-    static async getNationalHolidays(year, countryCode) {
-        const resp = await axios.get(
-            `https://date.nager.at/api/v2/publicholidays/${year}/${countryCode}`
         );
         return resp.data;
     }
+
+    static async companyById(company_id){
+        const resp = await axiosInstance.get(`/companies/${company_id}`);
+        return resp.data;
+    }
+
 }

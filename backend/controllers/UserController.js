@@ -52,15 +52,15 @@ async function getById(req,res){
         let user = new User();
         // console.log(req);
         const { id } = req.params;
-        const userById = await user.find({ id: id });
+        const cId = id === 'me' ? req.senderData.id : id;
+        const userById = await user.find({ id: cId });
         let filteredUser;
-        console.log(req.senderData.id,id);
         if(req.senderData.id === userById[0].id ) {
             filteredUser = userById.map(({ id, email,full_name }) => ({ id, email,full_name }));
         }else {
             filteredUser = userById.map(({ id, full_name }) => ({ id, full_name }));
         }
-        res.json(new Response(true, "users by id", filteredUser));
+        res.json(new Response(true, "users by id", filteredUser[0]));
     } catch (error) {
         res.status(500).json(new Response(false, "Internal server error"));
     }
@@ -104,8 +104,8 @@ async function avatarUpload(req, res) {
     }
     const photo = req.file;
     const account_id = req.senderData.id;
-    const filename = photo.filename.toString().toLowerCase();
-    if (filename.endsWith('.png') || filename.endsWith('.jpg') || filename.endsWith('.jpeg')){
+    const mimetype = photo.mimetype;
+    if (['image/png', 'image/jpeg', 'image/jpg'].includes(mimetype)){
         let user = new User();
         user.find({id: account_id}).then((results) => {
             let userdata = results[0];

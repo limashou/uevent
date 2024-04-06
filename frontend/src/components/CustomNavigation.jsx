@@ -11,10 +11,13 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import {Link} from "react-router-dom";
 import {useContext, useState} from "react";
-import {UserContext} from "../pages/users/UserLayout";
 import {logout} from "../Utils/Utils";
+import {UserContext} from "../pages/RootLayout";
 
-const pages = ['Events', '...2', '...3'];
+const pages = [
+    {to: '/users/me', text: 'Events'},
+    {to: '/companies', text: 'Companies'},
+];
 const settings = [
     {to: '/users/me', text: 'Profile'},
     {to: '/users/me/settings', text: 'Settings'},
@@ -47,7 +50,7 @@ function CustomNavigation() {
                             fontFamily: 'monospace',
                             fontWeight: 700,
                             letterSpacing: '.3rem',
-                            color: 'inherit',
+                            // color: 'inherit',
                             textDecoration: 'none',
                         }}
                     >
@@ -56,12 +59,13 @@ function CustomNavigation() {
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
-                            <Button
-                                key={page}
-                                sx={{ my: 2, color: 'white', display: 'block' }}
-                            >
-                                {page}
-                            </Button>
+                            <Link to={page.to}>
+                                <Button key={page.text}
+                                        // sx={{ my: 2, color: 'white', display: 'block' }}
+                                >
+                                    {page.text}
+                                </Button>
+                            </Link>
                         ))}
                     </Box>
 
@@ -90,11 +94,13 @@ function CustomNavigation() {
                                     onClose={handleCloseUserMenu}
                                 >
                                     {settings.map((setting) => (
-                                        <MenuItem
-                                            key={setting.to}
-                                            onClick={handleCloseUserMenu}>
-                                            <Link to={setting.to}>{setting.text}</Link>
-                                        </MenuItem>
+                                        <Link to={setting.to}>
+                                            <MenuItem
+                                                key={setting.to}
+                                                onClick={handleCloseUserMenu}>
+                                                {setting.text}
+                                            </MenuItem>
+                                        </Link>
                                     ))}
                                     <MenuItem
                                         key={'logout'}

@@ -1,9 +1,8 @@
-import {Alert, TextField} from "@mui/material";
-import {Link} from 'react-router-dom';
+import {Alert} from "@mui/material";
+import {Link, useParams} from 'react-router-dom';
 import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
-import {useParams} from "react-router-dom";
 import CustomInputField from "../../components/CustomInputField";
 import {passwordValidation} from "../../Utils/InputHandlers";
 

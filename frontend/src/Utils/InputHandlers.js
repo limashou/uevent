@@ -70,3 +70,19 @@ export const fullNameValidation = (event) => {
         helper: helperText,
     }
 }
+export const companyNameValidation = (event) => {
+    const inputValue = event.target.value;
+    let isError = false;
+    let helperText = '';
+
+    if (inputValue.length < 3) {
+        isError = true;
+        helperText = 'The company name must be at least 3 characters long';
+    }
+
+    return {
+        input: inputValue,
+        error: isError,
+        helper: helperText,
+    }
+}

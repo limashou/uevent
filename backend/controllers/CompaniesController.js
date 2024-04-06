@@ -8,6 +8,7 @@ const {generateToken} = require("./TokenController");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
+const {NOT_FOUND_ERROR} = require("./Errors");
 let SendDataForMember = { }
 /** /=======================/ nodemailer transporter /=======================/ */
 
@@ -42,6 +43,20 @@ async function createCompanies(req, res) {
         }
         const result = await company.create(name, email, location, req.senderData.id, description);
         res.json(new Response(true, "Company created successfully", result));
+    } catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
+
+async function getById(req, res) {
+    try {
+        let company = new Companies();
+        const { company_id } = req.params;
+        const result = await company.find({id: company_id});
+        if (result.length === 0)
+            return NOT_FOUND_ERROR(res, 'company');
+        res.json(new Response(true, null, result[0]));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -83,19 +98,33 @@ async function deleteCompany(req,res) {
     }
 }
 
-async function allCompanies(req,res) {
+async function allCompanies(req, res) {
     try {
         const companies = new Companies();
-        const {page,limit, order} = req.query;
-        if(page >= 1 ) {
-            if(order === undefined){
-                const allCompanies = await companies.find_with_sort({page: page, size: limit});
-                res.json(new Response(true, "All companies by page" + page, allCompanies));
-            }else {
-                const allCompanies = await companies.find_with_sort({page: page, size: limit, order: order, field: "name" });
-                res.json(new Response(true, "All companies by page" + page, allCompanies));
-            }
+        const {
+            page = 1,
+            limit = 20,
+            field = 'name',
+            order = 'ASC',
+            search = ''
+        } = req.query;
 
+        const filters = [];
+        if (search.trim() !== '')
+            filters.push(`LOWER(name) LIKE '%${search.toLowerCase()}%'`);
+
+        if(page >= 1 ) {
+            const allCompanies = await companies.find_with_sort(
+                {
+                    page: page,
+                    size: limit,
+                    order: order,
+                    field: field,
+                    join: 'SELECT companies.*, users.full_name as founder_name FROM companies JOIN users ON companies.founder_id = users.id',
+                    filters: filters
+                }
+            );
+            res.json(new Response(true, "All companies by page " + page, allCompanies));
         }else {
             res.json(new Response(false,"incorrect page, page must be more or equals than 1, but your page " + page));
         }
@@ -431,6 +460,7 @@ async function companyNewsPosterUpload(req, res) {
 module.exports = {
     // company
     createCompanies,
+    getById,
     editCompany,
     deleteCompany,
     allCompanies,

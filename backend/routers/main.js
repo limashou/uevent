@@ -7,6 +7,6 @@ const router = new Router();
 
 router.post('/generate-session',token.createSession);
 router.use('/api/auth', authentication);
-router.use('/api/company', companies);
+router.use('/api/companies', companies);
 router.use('/api/users', users);
 module.exports = router;

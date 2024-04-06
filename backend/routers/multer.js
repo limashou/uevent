@@ -8,7 +8,6 @@ const storageUser = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const account_id = req.senderData.id;
-
         if (account_id) {
             const newFilename = `user_avatar_${account_id}${path.extname(file.originalname)}`;
             cb(null, newFilename);
@@ -62,10 +61,11 @@ const storageNews = multer.diskStorage({
         }
     }
 });
-const uploadUser = multer({ storageUser });
-const uploadCompany = multer({ storageCompany });
-const uploadEvent = multer({ storageEvent });
-const uploadNews = multer( { storageNews });
+
+const uploadUser = multer({ storage: storageUser });
+const uploadCompany = multer({ storage: storageCompany });
+const uploadEvent = multer({ storage: storageEvent });
+const uploadNews = multer( { storage: storageNews });
 
 module.exports = {
     uploadUser,

@@ -1,8 +1,10 @@
 import {Outlet} from "react-router-dom";
 import {Suspense} from "react";
+import CustomNavigation from "../../components/CustomNavigation";
 import {Skeleton} from "@mui/material";
 
-function UserLayout() {
+function CompaniesLayout() {
+
     return (
         <Suspense fallback={<Skeleton variant="rectangular" width={210} height={118} />}>
             <Outlet />
@@ -10,4 +12,4 @@ function UserLayout() {
     );
 }
 
-export default UserLayout;
+export default CompaniesLayout;

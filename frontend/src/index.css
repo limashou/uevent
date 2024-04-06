@@ -8,6 +8,7 @@ body {
 
 a {
   color: #00f56a;
+  text-decoration: none;
 }
 
 * {
@@ -35,10 +36,29 @@ a {
   align-content: center;
   align-items: center;
   justify-content: center;
+  min-width: 800px;
+}
+
+.few-blocks {
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+  grid-column-gap: 8px;
+  padding: 20px;
+  text-align: center;
+  justify-content: center;
+  min-width: 800px;
+  width: 100%;
+}
+
+.few-blocks > div {
+  padding: 20px;
+  height: max-content;
+  /*height: 100%;*/
+  /*background-color: var(--background-color-objects);*/
 }
 
 .center-block > * {
-  width: 500px;
+  width: 100%;
 }
 
 :root {
