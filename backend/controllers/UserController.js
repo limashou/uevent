@@ -30,7 +30,7 @@ async function updateUser(req, res) {
             return res.json(new Response(false, 'Пользователь не найден'));
         }
         let updatedFields = { email, full_name };
-        if (password !== undefined) {
+        if (password !== undefined && old_password !== undefined) {
             if(!(await bcrypt.compare(old_password, usersFound[0].password))) {
                 return res.json(new Response(false,"incorrect password"));
             }

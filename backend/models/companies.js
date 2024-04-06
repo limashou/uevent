@@ -14,10 +14,11 @@ class Companies extends Model {
         return this.insert();
     }
     async findByName(stringValue) {
-        const selectColumns = ['id', 'name'];
+        const selectColumns = ['companies.id', 'companies.name', 'companies.email','users.full_name'];
         const query = `
         SELECT ${selectColumns.join(', ')}
         FROM companies
+        JOIN users ON companies.founder_id = users.id
         WHERE LOWER(name) LIKE $1
         LIMIT 5
     `;

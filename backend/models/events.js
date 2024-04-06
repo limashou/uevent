@@ -1,19 +1,20 @@
 const Model = require("./model");
 const client = require("../db");
 
-class Company_news extends Model {
-
+class Events extends Model {
     constructor() {
-        super('company_news');
+        super('events');
     }
-
-    crate(company_id,title,content) {
+    create(name, notification, description, date,format, theme, company_id) {
+        this.name = name;
+        this.notification = notification;
+        this.description = description;
+        this.date = date;
+        this.format = format;
+        this.theme = theme;
         this.company_id = company_id;
-        this.title = title;
-        this.content = content;
-        return this.insert();
+        return this.insert()
     }
-
     async havePermission(company_id, user_id) {
         const query = `
         SELECT COUNT(*)
@@ -28,7 +29,7 @@ class Company_news extends Model {
             JOIN users u ON cm.member_id = u.id
             WHERE cm.company_id = $1 
             AND cm.member_id = $2
-            AND (cm.role = 'news_maker' OR cm.role = 'editor')
+            AND cm.role = 'editor'
         ) AS permissions;
     `;
         const values = [company_id, user_id];
@@ -42,4 +43,4 @@ class Company_news extends Model {
     }
 }
 
-module.exports = Company_news;
+module.exports = Events;

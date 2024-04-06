@@ -8,7 +8,7 @@ const {generateToken} = require("./TokenController");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
-const SendDataForMember = { }
+let SendDataForMember = { }
 /** /=======================/ nodemailer transporter /=======================/ */
 
 const transporter = nodemailer.createTransport({
@@ -19,6 +19,18 @@ const transporter = nodemailer.createTransport({
         pass: 'ljgw wsww hvod tkpz'
     }
 });
+
+/** /=======================/ generate code /=======================/ */
+
+function generateInvitationCode(length = 8) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let code = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        code += characters.charAt(randomIndex);
+    }
+    return code;
+}
 
 /** /=======================/company function /=======================/ */
 async function createCompanies(req, res) {
@@ -49,7 +61,7 @@ async function editCompany(req,res){
         }
         let updatedFields = { name, email, location, description };
         await company.updateById({ id: companyFound[0].id, ...updatedFields });
-        res.json(new Response(true, 'Данные пользователя успешно обновлены'));
+        res.json(new Response(true, 'Данные пользователя успешно обновлены', companyFound[0].id));
     } catch (error) {
         console.log(error);
         res.json(new Response(false,error.toString()))
@@ -80,7 +92,7 @@ async function allCompanies(req,res) {
                 const allCompanies = await companies.find_with_sort({page: page, size: limit});
                 res.json(new Response(true, "All companies by page" + page, allCompanies));
             }else {
-                const allCompanies = await companies.find_with_sort({page: page, size: limit, order: order, field: companies.name });
+                const allCompanies = await companies.find_with_sort({page: page, size: limit, order: order, field: "name" });
                 res.json(new Response(true, "All companies by page" + page, allCompanies));
             }
 
@@ -183,7 +195,6 @@ async function searchByCompanyName(req,res) {
 }
 
 /** /=======================/company member function /=======================/ */
-
 async function addMember(req,res){
     try {
         let user = new User();
@@ -196,7 +207,10 @@ async function addMember(req,res){
         if (!(await company.isFounder(req.senderData.id, company_id))) {
             return res.json(new Response(false, "deny permission "));
         }
-        const invitationCode = generateToken({user_id, company_id}, '36h');
+
+        const invitationCode = generateInvitationCode();
+        SendDataForMember[invitationCode] = { user_id, company_id };
+
         const companyFound = await company.find({id: company_id});
         if (companyFound.length !== 0) {
             const mailOptions = {
@@ -214,7 +228,7 @@ async function addMember(req,res){
                 }
             });
         } else {
-             res.json(new Response(false, "Not found company"));
+            res.json(new Response(false, "Not found company"));
         }
     } catch (error) {
         console.log(error);
@@ -224,25 +238,24 @@ async function addMember(req,res){
 
 async function acceptMember(req,res) {
     try {
-        const decodedToken = verify(req.params.token, 'secret key');
-        if(req.senderData.id !== decodedToken.user_id) {
+        const invitationCode = req.params.invitationCode;
+
+        if (!SendDataForMember[invitationCode]) {
+            return res.json(new Response(false,"Invalid invitation code"));
+        }
+        if (req.senderData.id !== SendDataForMember[invitationCode].user_id) {
             return res.json(new Response(false,"It's not your invitation"));
         }
-        let company_member  = new CompanyMember();
-        company_member.create(decodedToken.company_id,decodedToken.user_id)
-            .then((result) => {
-                company_member.find({ id: result })
-                    .then(() => {
-                        res.json(new Response(true, 'User successfully add'));
-                    });
-            }).catch((error) => {
-                res.json(new Response(false, error.toString()));
-        });
+        let company_member = new CompanyMember();
+        const result = await company_member.create(SendDataForMember[invitationCode].company_id, SendDataForMember[invitationCode].user_id);
+        delete SendDataForMember[invitationCode];
+        res.json(new Response(true, 'User successfully add', result));
     } catch (error) {
         console.log(error);
         res.json(new Response(false, error.toString()));
     }
 }
+
 
 async function ejectMember(req,res){
     try {

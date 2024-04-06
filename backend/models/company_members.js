@@ -3,7 +3,7 @@ const client = require("../db");
 
 class Company_members extends Model {
     constructor() {
-        super('company_member');
+        super('company_members');
     }
 
     create(company_id, member_id, role = 'worker') {

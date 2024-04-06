@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS companies(
     id SERIAL PRIMARY KEY,
     name VARCHAR(30) NOT NULL ,
     email VARCHAR(80) NOT NULL ,
-    location VARCHAR(80) NOT NULL ,
+    location VARCHAR(256) NOT NULL ,
     description TEXT,
     photo VARCHAR(256),
     founder_id INTEGER NOT NULL,
@@ -62,7 +62,7 @@ CREATE TYPE themes AS ENUM('business','politics','psychology');
 CREATE TABLE IF NOT EXISTS events(
     id SERIAL PRIMARY KEY,
     name VARCHAR(70) NOT NULL,
-    poster VARCHAR(256) NOT NULL,
+    poster VARCHAR(256),
     notification BOOLEAN DEFAULT FALSE,
     description TEXT,
     date TIMESTAMP,
@@ -137,3 +137,14 @@ GRANT INSERT ON TABLE companies TO mpoljatsky;
 --   AND available_tickets > 0;
 --
 -- COMMIT;
+--
+-- CREATE TABLE IF NOT EXISTS locations (
+--                                          id SERIAL PRIMARY KEY,
+--                                          street_address VARCHAR(255) NOT NULL,
+--                                          city VARCHAR(100) NOT NULL,
+--                                          state VARCHAR(100),
+--                                          country VARCHAR(100) NOT NULL,
+--                                          postal_code VARCHAR(20),
+--                                          latitude DECIMAL(10, 6),
+--                                          longitude DECIMAL(10, 6)
+-- );

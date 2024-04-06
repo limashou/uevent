@@ -35,9 +35,7 @@ function verifyToken(req, res, next) {
     try {
         if (req.cookies.auth_token) {
             token = req.cookies.auth_token.replace('Bearer ', '');
-            console.log(req.cookies.auth_token);
         } else if (req.cookies.session_token) {
-            console.log(req.cookies.session_token);
             token = req.cookies.session_token.replace('Bearer ', '');
         }
     } catch (e) {}
@@ -80,11 +78,10 @@ async function createSession(req, res) {
     res.json(new Response(true, 'Сеанс создан'));
 }
 
-function generateRandomSessionId() {
+function generateRandomSessionId(length = 8) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const sessionIdLength = 8;
     let sessionId = '';
-    for (let i = 0; i < sessionIdLength; i++) {
+    for (let i = 0; i < length; i++) {
         sessionId += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     return sessionId;
