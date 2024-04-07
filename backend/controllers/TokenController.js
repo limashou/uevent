@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Response = require('../models/response');
+const {generateCode} = require("./Helpers");
 const secretYaEby = 'secret key';
 const blackStarBurger = new Set();
 
@@ -71,21 +72,13 @@ function verifyLogin(req, res, next) {
 
 async function createSession(req, res) {
     const sessionData = {
-        sessionId: generateRandomSessionId()
+        sessionId: generateCode()
     };
     const sessionToken = generateToken(sessionData);
     res.cookie('session_token', sessionToken, { httpOnly: true, maxAge: 3600000 });
     res.json(new Response(true, 'Сеанс создан'));
 }
 
-function generateRandomSessionId(length = 8) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let sessionId = '';
-    for (let i = 0; i < length; i++) {
-        sessionId += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return sessionId;
-}
 module.exports = {
     generateToken,
     verifyToken,

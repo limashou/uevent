@@ -1,19 +1,10 @@
 const User = require('../models/users');
 const Response = require('../models/response');
 const token_controller = require('../controllers/TokenController');
-const nodemailer = require("nodemailer");
+const {generateCode, transporter} = require("./Helpers");
 const ERRORS = require('./Errors');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    auth: {
-        user: 'javawebtempmail@gmail.com',
-        pass: 'ljgw wsww hvod tkpz'
-    }
-});
 
 async function register(req, res) {
     const { username, password, email, full_name } = req.body;
@@ -89,7 +80,7 @@ async function password_reset(req, res) {
 <p>If you didn't do this, please ignore this message.</p>`
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
+    await transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             res.json(new Response(false, error.toString()));
         } else {

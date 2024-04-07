@@ -3,35 +3,11 @@ const Companies = require('../models/companies');
 const Response = require('../models/response')
 const CompanyMember = require('../models/company_members');
 const CompanyNews = require('../models/company_news');
-const {verify} = require("jsonwebtoken");
-const {generateToken} = require("./TokenController");
-const nodemailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
 const {NOT_FOUND_ERROR} = require("./Errors");
+const {generateCode, transporter} = require("./Helpers");
 let SendDataForMember = { }
-/** /=======================/ nodemailer transporter /=======================/ */
-
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    auth: {
-        user: 'javawebtempmail@gmail.com',
-        pass: 'ljgw wsww hvod tkpz'
-    }
-});
-
-/** /=======================/ generate code /=======================/ */
-
-function generateInvitationCode(length = 8) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let code = '';
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        code += characters.charAt(randomIndex);
-    }
-    return code;
-}
 
 /** /=======================/company function /=======================/ */
 async function createCompanies(req, res) {
@@ -126,8 +102,23 @@ async function allCompanies(req, res) {
             );
             res.json(new Response(true, "All companies by page " + page, allCompanies));
         }else {
-            res.json(new Response(false,"incorrect page, page must be more or equals than 1, but your page " + page));
+            return res.json(new Response(false, `Incorrect page. Page must be greater than or equal to 1, but your page is ${page}`));
         }
+    } catch (error) {
+        console.log(error);
+        res.json(new Response(false, error.toString()))
+    }
+}
+
+async function getCompany(req, res){
+    try {
+        const { company_id } = req.params;
+        const company = new Companies();
+        const foundCompany = await company.find({ id: company_id });
+        if(foundCompany.length === 0){
+            return res.json(new Response(false,"Wrong id "));
+        }
+        res.json(new Response(true,"Company by id" + company_id, foundCompany));
     } catch (error) {
         console.log(error);
         res.json(new Response(false, error.toString()))
@@ -237,7 +228,7 @@ async function addMember(req,res){
             return res.json(new Response(false, "deny permission "));
         }
 
-        const invitationCode = generateInvitationCode();
+        const invitationCode = generateCode();
         SendDataForMember[invitationCode] = { user_id, company_id };
 
         const companyFound = await company.find({id: company_id});
@@ -467,6 +458,7 @@ module.exports = {
     companiesByFounder,
     companyLogoUpload,
     companyLogo,
+    getCompany,
     searchByCompanyName,
     // member
     addMember,
