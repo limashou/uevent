@@ -8,6 +8,9 @@ const TicketsUsers = require('../models/tickets_users');
 
 async function creteTickets(req,res){
     try {
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         const tickets = new Tickets();
         const event = new Event();
         const { event_id } = req.params;
@@ -33,6 +36,9 @@ async function creteTickets(req,res){
 
 async function editTickets(req,res){
     try {
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         let tickets = new Tickets();
         let event = new Events();
         const { event_id } = req.params;
@@ -62,6 +68,9 @@ async function editTickets(req,res){
 
 async function removeTickets(req,res){
     try {
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         const {event_id, id} = req.params
         const event = new Events();
         const tickets = new Tickets();

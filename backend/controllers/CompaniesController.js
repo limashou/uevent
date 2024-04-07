@@ -17,6 +17,9 @@ async function createCompanies(req, res) {
         if (name === undefined || email === undefined || location === undefined) {
             return res.json(new Response(false, "Some parameters are missing"));
         }
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         const result = await company.create(name, email, location, req.senderData.id, description);
         res.json(new Response(true, "Company created successfully", result));
     } catch (error) {
@@ -43,6 +46,9 @@ async function editCompany(req,res){
     try {
         const {id,name, email, location, description} = req.body;
         const company = new Companies();
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         if(!(await company.isFounder(req.senderData.id,id))) {
             return res.json(new Response(false,"deny permission "));
         }
@@ -63,6 +69,9 @@ async function deleteCompany(req,res) {
     try {
         const {id} = req.params
         const company = new Companies();
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         if (!(await company.isFounder(req.senderData.id, id))) {
             return res.json(new Response(false, "deny permission "));
         }
@@ -166,6 +175,9 @@ async function companyLogoUpload(req, res) {
     let company = new Companies();
     const photo = req.file;
     const company_id = req.body;
+    if(req.senderData.id === undefined){
+        return res.json(new Response(false, "You need authorize for this action"));
+    }
     if (!company_id){
         return res.json(new Response(false, 'Company id is empty!'));
     }
@@ -220,6 +232,9 @@ async function addMember(req,res){
         let user = new User();
         let company = new Companies();
         const {user_id, company_id} = req.body;
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         const userFound = await user.find({id: user_id})
         if (userFound.length === 0) {
             return res.json(new Response(false, 'Not found user'));
@@ -259,7 +274,9 @@ async function addMember(req,res){
 async function acceptMember(req,res) {
     try {
         const invitationCode = req.params.invitationCode;
-
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         if (!SendDataForMember[invitationCode]) {
             return res.json(new Response(false,"Invalid invitation code"));
         }
@@ -283,6 +300,9 @@ async function ejectMember(req,res){
         let company = new Companies();
         let company_member  = new CompanyMember();
         const memberFound = await company_member.find({ member_id: member_id })
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         if (memberFound.length === 0) {
             return res.json(new Response(false, 'Пользователь не найден'));
         }
@@ -317,6 +337,9 @@ async function changeRole(req,res){
         const {member_id, role} = req.body;
         const company = new Companies();
         const company_member = new CompanyMember();
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         const companyFound = await company.find({ id: req.senderData.id });
         if(!(await company.isFounder(req.senderData.id,companyFound[0].id))) {
             return res.json(new Response(false,"it isn't your company"));
@@ -338,6 +361,9 @@ async function changeRole(req,res){
 async function createNews(req,res){
     try {
         let company_news = new CompanyNews();
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         const { company_id, title, content } = req.body;
         if(!(await company_news.havePermission(company_id,req.senderData.id))) {
             return res.json(new Response(false,"you don't have permission"));
@@ -352,6 +378,9 @@ async function createNews(req,res){
 
 async function editNews(req,res){
     try {
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         const {id, title, content} = req.body;
         const company_news = new CompanyNews();
         const companyNewsFound = await company_news.find({ id: id });
@@ -372,6 +401,9 @@ async function editNews(req,res){
 
 async function deleteNews(req,res){
     try {
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         const { id } = req.params
         const company_news = new CompanyNews();
         const companyNewsFound = await company_news.find({ id: id});
@@ -410,6 +442,9 @@ async function companyNewsPoster(req, res) {
 async function companyNewsPosterUpload(req, res) {
     if (!req.file) {
         return res.json(new Response(false, 'Ошибка загрузки файла!'));
+    }
+    if(req.senderData.id === undefined){
+        return res.json(new Response(false, "You need authorize for this action"));
     }
     let company_news = new CompanyNews();
     const poster = req.file;

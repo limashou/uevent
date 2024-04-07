@@ -7,7 +7,6 @@ const events = require('./events');
 const tickets = require('./tickets');
 const router = new Router();
 
-router.post('/generate-session',token.createSession);
 router.use('/api/auth', authentication);
 router.use('/api/companies', companies);
 router.use('/api/users', users);

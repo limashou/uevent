@@ -63,6 +63,9 @@ async function Location(req, res) {
 
 async function createEvent(req,res){
     try {
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         let event = new Events();
         const { company_id } = req.params;
         const {name, notification, description, date, format, theme} = req.body;
@@ -85,7 +88,9 @@ async function editEvent(req,res){
         let event = new Events();
         const { company_id } = req.params;
         const {id, name, notification, description, date, format, theme} = req.body;
-
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         if(!(await event.havePermission(company_id,req.senderData.id))) {
             return res.json(new Response(false,"Not enough permission"));
         }
@@ -108,7 +113,9 @@ async function deleteEvent(req,res){
     try {
         const {company_id, id} = req.params
         const event = new Events();
-
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
         if(!(await event.havePermission(company_id,req.senderData.id))) {
             return res.json(new Response(false, "Not enough permission"));
         }
@@ -214,6 +221,10 @@ async function editComment(req,res){
 
 async function deleteComment(req,res){
     try {
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
+
         const {id} = req.params
         const comment = new EventComments();
 

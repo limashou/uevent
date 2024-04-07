@@ -22,6 +22,7 @@ function generateCode(length = 8) {
     }
     return code;
 }
+
 module.exports = {
     transporter,
     generateCode

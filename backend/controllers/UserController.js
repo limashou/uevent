@@ -17,8 +17,9 @@ async function getAllUser(req, res){
         }
     } catch (error) {
         console.log(error);
-        res.status(500).json(new Response(false, "Internal server error"));
+        res.json(new Response(false, error.toString()));
     }
+    //"Internal server error"
 }
 
 async function updateUser(req, res) {
@@ -27,6 +28,9 @@ async function updateUser(req, res) {
     try {
         if(Object.keys(req.body).length === 0) {
             return res.json(new Response(false,"Empty body"));
+        }
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
         }
         const usersFound = await user.find({ id: req.senderData.id });
         if (usersFound.length === 0) {
@@ -62,6 +66,7 @@ async function getById(req,res){
         }
         res.json(new Response(true, "users by id", filteredUser[0]));
     } catch (error) {
+        console.log(error);
         res.status(500).json(new Response(false, "Internal server error"));
     }
 }
@@ -101,6 +106,9 @@ async function findByFullName(req,res) {
 async function avatarUpload(req, res) {
     if (!req.file) {
         return res.json(new Response(false, 'Ошибка загрузки файла!'));
+    }
+    if(req.senderData.id === undefined){
+        return res.json(new Response(false, "You need authorize for this action"));
     }
     const photo = req.file;
     const account_id = req.senderData.id;

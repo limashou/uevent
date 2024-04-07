@@ -3,7 +3,6 @@ import CustomInputField from "../../components/CustomInputField";
 import {useState} from "react";
 import {CustomTextArea} from "../../components/CustomTextArea";
 import GoogleMaps from "../../components/GoogleMapsTest";
-import TextareaVariants from "../../components/TextareaVariants";
 import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
 function CompanyCreation() {
