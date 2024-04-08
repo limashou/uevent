@@ -1,7 +1,6 @@
 const Router = require('express')
 const router = new Router;
 const events_controller = require('../controllers/EventsController');
-const token_controller = require('../controllers/TokenController');
 
 router.post('/location',events_controller.Location);
 //event

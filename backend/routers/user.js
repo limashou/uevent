@@ -1,7 +1,6 @@
 const Router = require('express')
 const router = new Router;
 const user = require('../controllers/UserController');
-const token_controller = require('../controllers/TokenController');
 const {uploadUser} = require("./multer");
 
 router.get('/all',user.getAllUser);

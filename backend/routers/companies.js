@@ -1,7 +1,6 @@
 const Router = require('express')
 const router = new Router;
 const company_controller = require('../controllers/CompaniesController');
-const token_controller = require('../controllers/TokenController');
 const {uploadCompany, uploadEvent, uploadNews} = require("./multer");
 
 //company
