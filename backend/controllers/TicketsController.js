@@ -1,9 +1,11 @@
 const Tickets = require('../models/tickets');
-const Event = require('../models/events');
 const Response = require("../models/response");
 const Events = require("../models/events");
 const TicketsUsers = require('../models/tickets_users');
-
+const {transporter} = require("./Helpers");
+const pdfkit = require('pdfkit');
+const User  = require('../models/users');
+const QRCode = require('qrcode');
 /** /=======================/tickets function /=======================/ */
 
 async function creteTickets(req,res){
@@ -12,7 +14,7 @@ async function creteTickets(req,res){
             return res.json(new Response(false, "You need authorize for this action"));
         }
         const tickets = new Tickets();
-        const event = new Event();
+        const event = new Events();
         const { event_id } = req.params;
         const { ticket_type,price, available_tickets } = req.body;
         if(Object.keys(req.body).length === 0) {
@@ -95,6 +97,65 @@ async function removeTickets(req,res){
 
 /** /=======================/tickets_users function /=======================/ */
 //отправка билета при успешной проверке
+async function generateTicketPdf(user_id,ticket_id,ticket_status) {
+    try {
+        let user = new User();
+        let ticket = new Tickets();
+        let event = new Events();
+        const ticketFound = await ticket.find({ id: ticket_id });
+        const userFound = await user.find({ id: user_id });
+        const eventFound = await event.find({ id: ticketFound[0].event_id });
+        const doc = new pdfkit();
+
+        const qrData = `https://example.com/ticket/${ticket_id}`;
+        const qrCodeBuffer = await QRCode.toBuffer(qrData, { errorCorrectionLevel: 'H' });
+
+        doc.image(qrCodeBuffer, 150, 250, { width: 100, height: 100 });
+        doc.text(`Тип билета ${ticket_status}`)
+        doc.text('Ваш билет на мероприятие');
+        doc.text(`Мероприятие: ${eventFound[0].name}`);
+        doc.text(`Формат: ${eventFound[0].format}`);
+        doc.text(`Тема: ${eventFound[0].theme}`);
+        doc.text(`Дата: ${eventFound[0].date}`);
+        // doc.text(`Место: ${eventFound[0].location}`);
+
+// Добавляем описание мероприятия
+        doc.text('Описание:');
+        doc.text(eventFound[0].description);
+
+// Добавляем информацию о билете
+        doc.text(`Цена билета: ${ticketFound[0].price}`);
+        doc.text(`Тип билета: ${ticketFound[0].ticket_type}`);
+
+// Создаем поток для PDF
+        const pdfStream = doc.pipe(require('stream').PassThrough());
+
+        const mailOptions = {
+            to:  userFound[0].email,
+            subject: 'Ваш билет',
+            text: 'Пожалуйста, вот ваш билет на мероприятие.',
+            attachments: [
+                {
+                    filename: 'ticket.pdf',
+                    content: pdfStream
+                }
+            ]
+        };
+
+        doc.end();
+
+        transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+    }catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
 async function buyTicket(req,res){
     try {
         if(Object.keys(req.body).length === 0) {
@@ -107,6 +168,7 @@ async function buyTicket(req,res){
         }
         await ticketUser.DATAUS(ticket_id);
         const result = await ticketUser.buy(ticket_status,req.senderData.id,ticket_id,show_username);
+        await generateTicketPdf(req.senderData.id,ticket_id,ticket_status);
         if(ticket_status === "buy") {
             res.json(new Response(true, "Ticket purchased successfully",result));
         } else {

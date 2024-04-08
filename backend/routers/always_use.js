@@ -17,30 +17,48 @@ function sessionMiddleware(req, res, next) {
     }
 }
 
+// function tokenMiddleware(req, res, next) {
+//     console.log(req.cookies);
+//     if (req.cookies.auth_token || req.cookies.session_token) {
+//         if (req.cookies.auth_token) {
+//             verifyToken(req, res)
+//                 .then(() => {
+//                     console.log("verify");
+//                     next();
+//                 })
+//                 .catch(error => {
+//                     console.error(error);
+//                     res.status(error.status || 500).json({ success: false, message: 'Отсутствует токен авторизации'});
+//                 });
+//         }
+//         else if (req.cookies.session_token) {
+//             verifyToken(req, res)
+//                 .then(() => {
+//                     console.log("verify");
+//                     next();
+//                 })
+//                 .catch(error => {
+//                     console.error(error);
+//                     res.status(error.status || 500).json({ success: false, message: 'Отсутствует токен сесии' });
+//                 });
+//         }
+//     }
+// }
 function tokenMiddleware(req, res, next) {
     console.log(req.cookies);
     if (req.cookies.auth_token || req.cookies.session_token) {
-        if (req.cookies.auth_token) {
-            verifyToken(req, res)
-                .then(() => {
-                    console.log("verify");
-                    next();
-                })
-                .catch(error => {
-                    console.error(error);
-                    res.status(error.status || 500).json({ success: false, message: 'Отсутствует токен авторизации'});
-                });
-        } else if (req.cookies.session_token) {
-            verifyToken(req, res)
-                .then(() => {
-                    console.log("verify");
-                    next();
-                })
-                .catch(error => {
-                    console.error(error);
-                    res.status(error.status || 500).json({ success: false, message: 'Отсутствует токен сесии' });
-                });
-        }
+        verifyToken(req, res)
+            .then(() => {
+                console.log("verify");
+                next();
+            })
+            .catch(error => {
+                console.error(error);
+                res.status(error.status || 401).json({ success: false, message: 'Ошибка аутентификации' });
+            });
+    } else {
+        console.log("Отсутствует токен аутентификации или сессии");
+        res.status(401).json({ success: false, message: 'Отсутствует токен аутентификации или сессии' });
     }
 }
 

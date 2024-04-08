@@ -31,32 +31,6 @@ function deactivateToken(req, res) {
     res.json(new Response(true, 'Токен успешно удален'));
 }
 
-// function verifyToken(req, res, next) {
-//     let token;
-//     try {
-//         if (req.cookies.auth_token) {
-//             token = req.cookies.auth_token.replace('Bearer ', '');
-//         } else if (req.cookies.session_token) {
-//             token = req.cookies.session_token.replace('Bearer ', '');
-//         }
-//     } catch (e) {}
-//
-//     if (!token) {
-//         return res.status(401).json(new Response(false, 'Отсутствует токен авторизации'));
-//     }
-//     if (blackStarBurger.has(token)){
-//         return res.status(401).json(new Response(false, 'Токен удален!'));
-//     }
-//
-//     jwt.verify(token, secretYaEby, (err, decoded) => {
-//         if (err) {
-//             return res.status(401).json(new Response(false, 'Недействительный токен'));
-//         } else {
-//             req.senderData = decoded;
-//             next();
-//         }
-//     });
-// }
 function verifyToken(req, res) {
     return new Promise((resolve, reject) => {
         let token;
@@ -110,10 +84,10 @@ async function createSession(req, res) {
             console.log("Generating session token...");
             const sessionToken = generateToken(sessionData);
             res.cookie('session_token', sessionToken, { httpOnly: true, maxAge: 3600000 });
-            resolve(); // успешно завершаем промис
+            resolve();
         } catch (error) {
             console.error(error);
-            // reject(error); // отклоняем промис с ошибкой
+            reject(error);
         }
     });
 }

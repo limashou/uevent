@@ -2,7 +2,7 @@ const Model = require("./model");
 const Events = require("./events");
 const client = require("../db");
 
-class Tickets extends Model,Events {
+class Tickets extends Events {
     constructor() {
         super('tickets');
     }

@@ -12,4 +12,5 @@ router.use('/api/companies', companies);
 router.use('/api/users', users);
 router.use('/api/events', events);
 router.use('/api/tickets', tickets);
+router.post('/api/session',token.createSession);
 module.exports = router;

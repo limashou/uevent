@@ -59,7 +59,7 @@ async function getById(req,res){
         const cId = id === 'me' ? req.senderData.id : id;
         const userById = await user.find({ id: cId });
         let filteredUser;
-        if(req.senderData.id === userById[0].id ) {
+        if(req.senderData.id !== undefined && req.senderData.id === userById[0].id ) {
             filteredUser = userById.map(({ id, email,full_name }) => ({ id, email,full_name }));
         }else {
             filteredUser = userById.map(({ id, full_name }) => ({ id, full_name }));

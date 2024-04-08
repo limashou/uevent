@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS events(
     poster VARCHAR(256),
     notification BOOLEAN DEFAULT FALSE,
     description TEXT,
+    location VARCHAR(256),
     date TIMESTAMP,
     format formats,
     theme themes,
