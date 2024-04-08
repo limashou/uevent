@@ -1,5 +1,6 @@
 // middleware.js
 const { createSession, verifyToken } = require("../controllers/TokenController");
+const Response = require("../models/response");
 
 function sessionMiddleware(req, res, next) {
     if (req.cookies.session_token) {
@@ -12,7 +13,7 @@ function sessionMiddleware(req, res, next) {
             })
             .catch(error => {
                 console.error(error);
-                res.status(error.status || 500).json({ success: false, message: error.message });
+                res.status(error.status || 500).json(new Response(false,"Something wrong"));
             });
     }
 }
@@ -54,11 +55,11 @@ function tokenMiddleware(req, res, next) {
             })
             .catch(error => {
                 console.error(error);
-                res.status(error.status || 401).json({ success: false, message: 'Ошибка аутентификации' });
+                res.status(error.status || 401).json(new Response(false, 'Ошибка аутентификации'));
             });
     } else {
         console.log("Отсутствует токен аутентификации или сессии");
-        res.status(401).json({ success: false, message: 'Отсутствует токен аутентификации или сессии' });
+        res.status(401).json(new Response(false, 'Отсутствует токен аутентификации или сессии'));
     }
 }
 
