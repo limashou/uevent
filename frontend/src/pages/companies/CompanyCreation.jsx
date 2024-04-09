@@ -1,10 +1,10 @@
-import {companyNameValidation, emailValidation, usernameValidation} from "../../Utils/InputHandlers";
+import {companyNameValidation, emailValidation} from "../../Utils/InputHandlers";
 import CustomInputField from "../../components/CustomInputField";
 import {useState} from "react";
-import {CustomTextArea} from "../../components/CustomTextArea";
 import GoogleMaps from "../../components/GoogleMapsTest";
 import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
+import CustomTextArea from "../../components/CustomTextArea";
 function CompanyCreation() {
     //{ name, email, location, description }
     const [name, setName] = useState('');
@@ -13,7 +13,6 @@ function CompanyCreation() {
     const [description, setDescription] = useState('');
 
     const handleLocationSelect = (newValue) => {
-        // alert(JSON.stringify(newValue));
         setSelectedLocation(newValue?.description || '');
     };
 
@@ -32,7 +31,7 @@ function CompanyCreation() {
             data.description = description;
         const resp = await Requests.createCompany(data);
         if (resp.state === true)
-            alert('good');
+            window.location.href = `/companies/${resp.data}`;
         else
             alert(resp?.message || 'Error');
     }
@@ -55,11 +54,14 @@ function CompanyCreation() {
             />
             <div>{selectedLocation}</div>
             <GoogleMaps onChange={handleLocationSelect} />
-            <CustomInputField
-                onChangeChecked={(ket, value) => setDescription(value)}
-                id="description"
-                label="Description"
-                type="text"
+            {/*<CustomInputField*/}
+            {/*    onChangeChecked={(ket, value) => setSelectedLocation(value)}*/}
+            {/*    id="location"*/}
+            {/*    label="Location"*/}
+            {/*    type="text"*/}
+            {/*/>*/}
+            <CustomTextArea
+                onChange={(value) => setDescription(value)}
             />
             <Button
                 variant="contained"

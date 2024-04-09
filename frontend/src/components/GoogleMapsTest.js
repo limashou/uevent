@@ -24,10 +24,10 @@ function loadScript(src, position, id) {
 
 const autocompleteService = { current: null };
 
-export default function GoogleMaps({ onChange }) {
-    const [value, setValue] = React.useState(null);
-    const [inputValue, setInputValue] = React.useState('');
-    const [options, setOptions] = React.useState([]);
+export default function GoogleMaps({ onChange, defaultValue = '', inputLabel = 'Add a location' }) {
+    const [value, setValue] = React.useState(defaultValue);
+    const [inputValue, setInputValue] = React.useState(defaultValue);
+    const [options, setOptions] = React.useState([defaultValue]);
     const loaded = React.useRef(false);
 
     if (typeof window !== 'undefined' && !loaded.current) {
@@ -90,7 +90,6 @@ export default function GoogleMaps({ onChange }) {
     return (
         <Autocomplete
             id="google-map-demo"
-            sx={{ width: 500 }}
             getOptionLabel={(option) =>
                 typeof option === 'string' ? option : option.description
             }
@@ -99,6 +98,7 @@ export default function GoogleMaps({ onChange }) {
             autoComplete
             includeInputInList
             filterSelectedOptions
+            defaultValue={defaultValue}
             value={value}
             noOptionsText="No locations"
             onChange={(event, newValue) => {
@@ -110,7 +110,7 @@ export default function GoogleMaps({ onChange }) {
                 setInputValue(newInputValue);
             }}
             renderInput={(params) => (
-                <TextField variant="filled" {...params} label="Add a location" fullWidth />
+                <TextField variant="filled" {...params} label={inputLabel} fullWidth />
             )}
             renderOption={(props, option) => {
                 const matches =

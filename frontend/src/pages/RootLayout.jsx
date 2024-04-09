@@ -18,9 +18,10 @@ function RootLayout() {
                 resp.data.avatar = Requests.get_avatar_link(resp.data.id);
                 setUserData(resp.data);
             }
+            else
+                setUserData(undefined);
         };
-        if (localStorage.getItem('user_id'))
-            fetchData();
+        fetchData();
     }, []);
 
     return (

@@ -1,4 +1,4 @@
-import {lazy} from "react";
+import {Component, lazy} from "react";
 import {createBrowserRouter, createRoutesFromElements, Route, RouterProvider} from "react-router-dom";
 import {ThemeProvider} from "@mui/material";
 
@@ -12,6 +12,8 @@ import Companies from "./pages/companies/Companies";
 import CompanyCreation from "./pages/companies/CompanyCreation";
 import theme from "./Theme";
 import Company from "./pages/companies/Company";
+import CompanySettings from "./pages/companies/CompanySettings";
+import CompanyDataWrapper from "./pages/companies/CompanyDataWrapper";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registration = lazy(() => import("./pages/auth/Registration"));
@@ -32,7 +34,10 @@ function App() {
                 <Route path="companies" element={<CompaniesLayout />}>
                     <Route index element={<Companies />} />
                     <Route path="creation" element={<CompanyCreation />} />
-                    <Route path=":company_id" element={<Company />} />
+                    <Route path=":company_id" element={<CompanyDataWrapper />}>
+                        <Route index element={<Company />} />
+                        <Route path="settings" element={<CompanySettings />} />
+                    </Route>
                 </Route>
                 <Route path="users" element={<UserLayout />}>
                     <Route path="me/settings" element={<ProfileSettings />} />

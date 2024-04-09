@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS tickets (
     ticket_type ticket_types,
     price DECIMAL(10, 2) NOT NULL,
     available_tickets INT NOT NULL,
-    status statuses DEFAULT 'available',
+    status statuses,
     CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
 );
 

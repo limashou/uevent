@@ -44,15 +44,16 @@ async function getById(req, res) {
 
 async function editCompany(req,res){
     try {
-        const {id,name, email, location, description} = req.body;
+        const { name, email, location, description } = req.body;
+        const { company_id } = req.params;
         const company = new Companies();
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
-        if(!(await company.isFounder(req.senderData.id,id))) {
+        if(!(await company.isFounder(req.senderData.id, company_id))) {
             return res.json(new Response(false,"deny permission "));
         }
-        const companyFound = await company.find({ id: id });
+        const companyFound = await company.find({ id: company_id });
         if (companyFound.length === 0) {
             return res.json(new Response(false, 'Пользователь не найден'));
         }
@@ -151,7 +152,7 @@ async function companiesByFounder(req,res){
 }
 
 async function companyLogo(req, res) {
-    const company_id = req.params;
+    const { company_id } = req.params;
     let company = new Companies();
     company.find({id: company_id})
         .then((result)=>{
@@ -174,7 +175,7 @@ async function companyLogoUpload(req, res) {
     }
     let company = new Companies();
     const photo = req.file;
-    const company_id = req.body;
+    const { company_id } = req.params;
     if(req.senderData.id === undefined){
         return res.json(new Response(false, "You need authorize for this action"));
     }
@@ -319,6 +320,7 @@ async function ejectMember(req,res){
 
 async function allCompanyMember(req,res){
     try {
+        console.log('TEST');
         const { company_id } = req.params;
         const company_member = new CompanyMember();
         const allMember = await company_member.getAllCompanyUsers( company_id );

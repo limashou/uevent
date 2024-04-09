@@ -54,9 +54,10 @@ async function updateUser(req, res) {
 async function getById(req,res){
     try {
         let user = new User();
-        // console.log(req);
         const { id } = req.params;
-        const cId = id === 'me' ? req.senderData.id : id;
+        const cId = id === 'me' ? req.senderData?.id : id;
+        if (cId === undefined)
+            return res.json(new Response(false, "Not authorized"));
         const userById = await user.find({ id: cId });
         let filteredUser;
         if(req.senderData.id !== undefined && req.senderData.id === userById[0].id ) {

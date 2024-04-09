@@ -10,7 +10,6 @@ import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
 
 import { debounce } from 'lodash';
-import Avatar from "@mui/material/Avatar"; // Импорт debounce из библиотеки lodash
 
 function Companies() {
     const [companies, setCompanies] = useState([]);

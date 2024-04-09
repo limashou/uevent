@@ -18,16 +18,23 @@ const storageUser = multer.diskStorage({
 });
 const storageCompany = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './images/logo');
+        const uploadDir = './images/logo';
+        fs.mkdir(uploadDir, { recursive: true }, (err) => {
+            if (err) {
+                console.error('Error creating directory:', err);
+            } else {
+                cb(null, uploadDir);
+            }
+        });
     },
     filename: (req, file, cb) => {
-        const account_id = req.params.company_id;
+        const { company_id } = req.params;
 
-        if (account_id) {
+        if (company_id) {
             const newFilename = `company_avatar_${company_id}${path.extname(file.originalname)}`;
             cb(null, newFilename);
         } else {
-            cb(new Error('account_id not provided in headers'));
+            cb(new Error('company_id not provided'));
         }
     }
 });

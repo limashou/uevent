@@ -59,7 +59,9 @@ export default class Requests {
         return resp.data;
     }
     static async logout(){
-        return {state: true, message: 'success'};
+        const resp = await
+            axiosInstance.post(`/auth/logout`);
+        return resp.data;
     }
 
     // USER
@@ -113,6 +115,12 @@ export default class Requests {
             axiosInstance.post('/companies/create', data);
         return resp.data;
     }
+
+    static async editCompany(company_id, editedFields) {
+        const resp = await
+            axiosInstance.patch(`/companies/${company_id}/edit`, editedFields);
+        return resp.data;
+    }
     static async allCompanies(page = 1, limit = 20, order = 'ASC', searchValue = '') {
         const resp = await axiosInstance.get(
             `/companies`,
@@ -127,10 +135,26 @@ export default class Requests {
         );
         return resp.data;
     }
-
     static async companyById(company_id){
         const resp = await axiosInstance.get(`/companies/${company_id}`);
         return resp.data;
+    }
+
+    static async companyMembers(company_id){
+        const resp = await axiosInstance.get(`/companies/${company_id}/members`);
+        return resp.data;
+    }
+
+    static async companyLogoUpload(company_id, file){
+        const data = new FormData();
+        data.append('photo', file);
+        const config = {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        };
+        return await
+            axiosInstance.patch(`/companies/${company_id}/logo`, data, config);
     }
 
 }

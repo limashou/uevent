@@ -1,5 +1,4 @@
 import SearchIcon from "@mui/icons-material/Search";
-import {useState} from "react";
 import {Autocomplete, TextField} from "@mui/material";
 
 function CustomSearch({value, options = [], handleSearchChange}) {

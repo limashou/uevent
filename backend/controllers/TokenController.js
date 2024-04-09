@@ -15,21 +15,26 @@ function deactivateToken(req, res) {
     let token;
     try {
         if (req.cookies.auth_token) {
-            token = req.cookies.auth_token.replace('Bearer ', '');
+            token = req.cookies.auth_token;
+            res.clearCookie('auth_token'); // Очистка куки auth_token
         } else if (req.cookies.session_token) {
-            token = req.cookies.session_token.replace('Bearer ', '');
+            token = req.cookies.session_token;
+            res.clearCookie('session_token'); // Очистка куки session_token
         }
     } catch (e) {}
 
     if (!token) {
         return res.json(new Response(false, 'Отсутствует токен'));
     }
+
     if (blackStarBurger.has(token)){
         return res.json(new Response(false, 'Токен уже удален!'));
     }
+
     blackStarBurger.add(token);
     res.json(new Response(true, 'Токен успешно удален'));
 }
+
 
 function verifyToken(req, res) {
     return new Promise((resolve, reject) => {

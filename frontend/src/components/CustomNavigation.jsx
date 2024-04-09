@@ -25,8 +25,9 @@ const settings = [
 
 function CustomNavigation() {
     const [anchorElUser, setAnchorElUser] = useState(null);
-    const [userData] = useContext(UserContext) || [{}];
+    const [userData] = useContext(UserContext);
 
+    // alert(JSON.stringify(userData));
     const handleOpenUserMenu = (event) => {
         setAnchorElUser(event.currentTarget);
     };
@@ -59,8 +60,8 @@ function CustomNavigation() {
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
-                            <Link to={page.to}>
-                                <Button key={page.text}
+                            <Link key={page.text} to={page.to}>
+                                <Button
                                         // sx={{ my: 2, color: 'white', display: 'block' }}
                                 >
                                     {page.text}
@@ -68,51 +69,55 @@ function CustomNavigation() {
                             </Link>
                         ))}
                     </Box>
-
-                    {localStorage.getItem('user_id') &&
-                        <div>
-                            <Box sx={{ flexGrow: 0 }}>
-                                <Tooltip title="Open settings">
-                                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                        <Avatar alt="NN" src={userData.avatar} />
-                                    </IconButton>
-                                </Tooltip>
-                                <Menu
-                                    sx={{ mt: '45px' }}
-                                    id="menu-appbar"
-                                    anchorEl={anchorElUser}
-                                    anchorOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'right',
-                                    }}
-                                    keepMounted
-                                    transformOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'right',
-                                    }}
-                                    open={Boolean(anchorElUser)}
-                                    onClose={handleCloseUserMenu}
-                                >
-                                    {settings.map((setting) => (
-                                        <Link to={setting.to}>
-                                            <MenuItem
+                    { userData !== undefined ?
+                        (
+                            <div>
+                                <Box sx={{ flexGrow: 0 }}>
+                                    <Tooltip title="Open settings">
+                                        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                            <Avatar alt="NN" src={userData.avatar} />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Menu
+                                        sx={{ mt: '45px' }}
+                                        id="menu-appbar"
+                                        anchorEl={anchorElUser}
+                                        anchorOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                        keepMounted
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                        open={Boolean(anchorElUser)}
+                                        onClose={handleCloseUserMenu}
+                                    >
+                                        {settings.map((setting) => (
+                                            <Link
                                                 key={setting.to}
-                                                onClick={handleCloseUserMenu}>
-                                                {setting.text}
-                                            </MenuItem>
-                                        </Link>
-                                    ))}
-                                    <MenuItem
-                                        key={'logout'}
-                                        onClick={() => {
-                                            logout();
-                                            handleCloseUserMenu();
-                                        }}>
-                                        <Typography textAlign="center">Logout</Typography>
-                                    </MenuItem>
-                                </Menu>
-                            </Box>
-                        </div>
+                                                to={setting.to}>
+                                                <MenuItem
+                                                    onClick={handleCloseUserMenu}>
+                                                    {setting.text}
+                                                </MenuItem>
+                                            </Link>
+                                        ))}
+                                        <MenuItem
+                                            key={'logout'}
+                                            onClick={() => {
+                                                logout();
+                                                handleCloseUserMenu();
+                                            }}>
+                                            <Typography textAlign="center">Logout</Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </Box>
+                            </div>
+                        ) : (
+                            <Link to="/auth/login">sign in</Link>
+                        )
                     }
                 </Toolbar>
             </Container>

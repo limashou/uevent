@@ -1,7 +1,6 @@
 import {useContext, useState} from "react";
 import {useDropzone} from 'react-dropzone';
 import Avatar from "@mui/material/Avatar";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import {Alert} from "@mui/material";
@@ -94,7 +93,10 @@ function ProfileSettings() {
                 const file = acceptedFiles[0];
                 Requests.avatarUpload(file).then((resp) => {
                     if (resp.state !== true)
-                        window.location.reload();
+                        setInlineAlert({
+                            severity: 'error',
+                            message: resp?.message || 'Error',
+                        });
                 });
                 const reader = new FileReader();
                 reader.onload = () => {

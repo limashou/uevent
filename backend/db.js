@@ -5,7 +5,7 @@ const client = new Client({
     host: 'localhost',
     database: 'uevent_lubiviy_poliatskiy',
     password: 'securepass',
-    port: 5433,
+    port: 5432,
 });
 
 module.exports = client;
