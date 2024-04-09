@@ -2,11 +2,11 @@ DROP DATABASE IF EXISTS uevent_lubiviy_poliatskiy;
 
 CREATE DATABASE uevent_lubiviy_poliatskiy;
 
-CREATE TYPE ticket_status AS ENUM ('buy', 'reserved');
+CREATE TYPE ticket_statuses AS ENUM ('buy', 'reserved');
 CREATE TYPE roles AS ENUM('worker','news_maker','editor','founder');
 CREATE TYPE formats AS ENUM('conferences','lectures','workshops','fests');
 CREATE TYPE themes AS ENUM('business','politics','psychology');
-CREATE TYPE statuses AS ENUM('available, sold out');
+CREATE TYPE statuses AS ENUM('available', 'sold out');
 CREATE TYPE ticket_types AS ENUM('common','VIP');
 
 CREATE TABLE IF NOT EXISTS users (
@@ -66,18 +66,18 @@ CREATE TABLE IF NOT EXISTS events(
 
 CREATE TABLE IF NOT EXISTS tickets (
     id SERIAL PRIMARY KEY,
-    event_id INT NOT NULL,
     ticket_type ticket_types,
     price DECIMAL(10, 2) NOT NULL,
     available_tickets INT NOT NULL,
     status statuses,
-    CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
+    events_id INTEGER NOT NULL,
+    CONSTRAINT fk_event_id FOREIGN KEY (events_id) REFERENCES events(id) ON DELETE CASCADE
 );
 
 
 CREATE TABLE IF NOT EXISTS user_tickets (
     id SERIAL PRIMARY KEY,
-    ticket_status ticket_types,
+    ticket_status ticket_statuses,
     user_id INT NOT NULL,
     ticket_id INT NOT NULL,
     show_username BOOLEAN DEFAULT TRUE,
