@@ -54,7 +54,6 @@ async function updateUser(req, res) {
 async function getById(req,res){
     try {
         let user = new User();
-        // console.log(req);
         const { id } = req.params;
         const cId = id === 'me' ? req.senderData.id : id;
         const userById = await user.find({ id: cId });

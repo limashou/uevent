@@ -1,4 +1,3 @@
-// middleware.js
 const { createSession, verifyToken } = require("../controllers/TokenController");
 const Response = require("../models/response");
 
