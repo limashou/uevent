@@ -75,7 +75,7 @@ async function removeTickets(req,res){
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
-        const {event_id, id} = req.params
+        const {event_id, ticket_id} = req.params
         const event = new Events();
         const tickets = new Tickets();
         let foundEvent = await event.find({id: event_id});
@@ -85,13 +85,28 @@ async function removeTickets(req,res){
         if(!(await event.havePermission(foundEvent[0].company_id,req.senderData.id))) {
             return res.json(new Response(false, "Not enough permission"));
         }
-        let foundTickets = await tickets.find({id: id});
+        let foundTickets = await tickets.find({id: ticket_id});
         if(foundTickets.length === 0){
             return res.json(new Response(false,"Wrong event id "));
         }
         await tickets.deleteRecord({ id: foundTickets[0].id });
         res.json(new Response(true,"Deleted"));
     }catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
+
+async function getTicketsByEvent(req,res) {
+    try {
+        const { events_id } = req.params;
+        const tickets = new Tickets();
+        const ticketsFound = await tickets.find({events_id: events_id});
+        if(ticketsFound.length === null) {
+            return res.json(new Response(true, "Not found tickets"));
+        }
+        res.json(new Response(true,"All tickets by event_id" + events_id, ticketsFound));
+    } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
     }
@@ -190,12 +205,12 @@ async function buyTicket(req,res){
 
 async function cancelTicket(req,res){
     try {
-        const { ticket_id, id } = req.params;
+        const { ticket_id} = req.params;
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"You need to authorize for buy or reserved ticket"))
         }
         let ticket_user = new TicketsUsers();
-        const found = await ticket_user.find({ ticket_id: ticket_id, id:id })
+        const found = await ticket_user.find({ ticket_id: ticket_id, user_id: req.senderData.id })
         if(req.senderData.id === found[0].user_id) {
             return res.json(new Response(false,"It's not your ticket"))
         }
@@ -213,7 +228,9 @@ async function informationByTicket(req,res){
         const {id} = req.params;
         const ticket_user = new TicketsUsers();
         const found  = await ticket_user.getInformationById(id);
-        console.log(typeof found)
+        if (found.length === null) {
+            res.json(new Response(false,"empty find"));
+        }
         return res.json(new Response(true,"Information",found[0]));
 
     } catch (error) {
@@ -226,6 +243,8 @@ module.exports = {
     creteTickets,
     editTickets,
     removeTickets,
+    getTicketsByEvent,
     buyTicket,
+    cancelTicket,
     informationByTicket
 }
