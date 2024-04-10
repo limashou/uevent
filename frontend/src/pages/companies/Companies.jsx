@@ -18,12 +18,15 @@ function Companies() {
 
     const [searchValue, setSearchValue] = useState('');
     const [searchOptions, setSearchOptions] = useState([]);
-    const ONE_PAGE_LIMIT = 3;
+    const ONE_PAGE_LIMIT = 4;
     const [loading, setLoading] = useState(true);
 
     const debouncedFetchData = debounce(async () => {
         setLoading(true); // Установка состояния загрузки перед запросом данных
-        const resp = await Requests.allCompanies(page, ONE_PAGE_LIMIT, 'ASC', searchValue);
+        const resp = await Requests.allCompanies({
+            limit: ONE_PAGE_LIMIT,
+            searchValue: searchValue
+        })
         if (resp.state === true) {
             setCompanies(resp.data.rows);
             setTotalPages(resp.data.totalPages);
@@ -88,6 +91,7 @@ function Companies() {
             <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Stack direction="row" spacing={2} justifyContent="center">
                     <Pagination
+                        size="small"
                         count={totalPages}
                         page={page}
                         onChange={handlePageChange}

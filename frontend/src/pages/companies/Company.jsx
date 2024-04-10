@@ -8,17 +8,36 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Requests from "../../api/Requests";
-import {useContext} from "react";
+import {useContext, useEffect, useState} from "react";
 import {CompanyDataContext} from "./CompanyDataWrapper";
+import UsersLine from "../../components/UsersLine";
+import {useDropzone} from "react-dropzone";
+import Box from "@mui/material/Box";
 
 function Company() {
     const { company_id } = useParams();
     const { companyData } = useContext(CompanyDataContext);
     const { companyMembers } = useContext(CompanyDataContext);
     const { loading } = useContext(CompanyDataContext);
+    const [companyEvents, setCompanyEvents] = useState([]);
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const resp = await Requests.companyEvents(company_id);
+                if (resp.state === true) {
+                    setCompanyEvents(resp.data);
+                }
+            } catch (error) {
+                console.error("Error fetching company data:", error);
+            }
+        };
+        fetchData();
+    }, [company_id]);
 
     return (
-        <Container maxWidth="md">
+        <Container maxWidth="md" className={'center-block'}>
             <Stack spacing={4}>
                 {loading ? (
                     <>
@@ -36,31 +55,20 @@ function Company() {
                                 src={Requests.get_company_logo_link(companyData.id)}
                                 sx={{ width: 150, height: 150 }}
                             >{companyData.name}</Avatar>
-                            <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
-                                {companyData.name}
-                            </Typography>
+                            <Box>
+                                <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
+                                    {companyData.name}
+                                </Typography>
+                                <Link to={`/companies/${company_id}/settings`}>Settings</Link>
+                            </Box>
                         </Stack>
                         <DescriptionInfo icon={<DescriptionIcon />} text={companyData.description} />
                         <DescriptionInfo icon={<EmailIcon />} text={companyData.email} />
                         <DescriptionInfo icon={<LocationOnIcon />} text={companyData.location} />
-                        { companyMembers.map((companyMember) =>
-                            (
-                                <div
-                                    key={`company-member-${companyMember.id}`}
-                                >
-                                    <Avatar
-                                        src={Requests.get_avatar_link(companyMember.id)}
-                                    >{companyMember.full_name}</Avatar>
-                                    <Typography variant="p" component="div">
-                                        {companyMember.full_name}
-                                    </Typography>
-                                    <Typography variant="p" component="div">
-                                        {companyMember.role}
-                                    </Typography>
-                                </div>
-                            )
-                        )}
-                        <Link to={`/companies/${company_id}/settings`}>Settings</Link>
+                        <UsersLine companyMembers={companyMembers} />
+                        {companyEvents.map((event) => (
+                            <div>{JSON.stringify(event)}</div>
+                        ))}
                     </>
                 )}
             </Stack>

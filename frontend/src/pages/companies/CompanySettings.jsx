@@ -1,4 +1,4 @@
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import Button from "@mui/material/Button";
 import {CompanyDataContext} from "./CompanyDataWrapper";
 import Avatar from "@mui/material/Avatar";
@@ -9,10 +9,13 @@ import Box from "@mui/material/Box";
 import {useDropzone} from "react-dropzone";
 import {useParams} from "react-router-dom";
 import CustomInputField from "../../components/CustomInputField";
-import {emailValidation, fullNameValidation} from "../../Utils/InputHandlers";
+import {companyNameValidation, emailValidation, fullNameValidation, memberRoles} from "../../Utils/InputHandlers";
 import {Alert} from "@mui/material";
 import GoogleMaps from "../../components/GoogleMapsTest";
 import CustomTextArea from "../../components/CustomTextArea";
+import CustomSearch from "../../components/CustomSearch";
+import CustomSelector from "../../components/CustomSelector";
+import CustomImageDropzone from "../../components/CustomImageDropzone";
 function CompanySettings() {
     const { company_id } = useParams();
     const { companyData, setCompanyData } = useContext(CompanyDataContext);
@@ -23,6 +26,37 @@ function CompanySettings() {
         severity: 'success',
         message: null,
     });
+
+
+    const [invitesSearchInput, setInvitesSearchInput] = useState('');
+    const [usersFound, setUsersFound] = useState([]);
+
+    const [searchOptions, setSearchOptions] = useState([]);
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const body = {
+                    username_part: invitesSearchInput,
+                    user_ids_to_exclude: companyMembers.map(member => member.id),
+                };
+                const usersResp = await Requests.findUsername(body);
+                if (usersResp.state === true) {
+                    setUsersFound(usersResp.data);
+                    setSearchOptions([...new Set(usersResp.data.map(user => user.full_name))]);
+                }
+            } catch (error) {
+                console.error("Error finding users:", error);
+            }
+        };
+        if (invitesSearchInput === ''){
+            setSearchOptions([]);
+            setUsersFound([]);
+        }
+        else
+            fetchData();
+    }, [invitesSearchInput]);
 
     function putEditedField(key, value) {
         if (value === '' || (key in companyData && companyData[key] === value)){
@@ -70,89 +104,130 @@ function CompanySettings() {
             });
     }
 
-
-    const { getRootProps, getInputProps } = useDropzone({
-        onDrop: (acceptedFiles) => {
-            // Фильтрация файлов по расширениям
-            const validFiles = acceptedFiles.filter(file => {
-                const allowedExtensions = ['jpeg', 'jpg', 'png'];
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-                return allowedExtensions.includes(fileExtension);
-            });
-
-            if (validFiles.length > 0) {
-                const file = acceptedFiles[0];
-                Requests.companyLogoUpload(company_id, file).then((resp) => {
-                    if (resp.data.state !== true)
-                        alert(resp?.message || 'Error')
-                });
-                const reader = new FileReader();
-                reader.onload = () => {
-                    setCompanyData({...companyData, logo: reader.result});
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-    });
-
     return (
-        <div className={'center-block'}>
-            <div>{JSON.stringify(companyData)}</div>
-            {!loading &&
-                <>
-                    <Stack direction="row" alignItems="center" spacing={2}>
-                        <Box {...getRootProps()} sx={{ textAlign: 'center', mt: 2, border: '2px dashed',
-                            padding: '10px', borderRadius: '8px', cursor: 'copy'}}>
-                            <input {...getInputProps()} />
+        <div
+            className={'two-blocks'}
+        >
+            <div className="content-block">
+                {!loading &&
+                    <>
+                        <Stack direction="row" alignItems="center" spacing={2}>
+                            <CustomImageDropzone
+                                imageLink={companyData.logo}
+                                onFileSelected={(file) => {
+                                    Requests.companyLogoUpload(company_id, file).then((resp) => {
+                                        if (resp.data.state !== true)
+                                            alert(resp?.message || 'Error')
+                                    });
+                                }}
+                            />
+                            <Box sx={{width: '100%'}}>
+                                <CustomInputField
+                                    defaultValue={companyData.name}
+                                    handleInput={companyNameValidation}
+                                    onChangeChecked={putEditedField}
+                                    id="name"
+                                    label="Company name"
+                                    type="text"
+                                />
+                                <CustomTextArea
+                                    defaultValue={companyData.description}
+                                    onChange={(newValue) => putEditedField('description', newValue)}
+                                />
+                            </Box>
+                        </Stack>
+                        <CustomInputField
+                            defaultValue={companyData.email}
+                            handleInput={emailValidation}
+                            onChangeChecked={putEditedField}
+                            id="email"
+                            label="Company email"
+                            type="email"
+                            key={companyData.email}
+                        />
+                        <GoogleMaps
+                            defaultValue={companyData.location}
+                            onChange={(newValue) => putEditedField('location', newValue?.description || '')}
+                            inputLabel="Location"
+                        />
+                    </>
+                }
+                {inlineAlert.message &&
+                    <Alert severity={inlineAlert.severity}>
+                        {inlineAlert.message}
+                    </Alert>
+                }
+                <Button
+                    variant="contained"
+                    disabled={Object.keys(editedFields).length === 0}
+                    sx={{width: '100%'}}
+                    onClick={submitChanges}
+                >Submit changes</Button>
+            </div>
+            <div className="content-block">
+                <Typography>Company members:</Typography>
+                <Box>
+                    {companyMembers.map((member) =>(
+                        <Stack direction="row" alignItems="center" spacing={2} key={`company-member-${member.id}`}>
                             <Avatar
-                                variant="rounded"
-                                src={companyData.logo}
-                                sx={{ width: 150, height: 150 }}
-                            >Drop logo here</Avatar>
-                        </Box>
-                        <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
-                            {companyData.name}
-                        </Typography>
-                    </Stack>
-                    <CustomInputField
-                        defaultValue={companyData.email}
-                        handleInput={emailValidation}
-                        onChangeChecked={putEditedField}
-                        id="email"
-                        label="Company email"
-                        type="email"
-                        key={companyData.email}
-                    />
-                    <GoogleMaps
-                        defaultValue={companyData.location}
-                        onChange={(newValue) => putEditedField('location', newValue?.description || '')}
-                        inputLabel="Location"
-                    />
-                    <CustomTextArea
-                        defaultValue={companyData.description}
-                        onChange={(newValue) => putEditedField('description', newValue)}
-                    />
-                    {/*<CustomInputField*/}
-                    {/*    defaultValue={userData.email}*/}
-                    {/*    handleInput={emailValidation}*/}
-                    {/*    onChangeChecked={putEditedField}*/}
-                    {/*    id="email"*/}
-                    {/*    label="Email"*/}
-                    {/*    type="email"*/}
-                    {/*    key={userData.email}*/}
-                    {/*/>*/}
-                </>
-            }
-            {inlineAlert.message &&
-                <Alert severity={inlineAlert.severity}>
-                    {inlineAlert.message}
-                </Alert>
-            }
-            <Button
-                variant="contained"
-                disabled={Object.keys(editedFields).length === 0}
-                onClick={submitChanges}
-            >Submit changes</Button>
+                                src={Requests.get_avatar_link(member.id)}
+                            >{member.full_name}</Avatar>
+                            <Typography variant="p" component="div">
+                                {member.full_name}
+                            </Typography>
+                            {companyData.permissions === true && member.role !== 'founder' ? (
+                                <>
+                                    <CustomSelector
+                                        defaultValue={member.role}
+                                        options={memberRoles}
+                                        onChange={async (value) => {
+                                        const resp = await Requests.changeMemberRole(company_id, member.id, value);
+                                        alert(JSON.stringify(resp));
+                                    }} />
+                                    <Button onClick={async (event) => {
+                                        const resp = await Requests.ejectMember(company_id, member.id);
+                                        if (resp.state === true) {
+                                            setCompanyMembers(companyMembers.filter((item) => item.id !== member.id));
+                                        }
+                                    }} >delete</Button>
+                                </>
+                            ) : (
+                                <Typography variant="p" component="div">
+                                    {member.role}
+                                </Typography>
+                            )}
+                        </Stack>
+                    ))}
+                </Box>
+                <CustomSearch
+                    options={searchOptions}
+                    handleSearchChange={(event, newValue) => setInvitesSearchInput(newValue)}
+                />
+                <Box>
+                    {usersFound.map((user) =>(
+                        // <div>{JSON.stringify(user)}</div>
+                        <Stack direction="row" alignItems="center" spacing={2} key={`user-found-${user.id}`}>
+                            <Avatar
+                                src={Requests.get_avatar_link(user.id)}
+                            >{user.full_name}</Avatar>
+                            <Typography variant="p" component="div">
+                                {user.full_name}
+                            </Typography>
+                            <Button
+                                onClick={() => {
+                                    Requests.memberInvite(companyData.id, user.id).then((resp) => {
+                                        if (resp.state === true){
+                                            alert('invition send');
+                                        }
+                                        else
+                                            alert(resp?.message || 'error');
+                                    })
+                                }}
+                            >Invite</Button>
+                        </Stack>
+                    ))}
+                </Box>
+            </div>
         </div>
     )
 }

@@ -14,6 +14,7 @@ import theme from "./Theme";
 import Company from "./pages/companies/Company";
 import CompanySettings from "./pages/companies/CompanySettings";
 import CompanyDataWrapper from "./pages/companies/CompanyDataWrapper";
+import AcceptInvitation from "./pages/AcceptInvitation";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registration = lazy(() => import("./pages/auth/Registration"));
@@ -43,6 +44,7 @@ function App() {
                     <Route path="me/settings" element={<ProfileSettings />} />
                     <Route path=":user_id" element={<Profile />} />
                 </Route>
+                <Route path="accept-invitation/:invitationCode" element={<AcceptInvitation />}/>
             </Route>
         )
     );

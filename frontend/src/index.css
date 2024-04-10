@@ -26,6 +26,14 @@ a {
   align-items: center;
 }
 
+.content-block {
+  padding: 20px;
+  background-color: var(--background-color-objects);
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+
 .center-block {
   display: grid;
   grid-row-gap: 5px;
@@ -39,6 +47,15 @@ a {
   min-width: 800px;
 }
 
+.two-blocks {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  grid-column-gap: 8px;
+  padding: 20px;
+  text-align: center;
+  justify-content: center;
+}
+
 .few-blocks {
   display: grid;
   grid-template-columns: 1fr 3fr 1fr;
@@ -47,17 +64,6 @@ a {
   text-align: center;
   justify-content: center;
   min-width: 800px;
-  width: 100%;
-}
-
-.few-blocks > div {
-  padding: 20px;
-  height: max-content;
-  /*height: 100%;*/
-  /*background-color: var(--background-color-objects);*/
-}
-
-.center-block > * {
   width: 100%;
 }
 

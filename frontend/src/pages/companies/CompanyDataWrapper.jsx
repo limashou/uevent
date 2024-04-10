@@ -1,6 +1,7 @@
-import { createContext, useEffect, useState } from "react";
+import {createContext, useContext, useEffect, useState} from "react";
 import {Outlet, useParams} from "react-router-dom";
 import Requests from "../../api/Requests";
+import {UserContext} from "../RootLayout";
 
 export const CompanyDataContext = createContext();
 
@@ -9,6 +10,7 @@ function CompanyDataWrapper({ children }) {
     const [companyData, setCompanyData] = useState(null);
     const [companyMembers, setCompanyMembers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [userData] = useContext(UserContext);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -16,6 +18,8 @@ function CompanyDataWrapper({ children }) {
                 const companyDataResponse = await Requests.companyById(company_id);
                 if (companyDataResponse.state === true) {
                     companyDataResponse.data.logo = Requests.get_company_logo_link(companyDataResponse.data.id);
+                    if (companyDataResponse.data.founder_id === userData.id)
+                        companyDataResponse.data.permissions = true;
                     setCompanyData(companyDataResponse.data);
                     setLoading(false);
                 }

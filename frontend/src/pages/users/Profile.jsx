@@ -5,12 +5,13 @@ import Box from "@mui/material/Box";
 import {UserContext} from "../RootLayout";
 import {useParams} from "react-router-dom";
 import Requests from "../../api/Requests";
+import CompanyMini from "../../components/CompanyMini";
 
 function Profile() {
     const {user_id} = useParams();
     const [userData] = useContext(UserContext);
     const [profileData, setProfileData] = useState();
-
+    const [userCompanies, setUserCompanies] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -24,23 +25,39 @@ function Profile() {
                 resp.data.avatar = Requests.get_avatar_link(resp.data.id);
                 setProfileData(resp.data);
             }
+            else {
+                alert(resp.message || 'Error');
+            }
         };
-        fetchData();
-    }, [user_id, userData]);
+        if (userData.id)
+            fetchData();
+    }, [user_id, userData.id]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const resp = await Requests.allCompanies({
+                founder_id: user_id === 'me' ? userData.id : user_id,
+                limit: 5,
+            })
+            // alert(JSON.stringify(resp));
+            setUserCompanies(resp.data.rows);
+        };
+        if (userData.id)
+            fetchData();
+    }, [user_id, userData.id]);
+
     return (
         <>
             <Box
-                display="flex"
-                alignItems="center"
                 gap={4}
                 p={2}
+                className={'center-block'}
             >
                 { profileData &&
                     <>
                         <Avatar
                             alt={profileData.full_name}
-                            // src={profileData.avatar}
-                            src="https://mir-s3-cdn-cf.behance.net/project_modules/hd/5eeea355389655.59822ff824b72.gif"
+                            src={profileData.avatar}
                             sx={{ width: 100, height: 100 }}
                         />
                         <Typography variant="h3">
@@ -53,6 +70,11 @@ function Profile() {
                         }
                     </>
                 }
+                <div>
+                    {userCompanies.map((company, index) => (
+                        <CompanyMini companyData={company} key={company.id}/>
+                    ))}
+                </div>
             </Box>
         </>
     )

@@ -38,6 +38,7 @@ export default function CustomTextArea({
         <StyledFormControl fullWidth>
             {label && <StyledInputLabel focused={focused}>{label}</StyledInputLabel>}
             <StyledTextareaAutosize
+                rows={3}
                 aria-label="empty textarea"
                 placeholder={placeholder}
                 defaultValue={defaultValue}

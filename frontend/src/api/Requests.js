@@ -84,14 +84,8 @@ export default class Requests {
     static get_avatar_link(user_id){
         return `${domain}/users/${user_id}/avatar`;
     }
-
-    static async findUsername(token, body) {
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        };
-        const resp = await axiosInstance.post(`/user/findBy`, body, config);
+    static async findUsername(body) {
+        const resp = await axiosInstance.post(`/users/findBy`, body);
         return resp.data;
     }
     static async edit_user(edited_data){
@@ -115,15 +109,37 @@ export default class Requests {
             axiosInstance.post('/companies/create', data);
         return resp.data;
     }
-
     static async editCompany(company_id, editedFields) {
         const resp = await
             axiosInstance.patch(`/companies/${company_id}/edit`, editedFields);
         return resp.data;
     }
-    static async allCompanies(page = 1, limit = 20, order = 'ASC', searchValue = '') {
+    static async allCompanies({page = 1,
+                              limit = 20,
+                              order = 'ASC',
+                              searchValue = '',
+                              founder_id = ''}) {
+        const config = {
+            params: {
+                page: page,
+                limit: limit,
+                order: order,
+                search: searchValue,
+                founder_id: founder_id
+            }
+        };
         const resp = await axiosInstance.get(
-            `/companies`,
+            `/companies`, config
+        );
+        return resp.data;
+    }
+    static async companyEvents(company_id,
+                               page = 1,
+                               limit = 20,
+                               order = 'ASC',
+                               searchValue = ''){
+        const resp = await axiosInstance.get(
+            `companies/${company_id}/all`,
             {
                 params: {
                     page: page,
@@ -139,12 +155,32 @@ export default class Requests {
         const resp = await axiosInstance.get(`/companies/${company_id}`);
         return resp.data;
     }
-
     static async companyMembers(company_id){
         const resp = await axiosInstance.get(`/companies/${company_id}/members`);
         return resp.data;
     }
-
+    static async memberInvite(company_id, user_id) {
+        const resp = await axiosInstance.post(
+            `/companies/${company_id}/members/invite`, { user_id }
+        );
+        return resp.data;
+    }
+    static async acceptMemberInvite(invitationCode){
+        const resp = await axiosInstance.post(
+            `/companies/members/accept-invitation/${invitationCode}`
+        );
+        return resp.data;
+    }
+    static async changeMemberRole(company_id, member_id, role){
+        const resp = await
+            axiosInstance.patch(`companies/${company_id}/members/${member_id}/role`, {role});
+        return resp.data;
+    }
+    static async ejectMember(company_id, member_id){
+        const resp = await
+            axiosInstance.delete(`companies/${company_id}/members/${member_id}/delete`);
+        return resp.data;
+    }
     static async companyLogoUpload(company_id, file){
         const data = new FormData();
         data.append('photo', file);
@@ -156,5 +192,7 @@ export default class Requests {
         return await
             axiosInstance.patch(`/companies/${company_id}/logo`, data, config);
     }
+
+    //EVENTS
 
 }

@@ -6,6 +6,7 @@ export const UserContext = createContext();
 
 function RootLayout() {
     const [userData, setUserData] = useState({
+        loading: true,
         username: 'Loading...',
         full_name: 'Loading...',
         avatar: Requests.get_avatar_link(localStorage.getItem('user_id'))

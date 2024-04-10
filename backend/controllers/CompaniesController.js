@@ -35,7 +35,24 @@ async function getById(req, res) {
         const result = await company.find({id: company_id});
         if (result.length === 0)
             return NOT_FOUND_ERROR(res, 'company');
-        res.json(new Response(true, null, result[0]));
+
+        const permissions = {
+            eventCreate: false,
+            companyEdit: false,
+            createNews: false,
+            ejectMember: false,
+        }
+        if (company.founder_id === req.senderData.id){
+            permissions.eventCreate = true;
+            permissions.companyEdit = true;
+            permissions.createNews = true;
+            permissions.ejectMember = false;
+        }
+        const responce = {
+            data: result[0],
+            permissions: permissions
+        }
+        res.json(new Response(true, null, ));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -92,10 +109,14 @@ async function allCompanies(req, res) {
             limit = 20,
             field = 'name',
             order = 'ASC',
-            search = ''
+            search = '',
+            founder_id
         } = req.query;
 
         const filters = [];
+        if (founder_id){
+            filters.push(`founder_id = ${founder_id}`)
+        }
         if (search.trim() !== '')
             filters.push(`LOWER(name) LIKE '%${search.toLowerCase()}%'`);
 
@@ -106,10 +127,18 @@ async function allCompanies(req, res) {
                     size: limit,
                     order: order,
                     field: field,
-                    join: 'SELECT companies.*, users.full_name as founder_name FROM companies JOIN users ON companies.founder_id = users.id',
-                    filters: filters
+                    filters: filters,
+                    join: 'SELECT companies.*, users.full_name AS founder_name, ' +
+                        'CASE WHEN COUNT(company_members) > 0 THEN ' +
+                        'json_agg(json_build_object(\'role\', company_members.role, \'member_id\', company_members.member_id)) ' +
+                        'ELSE NULL END AS members ' +
+                        'FROM companies ' +
+                        'LEFT JOIN users ON companies.founder_id = users.id ' +
+                        'LEFT JOIN company_members ON companies.id = company_members.company_id',
+                    group: 'GROUP BY companies.id, users.full_name'
                 }
             );
+
             res.json(new Response(true, "All companies by page " + page, allCompanies));
         }else {
             return res.json(new Response(false, `Incorrect page. Page must be greater than or equal to 1, but your page is ${page}`));
@@ -275,7 +304,7 @@ async function addMember(req,res){
 
 async function acceptMember(req,res) {
     try {
-        const invitationCode = req.params.invitationCode;
+        const { invitationCode } = req.params;
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
@@ -337,21 +366,21 @@ async function allCompanyMember(req,res){
 
 async function changeRole(req,res){
     try {
-        const { company_id ,member_id} = req.params;
-        const { role} = req.body;
+        const { company_id, member_id} = req.params;
+        const { role } = req.body;
         const company = new Companies();
         const company_member = new CompanyMember();
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
-        if(!(await company.isFounder(req.senderData.id,company_id))) {
+        if(!(await company.isFounder(req.senderData.id, company_id))) {
             return res.json(new Response(false,"it isn't your company"));
         }
-        const companyMemberFound = await company_member.find({ member_id: member_id });
+        const companyMemberFound = await company_member.find({company_id: company_id, member_id: member_id });
         if (companyMemberFound.length === 0) {
             return res.json(new Response(false, 'Пользователь не найден'));
         }
-        await company.updateById({ id: companyMemberFound[0].id, role });
+        await company_member.updateById({ id: companyMemberFound[0].id, role });
         res.json(new Response(true, 'Данные пользователя успешно обновлены'));
     } catch (error) {
         console.log(error);

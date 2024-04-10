@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require("path");
 const bcrypt = require("bcrypt");
 const token_controller = require("./TokenController");
+const {NOT_FOUND_ERROR} = require("./Errors");
 
 async function getAllUser(req, res){
     try {
@@ -55,15 +56,18 @@ async function getById(req,res){
     try {
         let user = new User();
         const { id } = req.params;
-        const cId = id === 'me' ? req.senderData?.id : id;
+        const cId = id === 'me' ? req.senderData?.id : Number.parseInt(id);
         if (cId === undefined)
             return res.json(new Response(false, "Not authorized"));
-        const userById = await user.find({ id: cId });
+        const usersFoundById = await user.find({ id: cId });
+        if (usersFoundById.length === 0){
+            return NOT_FOUND_ERROR(res, 'User');
+        }
         let filteredUser;
-        if(req.senderData.id !== undefined && req.senderData.id === userById[0].id ) {
-            filteredUser = userById.map(({ id, email,full_name }) => ({ id, email,full_name }));
+        if(req.senderData.id !== undefined && req.senderData.id === usersFoundById[0].id ) {
+            filteredUser = usersFoundById.map(({ id, email,full_name }) => ({ id, email,full_name }));
         }else {
-            filteredUser = userById.map(({ id, full_name }) => ({ id, full_name }));
+            filteredUser = usersFoundById.map(({ id, full_name }) => ({ id, full_name }));
         }
         res.json(new Response(true, "users by id", filteredUser[0]));
     } catch (error) {

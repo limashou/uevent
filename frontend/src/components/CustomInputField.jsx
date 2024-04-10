@@ -39,6 +39,7 @@ function CustomInputField({
 
     return (
         <TextField
+            sx={{display: 'flex'}}
             variant="filled"
             error={fields.error}
             helperText={fields.helper}

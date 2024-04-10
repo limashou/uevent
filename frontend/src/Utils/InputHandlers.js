@@ -86,3 +86,8 @@ export const companyNameValidation = (event) => {
         helper: helperText,
     }
 }
+export const memberRoles = [
+    { value: 'worker', label: 'Worker' },
+    { value: 'news_maker', label: 'News Maker' },
+    { value: 'editor', label: 'Editor' },
+];
