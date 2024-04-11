@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const {NOT_FOUND_ERROR} = require("./Errors");
 const {generateCode, transporter} = require("./Helpers");
+const CompanyNotification = require('../models/company_notification');
 let SendDataForMember = { }
 
 /** /=======================/company function /=======================/ */
@@ -501,6 +502,48 @@ async function companyNewsPosterUpload(req, res) {
 
 /** /=======================/company notification function /=======================/ */
 //polyshenie yvedov,
+async function getNotification(req,res){
+    try {
+        const { company_id } = req.params;
+        if(req.senderData.id === undefined) {
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
+        const notification = new CompanyNotification();
+        if(!(await notification.isMember(company_id,req.senderData.id))){
+            return res.json(new Response(false, "You not member of the company"));
+        }
+        const companyNotification = await notification.find({ company_id: company_id});
+        res.json(new Response(true, "all notification", companyNotification));
+    }catch (error) {
+        console.log(error);
+        res.json(new Response(false,error.toString()))
+    }
+}
+
+async function deleteNotification(req,res){
+    try {
+        const { company_id, notification_id } = req.params;
+        if(req.senderData.id === undefined) {
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
+        const notification = new CompanyNotification();
+        if(!(await notification.isMember(company_id,req.senderData.id))){
+            return res.json(new Response(false, "You not member of the company"));
+        }
+        const notificationForDelete = await notification.find({ id: notification_id });
+        if(notificationForDelete.length === null) {
+            return res.json(new Response(false, "Wrong notification id"));
+        }
+        await notification.deleteRecord({id: notificationForDelete[0].id});
+        res.json(new Response(true, "Deleted"));
+    }catch (error) {
+        console.log(error);
+        res.json(new Response(false,error.toString()))
+    }
+}
+
+/** /=======================/ module exports /=======================/ */
+
 module.exports = {
     // company
     createCompanies,
@@ -524,6 +567,8 @@ module.exports = {
     editNews,
     deleteNews,
     companyNewsPoster,
-    companyNewsPosterUpload
-
+    companyNewsPosterUpload,
+    //notification
+    getNotification,
+    deleteNotification
 }

@@ -27,9 +27,10 @@ class Events extends Model {
             SELECT cm.id, cm.member_id AS founder_id
             FROM company_members cm
             JOIN users u ON cm.member_id = u.id
+            JOIN company_roles ON cm.role_id = company_roles.id
             WHERE cm.company_id = $1 
             AND cm.member_id = $2
-            AND cm.role = 'editor'
+            AND company_roles.role_name = 'editor'
         ) AS permissions;
     `;
         const values = [company_id, user_id];

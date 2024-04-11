@@ -23,9 +23,8 @@ async function creteTickets(req,res){
             return res.json(new Response(false, "Empty body"));
         }
         const eventFound = await event.find({id: event_id});
-        console.log(eventFound);
         if(eventFound.length === 0) {
-            res.json(new Response(false,"Wrong event id"));
+            return res.json(new Response(false,"Wrong event id"));
         }
         if(!(await event.havePermission(eventFound[0].company_id, req.senderData.id))) {
             return res.json(new Response(false,"Not enough permission"));

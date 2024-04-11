@@ -13,50 +13,23 @@ class Company_members extends Model {
         return this.insert();
     }
 
-    async getAllCompanyUsers(company_id) {
+    async  getAllCompanyUsers(company_id) {
         const query = `
-        SELECT DISTINCT ON (u.id)
-            jsonb_build_object(
-                'id', u.id,
-                'full_name', u.full_name,
-                'email', u.email,
-                'role', CASE
-                        WHEN u.id = c.founder_id THEN 'Founder'
-                        ELSE cr.role_name
-                        END
-            ) AS data,
-            jsonb_build_object(
-                'event_creation', CASE
-                    WHEN u.id = c.founder_id THEN true
-                    ELSE cr.event_creation
-                    END,
-                'company_edit', CASE
-                    WHEN u.id = c.founder_id THEN true
-                    ELSE cr.company_edit
-                    END,
-                'news_creation', CASE
-                    WHEN u.id = c.founder_id THEN true
-                    ELSE cr.news_creation
-                    END,
-                'eject_members', CASE
-                    WHEN u.id = c.founder_id THEN true
-                    ELSE cr.eject_members
-                    END
-            ) AS permissions
+        SELECT u.id, u.full_name, u.email, 'founder' AS role
         FROM users u
-        JOIN companies c ON u.id = c.founder_id OR u.id IN (SELECT member_id FROM company_members WHERE company_id = $1)
-        LEFT JOIN company_members cm ON u.id = cm.member_id
-        LEFT JOIN company_roles cr ON cm.role_id = cr.id
+        JOIN companies c ON u.id = c.founder_id
         WHERE c.id = $1
-        ORDER BY u.id, cm.id;
+        UNION
+        SELECT u.id, u.full_name, u.email, cr.role_name
+        FROM users u
+        JOIN company_members cm ON u.id = cm.member_id
+        JOIN company_roles cr ON cm.role_id = cr.id
+        WHERE cm.company_id = $1;
     `;
         const values = [company_id];
         try {
             const { rows } = await client.query(query, values);
-            return rows.map(row => ({
-                data: row.data,
-                permissions: row.permissions
-            }));
+            return rows;
         } catch (error) {
             console.error("Error retrieving company users:", error);
             return [];

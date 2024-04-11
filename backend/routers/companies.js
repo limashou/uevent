@@ -26,5 +26,7 @@ router.patch('/:company_id/news/edit', company_controller.editNews);
 router.delete('/:company_id/news/delete/:id', company_controller.deleteNews);
 router.patch('/:company_id/posterUpload/:news_id', uploadNews.single('poster'), company_controller.companyNewsPosterUpload);
 router.get('/:company_id/poster/:news_id', company_controller.companyNewsPoster);
-
+//notification
+router.get('/:company_id/notification', company_controller.getNotification);
+router.delete('/:company_id/notification/:notification_id/delete', company_controller.deleteNotification);
 module.exports = router;
