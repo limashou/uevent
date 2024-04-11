@@ -32,33 +32,17 @@ async function getById(req, res) {
     try {
         let company = new Companies();
         const { company_id } = req.params;
-        const result = await company.find({id: company_id});
+        console.log(req.senderData.id);
+        const result = await company.getCompanyAndPermissions(req.senderData.id,company_id);
         if (result.length === 0)
             return NOT_FOUND_ERROR(res, 'company');
-
-        const permissions = {
-            eventCreate: false,
-            companyEdit: false,
-            createNews: false,
-            ejectMember: false,
-        }
-        if (company.founder_id === req.senderData.id){
-            permissions.eventCreate = true;
-            permissions.companyEdit = true;
-            permissions.createNews = true;
-            permissions.ejectMember = false;
-        }
-        const responce = {
-            data: result[0],
-            permissions: permissions
-        }
-        res.json(new Response(true, null, ));
+        res.json(new Response(true, null, result));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
     }
 }
-
+//editor mozet menat
 async function editCompany(req,res){
     try {
         const { name, email, location, description } = req.body;
@@ -516,7 +500,7 @@ async function companyNewsPosterUpload(req, res) {
 }
 
 /** /=======================/company notification function /=======================/ */
-
+//polyshenie yvedov,
 module.exports = {
     // company
     createCompanies,

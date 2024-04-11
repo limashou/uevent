@@ -7,6 +7,7 @@ const pdfkit = require('pdfkit');
 const User  = require('../models/users');
 const QRCode = require('qrcode');
 const { PassThrough } = require('stream');
+const CompanyNotification = require('../models/company_notification');
 /** /=======================/tickets function /=======================/ */
 
 async function creteTickets(req,res){
@@ -189,14 +190,20 @@ async function buyTicket(req,res){
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"You need to authorize for buy or reserved ticket"))
         }
-        await ticketUser.DATAUS(ticket_id);
+        if(await ticketUser.DATAUS(ticket_id)){
+            return res.json(new Response(false, "All tickets are sold out"));
+        }
+        if(await ticketUser.isNotificationEnabled(ticket_id)) {
+            const currentTime = new Date();
+            let notification = new CompanyNotification();
+            const information = await ticketUser.getInformation(ticket_id, req.senderData.id);
+            await notification.create("Event ticket purchase " + information[0].name,
+                "The " + information[0].full_name + " " + ticket_status +" a " + information[0].ticket_type + " ticket to the event",
+                information[0].company_id, currentTime);
+        }
         const result = await ticketUser.buy(ticket_status,req.senderData.id,ticket_id,show_username);
         await generateTicketPdf(req.senderData.id,ticket_id,ticket_status);
-        if(ticket_status === "buy") {
-            res.json(new Response(true, "Ticket purchased successfully",result));
-        } else {
-            res.json(new Response(true, "Ticket reserved successfully",result));
-        }
+        res.json(new Response(true, "Ticket " + ticket_status +" successfully",result));
     }catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -215,7 +222,7 @@ async function cancelTicket(req,res){
             return res.json(new Response(false,"It's not your ticket"))
         }
         await ticket_user.rollbackAvailableTickets(ticket_id);
-        await ticket_user.deleteRecord({ id:id });
+        await ticket_user.deleteRecord({ id: found[0].id });
         return res.json(new Response(true,"You successfully canceled ticket"))
     }catch (error) {
         console.error(error);

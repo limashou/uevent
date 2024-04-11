@@ -2,8 +2,7 @@ DROP DATABASE IF EXISTS uevent_lubiviy_poliatskiy;
 
 CREATE DATABASE uevent_lubiviy_poliatskiy;
 
-CREATE TYPE ticket_statuses AS ENUM ('buy', 'reserved');
-CREATE TYPE roles AS ENUM('worker','news_maker','editor','founder');
+CREATE TYPE ticket_statuses AS ENUM ('bought', 'reserved');
 CREATE TYPE formats AS ENUM('conferences','lectures','workshops','fests');
 CREATE TYPE themes AS ENUM('business','politics','psychology');
 CREATE TYPE statuses AS ENUM('available', 'sold out');
@@ -30,13 +29,23 @@ CREATE TABLE IF NOT EXISTS companies(
     CONSTRAINT fk_user_id FOREIGN KEY (founder_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS company_roles(
+    id SERIAL PRIMARY KEY,
+    role_name VARCHAR(25) NOT NULL,
+    event_creation BOOLEAN DEFAULT FALSE,
+    company_edit BOOLEAN DEFAULT FALSE,
+    news_creation BOOLEAN DEFAULT FALSE,
+    eject_members BOOLEAN DEFAULT FALSE
+);
+
 CREATE TABLE IF NOT EXISTS company_members(
     id SERIAL PRIMARY KEY,
     company_id INTEGER NOT NULL,
     member_id INTEGER NOT NULL,
-    role roles,
+    role_id INTEGER NOT NULL ,
     CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE,
-    CONSTRAINT fk_user_id FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT fk_user_id FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_role_id FOREIGN KEY (role_id) REFERENCES company_roles(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS company_news(
@@ -74,7 +83,6 @@ CREATE TABLE IF NOT EXISTS tickets (
     CONSTRAINT fk_event_id FOREIGN KEY (events_id) REFERENCES events(id) ON DELETE CASCADE
 );
 
-
 CREATE TABLE IF NOT EXISTS user_tickets (
     id SERIAL PRIMARY KEY,
     ticket_status ticket_statuses,
@@ -95,13 +103,25 @@ CREATE TABLE IF NOT EXISTS company_notification (
     CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE
 );
 
+-- podpiska na kompaniu
+CREATE TABLE IF NOT EXISTS user_subscribe(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    company_id INTEGER NOT NULL,
+    update_events BOOLEAN,
+    new_news BOOLEAN,
+    new_events BOOLEAN,
+    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS user_notification (
     id SERIAL PRIMARY KEY ,
     title VARCHAR(50),
     description TEXT,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
---     type ("companiya, events"),
---     company_id INTEGER NOT NULL
+    user_subscribe_id INTEGER NOT NULL,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_subscribe_id FOREIGN KEY (user_subscribe_id) REFERENCES user_subscribe(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS event_comments(
@@ -127,6 +147,11 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO mpoljatsky;
 
 GRANT INSERT ON TABLE companies TO mpoljatsky;
 
+INSERT INTO company_roles(role_name,event_creation,company_edit,news_creation,eject_members)
+VALUES ('founder',true,true,true,true),
+       ('editor',true,true,true,false),
+       ('news_maker',false,false,true,false),
+       ('worker',false,false,false,false);
 
 -- CREATE TABLE IF NOT EXISTS locations (
 --                                          id SERIAL PRIMARY KEY,

@@ -18,6 +18,7 @@ class Tickets_users extends Model  {
 
     // transaction for check and decrease available tickets and update status
     async DATAUS(ticketId) {
+        let soldOut = false;
         try {
             dbClient = new Client({
                 user: 'mpoljatsky',
@@ -46,6 +47,7 @@ class Tickets_users extends Model  {
                 WHERE id = $1;
             `;
                 await dbClient.query(updateStatusQuery, checkValues);
+                soldOut = true;
             } else {
                 const updateQuery = `
                 UPDATE tickets
@@ -68,6 +70,7 @@ class Tickets_users extends Model  {
                 await dbClient.end();
             }
         }
+        return soldOut;
     }
 
     async rollbackAvailableTickets(ticketId) {
@@ -125,6 +128,41 @@ class Tickets_users extends Model  {
         WHERE user_tickets.id = $1
     `;
         const values = [id];
+        try {
+            const { rows } = await client.query(query, values);
+            return rows;
+        } catch (error) {
+            console.error("Error finding by name part:", error);
+            return  false;
+        }
+    }
+
+    async isNotificationEnabled(ticketId) {
+        const query = `
+        SELECT e.notification
+        FROM events e
+        JOIN tickets t ON e.id = t.events_id
+        WHERE t.id = $1;
+    `;
+        const values = [ticketId];
+        try {
+            const { rows } = await client.query(query, values);
+            return rows.length > 0 ? rows[0].notification : false;
+        } catch (error) {
+            console.error("Error checking notification:", error);
+            return false;
+        }
+    }
+    async getInformation(ticketId,user_id){
+        const selectColumns = ['events.name','events.company_id','users.full_name','tickets.ticket_type'];
+        const query = `
+        SELECT ${selectColumns.join(', ')}
+        FROM tickets
+        JOIN users ON users.id = $2
+        JOIN events ON tickets.events_id = events.id
+        WHERE tickets.id = $1
+    `;
+        const values = [ticketId,user_id];
         try {
             const { rows } = await client.query(query, values);
             return rows;
