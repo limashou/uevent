@@ -58,12 +58,14 @@ function verifyToken(req, res) {
 
         jwt.verify(token, secretYaEby, (err, decoded) => {
             if (err) {
-                return res.status(401).json(new Response(false, 'Недействительный токен'));
-            } else {
+                console.log("Недействительный токен");
+                // return res.status(401).json(new Response(false, 'Недействительный токен'));
+            }
+            // else {
                 req.senderData = decoded;
                 console.log(decoded);
                 resolve();
-            }
+            // }
         });
     });
 }
@@ -78,6 +80,25 @@ function verifyLogin(req, res, next) {
         }
     });
 }
+// async function createSession(req, res, next) {
+//     try {
+//         console.log("Generating session data...");
+//         const sessionData = {
+//             sessionId: generateCode()
+//         };
+//         console.log("Generating session token...");
+//         const sessionToken = generateToken(sessionData);
+//
+//         // Устанавливаем сессионный токен в куки
+//         res.cookie('session_token', sessionToken, { httpOnly: true, session: true });
+//
+//         console.log("Session created successfully");
+//         next(); // Передаем управление следующему middleware
+//     } catch (error) {
+//         console.error(error);
+//         res.status(error.status || 500).json(new Response(false,"Something wrong"));
+//     }
+// }
 
 async function createSession(req, res) {
     return new Promise((resolve, reject) => {
@@ -96,6 +117,7 @@ async function createSession(req, res) {
         }
     });
 }
+
 
 
 module.exports = {

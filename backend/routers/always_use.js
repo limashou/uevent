@@ -7,8 +7,8 @@ function sessionMiddleware(req, res, next) {
     } else {
         createSession(req, res)
             .then(() => {
-                console.log("create");
-                next();
+                console.log("Session created successfully");
+                next()
             })
             .catch(error => {
                 console.error(error);
@@ -17,49 +17,17 @@ function sessionMiddleware(req, res, next) {
     }
 }
 
-// function tokenMiddleware(req, res, next) {
-//     console.log(req.cookies);
-//     if (req.cookies.auth_token || req.cookies.session_token) {
-//         if (req.cookies.auth_token) {
-//             verifyToken(req, res)
-//                 .then(() => {
-//                     console.log("verify");
-//                     next();
-//                 })
-//                 .catch(error => {
-//                     console.error(error);
-//                     res.status(error.status || 500).json({ success: false, message: 'Отсутствует токен авторизации'});
-//                 });
-//         }
-//         else if (req.cookies.session_token) {
-//             verifyToken(req, res)
-//                 .then(() => {
-//                     console.log("verify");
-//                     next();
-//                 })
-//                 .catch(error => {
-//                     console.error(error);
-//                     res.status(error.status || 500).json({ success: false, message: 'Отсутствует токен сесии' });
-//                 });
-//         }
-//     }
-// }
 function tokenMiddleware(req, res, next) {
     console.log(req.cookies);
-    // if (req.cookies.auth_token || req.cookies.session_token) {
-        verifyToken(req, res)
-            .then(() => {
-                console.log("verify");
-                next();
-            })
-            .catch(error => {
-                console.error(error);
-                res.status(error.status || 401).json(new Response(false, 'Ошибка аутентификации'));
-            });
-    // } else {
-    //     console.log("Отсутствует токен аутентификации или сессии");
-    //     res.status(401).json(new Response(false, 'Отсутствует токен аутентификации или сессии'));
-    // }
+    verifyToken(req, res)
+        .then(() => {
+            console.log("verify");
+            next();
+        })
+        .catch(error => {
+            console.error(error);
+            res.status(error.status || 401).json(new Response(false, 'Ошибка аутентификации'));
+        });
 }
 
 module.exports = {

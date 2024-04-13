@@ -35,8 +35,9 @@ async function getById(req, res) {
     try {
         let company = new Companies();
         const { company_id } = req.params;
-        console.log(req.senderData.id);
-        const result = await company.getCompanyAndPermissions(req.senderData.id,company_id);
+        // console.log(req.senderData.id);
+        const senderDataId = req.senderData ? req.senderData.id : undefined;
+        const result = await company.getCompanyAndPermissions(senderDataId, company_id);
         if (result.length === 0)
             return NOT_FOUND_ERROR(res, 'company');
         res.json(new Response(true, null, result));
