@@ -2,6 +2,8 @@ const Events = require('../models/events');
 const EventComments = require('../models/event_comments');
 const Response = require("../models/response");
 const {getLocationData} = require("./Helpers");
+const UserNotification = require('../models/user_notification');
+
 
 async function Location(req, res) {
     try {
@@ -31,6 +33,16 @@ async function createEvent(req,res){
             return res.json(new Response(false,"Not enough permission"));
         }
         const result = await event.create(name, notification, description, date, format, theme ,company_id);
+        let userNotification = new UserNotification();
+        const newsSubscription = await userNotification.isNewEvents(company_id);
+        if (newsSubscription) {
+            for (const newsSubscriptionElement of newsSubscription) {
+                await notification.notification("The " + newsSubscriptionElement.name + " has some new events",
+                    "The " + newsSubscriptionElement.name + " has created a new event: " + name + ".",
+                    "/api/events/" + company_id + "/byId/" + result,
+                    newsSubscriptionElement.id)
+            }
+        }
         res.json(new Response(true,"Event create" , result));
     } catch (error) {
         console.error(error);
@@ -57,6 +69,16 @@ async function editEvent(req,res){
 
         let updatedFields = { name, notification, description, date, format, theme };
         await event.updateById( { id: foundEvent[0].id, ...updatedFields });
+        let userNotification = new UserNotification();
+        const newsSubscription = await userNotification.isUpdateEvents(company_id);
+        if (newsSubscription) {
+            for (const newsSubscriptionElement of newsSubscription) {
+                await notification.notification("The " + newsSubscriptionElement.name + " complemented the event.",
+                    "The " + newsSubscriptionElement.name + " has complemented the event: " + name + ".",
+                    "/api/events/" + company_id + "/byId/" + foundEvent[0].id,
+                    newsSubscriptionElement.id)
+            }
+        }
         res.json(new Response(true,"Successfully update"),foundEvent[0].id);
     }catch (error) {
         console.error(error);

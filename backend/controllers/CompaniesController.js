@@ -8,6 +8,8 @@ const path = require("path");
 const {NOT_FOUND_ERROR} = require("./Errors");
 const {generateCode, transporter} = require("./Helpers");
 const CompanyNotification = require('../models/company_notification');
+const UserSubscribe = require('../models/user_subscribe');
+const UserNotification = require('../models/user_notification');
 let SendDataForMember = { }
 
 /** /=======================/company function /=======================/ */
@@ -43,7 +45,6 @@ async function getById(req, res) {
         res.json(new Response(false, error.toString()));
     }
 }
-//editor mozet menat
 async function editCompany(req,res){
     try {
         const { name, email, location, description } = req.body;
@@ -134,20 +135,20 @@ async function allCompanies(req, res) {
     }
 }
 
-async function getCompany(req, res){
-    try {
-        const { company_id } = req.params;
-        const company = new Companies();
-        const foundCompany = await company.find({ id: company_id });
-        if(foundCompany.length === 0){
-            return res.json(new Response(false,"Wrong id "));
-        }
-        res.json(new Response(true,"Company by id" + company_id, foundCompany));
-    } catch (error) {
-        console.log(error);
-        res.json(new Response(false, error.toString()))
-    }
-}
+// async function getCompany(req, res){
+//     try {
+//         const { company_id } = req.params;
+//         const company = new Companies();
+//         const foundCompany = await company.find({ id: company_id });
+//         if(foundCompany.length === 0){
+//             return res.json(new Response(false,"Wrong id "));
+//         }
+//         res.json(new Response(true,"Company by id" + company_id, foundCompany));
+//     } catch (error) {
+//         console.log(error);
+//         res.json(new Response(false, error.toString()))
+//     }
+// }
 
 async function companiesByFounder(req,res){
     try{
@@ -212,6 +213,7 @@ async function companyLogoUpload(req, res) {
                     res.json(new Response(false, error.toString()))
                 })
         }).catch((error) => {
+            console.log(error);
             res.json(new Response(false, `Not found company with id ${company_id}`))
         })
     }
@@ -225,21 +227,21 @@ async function companyLogoUpload(req, res) {
     }
 }
 
-async function searchByCompanyName(req,res) {
-    try {
-        const { name_part } = req.body;
-        let company = new Companies();
-        const result = await company.findByName(name_part);
-        if(result !== null) {
-            res.json(new Response(true," all company what found by " + name_part, result));
-        } else {
-            res.json(new Response(true,"not found any company by name_part " + name_part));
-        }
-    }catch (error) {
-        console.log(error);
-        res.json(new Response(false,error.toString()));
-    }
-}
+// async function searchByCompanyName(req,res) {
+//     try {
+//         const { name_part } = req.body;
+//         let company = new Companies();
+//         const result = await company.findByName(name_part);
+//         if(result !== null) {
+//             res.json(new Response(true," all company what found by " + name_part, result));
+//         } else {
+//             res.json(new Response(true,"not found any company by name_part " + name_part));
+//         }
+//     }catch (error) {
+//         console.log(error);
+//         res.json(new Response(false,error.toString()));
+//     }
+// }
 
 /** /=======================/company member function /=======================/ */
 async function addMember(req,res){
@@ -374,10 +376,11 @@ async function changeRole(req,res){
 }
 
 /** /=======================/company news function /=======================/ */
-
+//dobavit link
 async function createNews(req,res){
     try {
         let company_news = new CompanyNews();
+        let notification = new UserNotification();
         const { company_id } = req.params;
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
@@ -386,7 +389,16 @@ async function createNews(req,res){
         if(!(await company_news.havePermission(company_id,req.senderData.id))) {
             return res.json(new Response(false,"you don't have permission"));
         }
+        const newsSubscription = await notification.isNews(company_id);
         const result = await company_news.crate(company_id, title, content);
+        if (newsSubscription) {
+            for (const newsSubscriptionElement of newsSubscription) {
+                await notification.notification("The " + newsSubscriptionElement.name + " has some new news",
+                    "There is a new news item on the company page titled: " + title + ".",
+                    "/api/companies/" + company_id + "/news/" + result,
+                    newsSubscriptionElement.id)
+            }
+        }
         res.json(new Response(true, "successfully create", result));
     } catch (error) {
         console.log(error);
@@ -441,7 +453,7 @@ async function deleteNews(req,res){
 }
 
 async function companyNewsPoster(req, res) {
-    const {company_id ,news_id} = req.params;
+    const {news_id} = req.params;
     let company_news = new CompanyNews();
     company_news.find({id: news_id})
         .then((result)=>{
@@ -487,6 +499,7 @@ async function companyNewsPosterUpload(req, res) {
                     res.json(new Response(false, error.toString()))
                 })
         }).catch((error) => {
+            console.log(error);
             res.json(new Response(false, `Not found news with id ${news_id}`))
         })
     }
@@ -500,19 +513,110 @@ async function companyNewsPosterUpload(req, res) {
     }
 }
 
+async function getNewsById(req,res){
+    try {
+        const { news_id } = req.params;
+        const news = new CompanyNews();
+        const newsFound = await news.find({id: news_id});
+        if(newsFound.length === 0) {
+            return NOT_FOUND_ERROR(res, 'news');
+        }
+        res.json(new Response(true,"News by id" + news_id, newsFound));
+    } catch (error) {
+        console.log(error);
+        res.json(new Response(false,error.toString()));
+    }
+}
+
+async function allCompanyNews(req, res) {
+    try {
+        const { company_id } = req.params;
+        const news = new CompanyNews();
+        const {
+            page = 1,
+            limit = 20,
+            field = 'name',
+            order = 'ASC',
+        } = req.query;
+
+        if(page < 1 ) {
+            return res.json(new Response(false, `Incorrect page. Page must be greater than or equal to 1, but your page is ${page}`));
+        }
+        const companyNews = await news.find_with_sort({
+            company_id: company_id,
+            page: page,
+            size: limit,
+            order: order,
+            field: field,
+        });
+        if(companyNews.length === 0) {
+            return res.json(new Response(true,"You haven't received any notifications"));
+        }
+        res.json(new Response(true, "all notification", companyNews));
+    } catch (error) {
+        console.log(error);
+        res.json(new Response(false, error.toString()))
+    }
+}
+
+async function allNews(req, res) {
+    try {
+        const news = new CompanyNews();
+        const {
+            page = 1,
+            limit = 20,
+            field = 'name',
+            order = 'ASC',
+        } = req.query;
+
+        if(page < 1 ) {
+            return res.json(new Response(false, `Incorrect page. Page must be greater than or equal to 1, but your page is ${page}`));
+        }
+        const companyNews = await news.find_with_sort({
+            page: page,
+            size: limit,
+            order: order,
+            field: field,
+        });
+        if(companyNews.length === 0) {
+            return res.json(new Response(true,"You haven't received any notifications"));
+        }
+        res.json(new Response(true, "all notification", companyNews));
+    } catch (error) {
+        console.log(error);
+        res.json(new Response(false, error.toString()))
+    }
+}
 /** /=======================/company notification function /=======================/ */
-//polyshenie yvedov,
 async function getNotification(req,res){
     try {
         const { company_id } = req.params;
+        const {
+            page = 1,
+            limit = 20,
+            field = 'date',
+            order = 'ASC',
+        } = req.query;
         if(req.senderData.id === undefined) {
             return res.json(new Response(false, "You need authorize for this action"));
+        }
+        if(page < 1 ) {
+            return res.json(new Response(false, `Incorrect page. Page must be greater than or equal to 1, but your page is ${page}`));
         }
         const notification = new CompanyNotification();
         if(!(await notification.isMember(company_id,req.senderData.id))){
             return res.json(new Response(false, "You not member of the company"));
         }
-        const companyNotification = await notification.find({ company_id: company_id});
+        const companyNotification = await notification.find_with_sort({
+            company_id: company_id,
+            page: page,
+            size: limit,
+            order: order,
+            field: field,
+        });
+        if(companyNotification.length === 0) {
+            return res.json(new Response(true,"You haven't received any notifications"));
+        }
         res.json(new Response(true, "all notification", companyNotification));
     }catch (error) {
         console.log(error);
@@ -541,6 +645,68 @@ async function deleteNotification(req,res){
         res.json(new Response(false,error.toString()))
     }
 }
+/** /=======================/ user subscribe /=======================/ */
+
+async function userSubscribe(req,res){
+    try {
+        const { company_id } = req.params;
+        const { update_events, new_news, new_events } = req.body;
+        if(req.senderData.id === undefined) {
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
+        const result  = await new UserSubscribe().subscribe(req.senderData.id, company_id, update_events, new_news, new_events);
+        res.json(new Response(true,"You successfully subscribe", result));
+    } catch (error) {
+        console.log(error);
+        res.json(new Response(false,error.toString()))
+    }
+}
+
+async function userChangeSubscribe(req, res) {
+    try {
+        if (req.senderData.id === undefined) {
+            return res.json(new Response(false, "You need to authorize for this action"));
+        }
+        const { subscribe_id } = req.params;
+        const { update_events, new_news, new_events } = req.body;
+        const subscribe = new UserSubscribe();
+        const foundSubscribe = await userSubscribe.find({ id: subscribe_id });
+        if (foundSubscribe.length === 0) {
+            return res.json(new Response(false, "Wrong subscribe_id"));
+        }
+        if (foundSubscribe[0].user_id !== req.senderData.id) {
+            return res.json(new Response(false, "It's not your subscribe"));
+        }
+        let updatedFields = { update_events, new_news, new_events  };
+        await subscribe.updateById({ id: foundSubscribe[0].id, ...updatedFields });
+        res.json(new Response(true, 'Subscribe successfully update', foundSubscribe[0].id));
+    } catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
+
+async function userUnsubscribe(req, res) {
+    try {
+        if (req.senderData.id === undefined) {
+            return res.json(new Response(false, "You need to authorize for this action"));
+        }
+        const { subscribe_id } = req.params;
+        const userSubscribe = new UserSubscribe();
+        const foundSubscribe = await userSubscribe.find({ id: subscribe_id });
+        if (foundSubscribe.length === 0) {
+            return res.json(new Response(false, "Wrong subscribe_id"));
+        }
+        if (foundSubscribe[0].user_id !== req.senderData.id) {
+            return res.json(new Response(false, "It's not your subscribe"));
+        }
+        await userSubscribe.deleteRecord({ id: foundSubscribe[0].id });
+        res.json(new Response(true, "Unsubscribed successfully"));
+    } catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
 
 /** /=======================/ module exports /=======================/ */
 
@@ -554,8 +720,8 @@ module.exports = {
     companiesByFounder,
     companyLogoUpload,
     companyLogo,
-    getCompany,
-    searchByCompanyName,
+    // getCompany,
+    // searchByCompanyName,
     // member
     addMember,
     acceptMember,
@@ -568,7 +734,14 @@ module.exports = {
     deleteNews,
     companyNewsPoster,
     companyNewsPosterUpload,
+    getNewsById,
+    allNews,
+    allCompanyNews,
     //notification
     getNotification,
-    deleteNotification
+    deleteNotification,
+    //user
+    userSubscribe,
+    userUnsubscribe,
+    userChangeSubscribe
 }

@@ -88,7 +88,7 @@ async function createSession(req, res) {
             };
             console.log("Generating session token...");
             const sessionToken = generateToken(sessionData);
-            res.cookie('session_token', sessionToken, { httpOnly: true, maxAge: 3600000 });
+            res.cookie('session_token', sessionToken, { httpOnly: true, session: true });
             resolve();
         } catch (error) {
             console.error(error);

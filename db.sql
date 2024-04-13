@@ -103,7 +103,6 @@ CREATE TABLE IF NOT EXISTS company_notification (
     CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE
 );
 
--- podpiska na kompaniu
 CREATE TABLE IF NOT EXISTS user_subscribe(
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -120,6 +119,7 @@ CREATE TABLE IF NOT EXISTS user_notification (
     title VARCHAR(50),
     description TEXT,
     user_subscribe_id INTEGER NOT NULL,
+    link VARCHAR(80) NOT NULL,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_subscribe_id FOREIGN KEY (user_subscribe_id) REFERENCES user_subscribe(id) ON DELETE CASCADE
 );
