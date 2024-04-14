@@ -35,7 +35,6 @@ function deactivateToken(req, res) {
     res.json(new Response(true, 'Токен успешно удален'));
 }
 
-
 function verifyToken(req, res) {
     return new Promise((resolve, reject) => {
         let token;

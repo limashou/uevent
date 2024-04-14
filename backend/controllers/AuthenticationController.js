@@ -29,10 +29,10 @@ async function register(req, res) {
                         transporter.sendMail(mailOptions, (error, info) => {
                             if (error) {
                                 console.error(error);
-                                res.json(false, "Can't send invitation" + error.message)
+                                // res.json(false, "Can't send invitation" + error.message)
                             } else {
                                 console.log('Email sent: ', info);
-                                res.json(new Response(true, "Send invitation"));
+                                // res.json(new Response(true, "Send invitation"));
                             }
                         });
                         res.json(new Response(true, 'Регистрация успешна'));
