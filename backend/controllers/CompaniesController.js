@@ -17,7 +17,7 @@ async function createCompanies(req, res) {
     try {
         let company = new Companies();
         const { name, email, location,latitude,longitude, description } = req.body;
-        if (name === undefined || email === undefined || location === undefined) {
+        if (name === undefined || email === undefined || location === undefined || latitude === undefined || longitude === undefined) {
             return res.json(new Response(false, "Some parameters are missing"));
         }
         if(req.senderData.id === undefined){
@@ -143,7 +143,7 @@ async function allCompanies(req, res) {
 //         const foundCompany = await company.find({ id: company_id });
 //         if(foundCompany.length === 0){
 //             return res.json(new Response(false,"Wrong id "));
-//         }
+//
 //         res.json(new Response(true,"Company by id" + company_id, foundCompany));
 //     } catch (error) {
 //         console.log(error);
@@ -376,7 +376,6 @@ async function changeRole(req,res){
 }
 
 /** /=======================/company news function /=======================/ */
-//dobavit link
 async function createNews(req,res){
     try {
         let company_news = new CompanyNews();
