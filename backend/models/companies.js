@@ -5,10 +5,13 @@ class Companies extends Model {
     constructor() {
         super("companies");
     }
-    create(name, email, location,founder_id,description = ''){
+
+    create(name, email, location,latitude,longitude, founder_id,description = ''){
         this.name = name;
         this.email = email;
         this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.description = description;
         this.founder_id = founder_id;
         return this.insert();

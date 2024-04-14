@@ -45,19 +45,20 @@ async function editTickets(req,res){
         }
         let tickets = new Tickets();
         let event = new Events();
-        const { event_id } = req.params;
-        const { id, ticket_type, price, available_tickets } = req.body;
+        const { ticket_id } = req.params;
+        const { ticket_type, price, available_tickets } = req.body;
+        const ticketsFound = await tickets.find({id: ticket_id});
+
         if(Object.keys(req.body).length === 0) {
             return res.json(new Response(false, "Empty body"));
         }
-        const eventFound = await event.find({id: event_id});
+        const eventFound = await event.find({id: ticketsFound[0].events_id});
         if(eventFound.length === 0) {
             res.json(new Response(false,"Wrong event id"));
         }
         if(!(await event.havePermission(eventFound[0].company_id,req.senderData.id))) {
             return res.json(new Response(false,"Not enough permission"));
         }
-        const ticketsFound = await tickets.find({id: id});
         if(ticketsFound.length === 0) {
             res.json(new Response(false,"Wrong tickets id"));
         }
@@ -75,17 +76,17 @@ async function removeTickets(req,res){
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
-        const {event_id, ticket_id} = req.params
+        const { ticket_id } = req.params
         const event = new Events();
         const tickets = new Tickets();
-        let foundEvent = await event.find({id: event_id});
+        let foundTickets = await tickets.find({id: ticket_id});
+        let foundEvent = await event.find({id: foundTickets[0].event_id});
         if(foundEvent.length === 0){
             return res.json(new Response(false,"Wrong event id "));
         }
         if(!(await event.havePermission(foundEvent[0].company_id,req.senderData.id))) {
             return res.json(new Response(false, "Not enough permission"));
         }
-        let foundTickets = await tickets.find({id: ticket_id});
         if(foundTickets.length === 0){
             return res.json(new Response(false,"Wrong event id "));
         }

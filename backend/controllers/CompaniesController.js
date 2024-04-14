@@ -16,14 +16,14 @@ let SendDataForMember = { }
 async function createCompanies(req, res) {
     try {
         let company = new Companies();
-        const { name, email, location, description } = req.body;
+        const { name, email, location,latitude,longitude, description } = req.body;
         if (name === undefined || email === undefined || location === undefined) {
             return res.json(new Response(false, "Some parameters are missing"));
         }
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
-        const result = await company.create(name, email, location, req.senderData.id, description);
+        const result = await company.create(name, email, location, latitude,longitude, req.senderData.id, description);
         res.json(new Response(true, "Company created successfully", result));
     } catch (error) {
         console.error(error);
@@ -48,7 +48,7 @@ async function getById(req, res) {
 }
 async function editCompany(req,res){
     try {
-        const { name, email, location, description } = req.body;
+        const { name, email, location, latitude,longitude, description } = req.body;
         const { company_id } = req.params;
         const company = new Companies();
         if(req.senderData.id === undefined){
@@ -61,7 +61,7 @@ async function editCompany(req,res){
         if (companyFound.length === 0) {
             return res.json(new Response(false, 'Пользователь не найден'));
         }
-        let updatedFields = { name, email, location, description };
+        let updatedFields = { name, email, location, latitude,longitude, description };
         await company.updateById({ id: companyFound[0].id, ...updatedFields });
         res.json(new Response(true, 'Данные пользователя успешно обновлены', companyFound[0].id));
     } catch (error) {
@@ -338,7 +338,6 @@ async function ejectMember(req,res){
 
 async function allCompanyMember(req,res){
     try {
-        console.log('TEST');
         const { company_id } = req.params;
         const company_member = new CompanyMember();
         const allMember = await company_member.getAllCompanyUsers( company_id );

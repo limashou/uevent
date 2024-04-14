@@ -3,7 +3,6 @@ const Response = require("../models/response");
 const fs = require('fs');
 const path = require("path");
 const bcrypt = require("bcrypt");
-const token_controller = require("./TokenController");
 const {NOT_FOUND_ERROR} = require("./Errors");
 
 async function getAllUser(req, res){
@@ -130,6 +129,7 @@ async function avatarUpload(req, res) {
                     res.json(new Response(false, error.toString()))
                 })
         }).catch((error) => {
+            console.log(error);
             res.json(new Response(false, `Не найдено аккаунта с id ${account_id}`))
         })
     }

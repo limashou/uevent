@@ -25,14 +25,14 @@ async function createEvent(req,res){
         }
         let event = new Events();
         const { company_id } = req.params;
-        const {name, notification, description, date, format, theme} = req.body;
+        const {name, notification, description, location, latitude, longitude, date, format, theme} = req.body;
         if (name === undefined || date === undefined || format === undefined || theme === undefined) {
             return res.json(new Response(false, "Some parameters are missing"));
         }
         if(!(await event.havePermission(company_id,req.senderData.id))) {
             return res.json(new Response(false,"Not enough permission"));
         }
-        const result = await event.create(name, notification, description, date, format, theme ,company_id);
+        const result = await event.create(name, notification, description, location, latitude, longitude ,date, format, theme ,company_id);
         let userNotification = new UserNotification();
         const newsSubscription = await userNotification.isNewEvents(company_id);
         if (newsSubscription) {
@@ -53,29 +53,29 @@ async function createEvent(req,res){
 async function editEvent(req,res){
     try {
         let event = new Events();
-        const { company_id, id } = req.params;
-        const { name, notification, description, date, format, theme} = req.body;
+        const { event_id } = req.params;
+        const { name, notification, description, location, latitude, longitude ,date, format, theme} = req.body;
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
-        if(!(await event.havePermission(company_id,req.senderData.id))) {
-            return res.json(new Response(false,"Not enough permission"));
-        }
-
-        const foundEvent = await event.find({ id: id });
+        const foundEvent = await event.find({ id: event_id });
         if(foundEvent.length === 0){
             return res.json(new Response(false,"Wrong id "));
         }
 
-        let updatedFields = { name, notification, description, date, format, theme };
+        if(!(await event.havePermission(foundEvent[0].company_id,req.senderData.id))) {
+            return res.json(new Response(false,"Not enough permission"));
+        }
+
+        let updatedFields = { name, notification, description, location, latitude, longitude ,date, format, theme };
         await event.updateById( { id: foundEvent[0].id, ...updatedFields });
         let userNotification = new UserNotification();
-        const newsSubscription = await userNotification.isUpdateEvents(company_id);
+        const newsSubscription = await userNotification.isUpdateEvents(foundEvent[0].company_id);
         if (newsSubscription) {
             for (const newsSubscriptionElement of newsSubscription) {
                 await notification.notification("The " + newsSubscriptionElement.name + " complemented the event.",
                     "The " + newsSubscriptionElement.name + " has complemented the event: " + name + ".",
-                    "/api/events/" + company_id + "/byId/" + foundEvent[0].id,
+                    "/api/events/" + foundEvent[0].company_id + "/byId/" + foundEvent[0].id,
                     newsSubscriptionElement.id)
             }
         }
@@ -88,18 +88,19 @@ async function editEvent(req,res){
 
 async function deleteEvent(req,res){
     try {
-        const {company_id, id} = req.params
+        const { event_id } = req.params
         const event = new Events();
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
-        if(!(await event.havePermission(company_id,req.senderData.id))) {
-            return res.json(new Response(false, "Not enough permission"));
-        }
 
-        let foundEvent = await event.find({id: id});
+        let foundEvent = await event.find({id: event_id});
         if(foundEvent.length === 0){
             return res.json(new Response(false,"Wrong id "));
+        }
+
+        if(!(await event.havePermission(foundEvent[0].company_id, req.senderData.id))) {
+            return res.json(new Response(false, "Not enough permission"));
         }
         await event.deleteRecord({ id: foundEvent[0].id });
         res.json(new Response(true,"Deleted"));
@@ -167,15 +168,15 @@ async function allEvents(req,res){
 
 async function eventByID(req,res){
     try {
-        const { company_id, id } = req.params
+        const { event_id } = req.params
         const event = new Events()
 
-        let foundEvent = await event.find({id: id, company_id:company_id});
+        let foundEvent = await event.find({id: event_id});
         if(foundEvent.length === 0){
             return res.json(new Response(false,"Wrong id "));
         }
-        const filteredEvent = foundEvent.map(({ id, name, description, date, format, theme}) => ({ id, name, description, date, format, theme}));
-        res.json(new Response(true,"Event by id "+ id, filteredEvent[0]));
+        const filteredEvent = foundEvent.map(({ id, name, description, location, latitude, longitude, date, format, theme}) => ({ id, name, description, location, latitude, longitude ,date, format, theme}));
+        res.json(new Response(true,"Event by id "+ event_id, filteredEvent[0]));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));

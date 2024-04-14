@@ -2,6 +2,7 @@ const Router = require('express')
 const router = new Router;
 const company_controller = require('../controllers/CompaniesController');
 const {uploadCompany, uploadNews} = require("./multer");
+const events_controller = require("../controllers/EventsController");
 
 //company
 router.get('/', company_controller.allCompanies);
@@ -35,5 +36,8 @@ router.delete('/:company_id/notification/:notification_id/delete', company_contr
 router.post('/:company_id/users/subscribe', company_controller.userSubscribe);
 router.delete('/:company_id/users/:subscribe_id/unsubscribe', company_controller.userUnsubscribe);
 router.patch('/:company_id/users/:subscribe_id/change', company_controller.userChangeSubscribe);
+//events
+router.get('/:company_id/all', events_controller.allEventsByCompany);
+router.post('/:company_id/create', events_controller.createEvent);
 
 module.exports = router;

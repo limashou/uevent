@@ -7,6 +7,6 @@ router.post('/register', authentication_controller.register);
 router.post('/login', authentication_controller.login);
 router.post('/logout', token_controller.deactivateToken);
 router.post('/password-reset', authentication_controller.password_reset);
-router.post('/password-reset/:confirm_token', token_controller.verifyLogin, authentication_controller.password_reset_confirmation);
+router.post('/password-reset/:invitationCode', authentication_controller.password_reset_confirmation);
 
 module.exports = router

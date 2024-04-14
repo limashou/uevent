@@ -5,6 +5,7 @@ const {generateCode, transporter} = require("./Helpers");
 const ERRORS = require('./Errors');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+let SendDataForMember = { }
 
 async function register(req, res) {
     const { username, password, email, full_name } = req.body;
@@ -20,6 +21,20 @@ async function register(req, res) {
             .then((result) => {
                 user.find({ id: result })
                     .then(() => {
+                        const mailOptions = {
+                            to: email,
+                            subject: 'Registration',
+                            text: `You have successfully logged on uevent`
+                        };
+                        transporter.sendMail(mailOptions, (error, info) => {
+                            if (error) {
+                                console.error(error);
+                                res.json(false, "Can't send invitation" + error.message)
+                            } else {
+                                console.log('Email sent: ', info);
+                                res.json(new Response(true, "Send invitation"));
+                            }
+                        });
                         res.json(new Response(true, 'Регистрация успешна'));
                     })
             }).catch((error) => {
@@ -43,7 +58,7 @@ async function login(req, res) {
             } else {
                 try {
                     if (await bcrypt.compare(password, usersFound[0].password)) {
-                        res.cookie('auth_token', token_controller.generateToken({ id: usersFound[0].id }), { httpOnly: true, maxAge: 3600000 });
+                        res.cookie('auth_token', token_controller.generateToken({ id: usersFound[0].id }), { httpOnly: true, session: true });
                         res.json(new Response(true, 'Успешный вход', { user_id: usersFound[0].id }));
                     } else {
                         res.json(new Response(false, 'Неправильный пароль!'));
@@ -67,10 +82,11 @@ async function password_reset(req, res) {
     let find_results = await user.find({email: email});
     if (find_results.length === 0)
         return ERRORS.NOT_FOUND_ERROR(res, 'User');
+    const invitationCode = generateCode();
+    SendDataForMember[invitationCode] = { username: find_results[0].username };
+    // const token = token_controller.generateToken({username: find_results[0].username}, '10m');
 
-    const token = token_controller.generateToken({username: find_results[0].username}, '10m');
-
-    const link = `${req.headers.origin}/auth/password-reset/${token}`;
+    const link = `${req.headers.origin}/auth/password-reset/${invitationCode}`;
     const mailOptions = {
         to: find_results[0].email,
         subject: 'Password reset',
@@ -91,9 +107,9 @@ async function password_reset(req, res) {
 
 async function password_reset_confirmation(req, res) {
     try {
-        const username = req.senderData.username;
+        const { invitationCode } = req.params;
         let user = new User();
-        const results = await user.find({username: username});
+        const results = await user.find({username: SendDataForMember[invitationCode].username});
         if (results.length === 0)
             return ERRORS.NOT_FOUND_ERROR(res, 'user');
         bcrypt.hash(req.body.password,saltRounds, (err,hash) => {
@@ -106,6 +122,7 @@ async function password_reset_confirmation(req, res) {
                 id: results[0].id,
                 password: hash
             });
+            delete SendDataForMember[invitationCode];
             res.json(new Response(true, 'Данные оновлены'));
         });
     } catch (error){
