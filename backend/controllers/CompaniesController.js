@@ -666,10 +666,10 @@ async function userChangeSubscribe(req, res) {
         if (req.senderData.id === undefined) {
             return res.json(new Response(false, "You need to authorize for this action"));
         }
-        const { subscribe_id } = req.params;
+        const { company_id } = req.params;
         const { update_events, new_news, new_events } = req.body;
         const subscribe = new UserSubscribe();
-        const foundSubscribe = await userSubscribe.find({ id: subscribe_id });
+        const foundSubscribe = await userSubscribe.find({ company_id: company_id, user_id: req.senderData.id });
         if (foundSubscribe.length === 0) {
             return res.json(new Response(false, "Wrong subscribe_id"));
         }
@@ -690,9 +690,9 @@ async function userUnsubscribe(req, res) {
         if (req.senderData.id === undefined) {
             return res.json(new Response(false, "You need to authorize for this action"));
         }
-        const { subscribe_id } = req.params;
+        const { company_id } = req.params;
         const userSubscribe = new UserSubscribe();
-        const foundSubscribe = await userSubscribe.find({ id: subscribe_id });
+        const foundSubscribe = await userSubscribe.find({ company_id: company_id, user_id: req.senderData.id });
         if (foundSubscribe.length === 0) {
             return res.json(new Response(false, "Wrong subscribe_id"));
         }

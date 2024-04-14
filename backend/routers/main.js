@@ -4,6 +4,7 @@ const companies = require('./companies')
 const users = require('./user')
 const events = require('./events');
 const tickets = require('./tickets');
+const comments = require('./comments');
 const router = new Router();
 
 router.use('/api/auth', authentication);
@@ -11,5 +12,5 @@ router.use('/api/companies', companies);
 router.use('/api/users', users);
 router.use('/api/events', events);
 router.use('/api/tickets', tickets);
-
+router.use('/api/comments', comments)
 module.exports = router;

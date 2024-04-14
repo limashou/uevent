@@ -1,21 +1,9 @@
 const Events = require('../models/events');
 const EventComments = require('../models/event_comments');
 const Response = require("../models/response");
-const {getLocationData} = require("./Helpers");
 const UserNotification = require('../models/user_notification');
 
 
-async function Location(req, res) {
-    try {
-        const { string_location } = req.body;
-        const location = await getLocationData(string_location);
-        console.log(location);
-        res.json(new Response(true, "location array", location));
-    } catch (error) {
-        console.error('Error:', error);
-        throw error;
-    }
-}
 /** /=======================/events function /=======================/ */
 
 async function createEvent(req,res){
@@ -207,9 +195,9 @@ async function createComment(req,res){
 async function editComment(req,res){
     try {
         let comment = new EventComments();
-        const { events_id } = req.params;
-        const {id, text} = req.body;
-        const foundComment = await comment.find({ id: id, events_id:events_id });
+        const { comment_id } = req.params;
+        const { text } = req.body;
+        const foundComment = await comment.find({ id: comment_id });
         if(foundComment.length === 0){
             return res.json(new Response(false,"Wrong id "));
         }
@@ -230,10 +218,10 @@ async function deleteComment(req,res){
             return res.json(new Response(false, "You need authorize for this action"));
         }
 
-        const {id} = req.params
+        const {comment_id} = req.params
         const comment = new EventComments();
 
-        let foundComment = await comment.find({id: id});
+        let foundComment = await comment.find({id: comment_id});
         if(foundComment.length === 0){
             return res.json(new Response(false,"Wrong id "));
         }
@@ -289,6 +277,4 @@ module.exports = {
     editComment,
     deleteComment,
     allComments,
-    //location
-    Location
 }

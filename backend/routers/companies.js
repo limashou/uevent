@@ -21,7 +21,7 @@ router.patch('/:company_id/members/:member_id/role' , company_controller.changeR
 router.delete('/:company_id/members/:member_id/delete', company_controller.ejectMember);
 router.get('/:company_id/members', company_controller.allCompanyMember);
 //news
-router.get('/:company_id/news/news_id', company_controller.getNewsById);
+router.get('/:company_id/news/:news_id', company_controller.getNewsById);
 router.get('/:company_id/news', company_controller.allCompanyNews);
 router.get('/news', company_controller.allNews);
 router.post('/:company_id/news/create', company_controller.createNews);
@@ -30,12 +30,12 @@ router.delete('/:company_id/news/delete/:id', company_controller.deleteNews);
 router.patch('/:company_id/posterUpload/:news_id', uploadNews.single('poster'), company_controller.companyNewsPosterUpload);
 router.get('/:company_id/poster/:news_id', company_controller.companyNewsPoster);
 //notification
-router.get('/:company_id/notification', company_controller.getNotification);
-router.delete('/:company_id/notification/:notification_id/delete', company_controller.deleteNotification);
+router.get('/:company_id/notifications', company_controller.getNotification);
+// router.delete('/:company_id/notification/:notification_id/delete', company_controller.deleteNotification);
 //user
-router.post('/:company_id/users/subscribe', company_controller.userSubscribe);
-router.delete('/:company_id/users/:subscribe_id/unsubscribe', company_controller.userUnsubscribe);
-router.patch('/:company_id/users/:subscribe_id/change', company_controller.userChangeSubscribe);
+router.post('/:company_id/subscribe', company_controller.userSubscribe);
+router.delete('/:company_id/unsubscribe', company_controller.userUnsubscribe);
+router.patch('/:company_id/changeSubscribe', company_controller.userChangeSubscribe);
 //events
 router.get('/:company_id/all', events_controller.allEventsByCompany);
 router.post('/:company_id/create', events_controller.createEvent);
