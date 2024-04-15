@@ -93,10 +93,12 @@ class Companies extends Model {
                         'name', c.name,
                         'email', c.email,
                         'location', c.location,
+                        'latitude', c.latitude,
+                        'longitude', c.longitude,
                         'description', c.description,
                         'photo', c.photo,
                         'founder_id', c.founder_id,
-                        'creation_day', c.creation_day
+                        'creation_day', c.creation_day,
                     )
                     FROM companies c
                     WHERE c.id = $2
