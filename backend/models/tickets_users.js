@@ -171,6 +171,36 @@ class Tickets_users extends Model  {
             return  false;
         }
     }
+
+    async getUserByEventId(event_id){
+        const query = `
+            SELECT
+                ut.id AS user_ticket_id,
+                ut.user_id,
+                t.ticket_type,
+                CASE
+                    WHEN ut.show_username THEN u.full_name
+                    ELSE 'visitor'
+                    END AS full_name
+            FROM
+                user_tickets ut
+                    JOIN
+                users u ON ut.user_id = u.id
+                    JOIN
+                tickets t ON ut.ticket_id = t.id
+            WHERE
+                t.events_id = $1;
+        `;
+
+        const values = [event_id];
+        try {
+            const { rows } = await client.query(query, values);
+            return rows;
+        } catch (error) {
+            console.error("Error finding by name part:", error);
+            return  false;
+        }
+    }
 }
 
 module.exports = Tickets_users;

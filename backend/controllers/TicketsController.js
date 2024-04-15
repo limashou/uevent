@@ -230,6 +230,21 @@ async function cancelTicket(req,res){
     }
 }
 
+async function getUsers(req, res){
+    try {
+        const { event_id } = req.params;
+        let ticket_user = new TicketsUsers();
+        const result = await ticket_user.getUserByEventId(event_id);
+        if(result.length === 0){
+            res.json(new Response(false,"Empty result"));
+        }
+        res.json(new Response(false, "visitors",result));
+    } catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
+
 async function informationByTicket(req,res){
     try {
         const {id} = req.params;
@@ -253,5 +268,6 @@ module.exports = {
     getTicketsByEvent,
     buyTicket,
     cancelTicket,
-    informationByTicket
+    informationByTicket,
+    getUsers
 }

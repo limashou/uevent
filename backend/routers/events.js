@@ -17,4 +17,7 @@ router.get('/:event_id/comments', events_controller.allComments);
 router.post('/:event_id/create',ticket.creteTickets);
 router.get('/:event_id/tickets', ticket.getTicketsByEvent);
 
+//users
+router.get('/:event_id/visitors', ticket.getUsers);
+
 module.exports = router;
