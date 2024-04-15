@@ -78,8 +78,8 @@ export default class Requests {
                 'Content-Type': 'multipart/form-data',
             }
         };
-        return await
-            axiosInstance.patch(`/users/avatar`, data, config);
+        const resp = await axiosInstance.patch(`/users/avatar`, data, config);
+        return resp.data;
     }
     static get_avatar_link(user_id){
         return `${domain}/users/${user_id}/avatar`;
@@ -139,7 +139,7 @@ export default class Requests {
                                order = 'ASC',
                                searchValue = ''){
         const resp = await axiosInstance.get(
-            `companies/${company_id}/all`,
+            `/companies/${company_id}/events`,
             {
                 params: {
                     page: page,
@@ -194,5 +194,30 @@ export default class Requests {
     }
 
     //EVENTS
+    static async eventCreation(company_id, eventData){
+        const resp = await axiosInstance.post(`/companies/${company_id}/create`, eventData);
+        return resp.data
+    }
 
+    static async eventById(event_id) {
+        const resp = await axiosInstance.get(`/events/${event_id}`);
+        return resp.data;
+    }
+
+    static async allEvents({page = 1, limit = 20, order = 'ASC',
+                               searchValue = '', company_id = ''}){
+        const config = {
+            params: {
+                page: page,
+                limit: limit,
+                order: order,
+                search: searchValue,
+                company_id: company_id
+            }
+        };
+        const resp = await axiosInstance.get(
+            `/events`, config
+        );
+        return resp.data;
+    }
 }

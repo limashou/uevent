@@ -75,12 +75,12 @@ class Model {
 
         try {
             const countResult = await client.query(countQuery, values);
-            const totalCount = countResult.rows[0].count;
+            const totalCount = Number.parseInt(countResult.rows[0].count);
 
             const rows = await client.query(dataQuery, values);
 
             const totalPages = Math.ceil(totalCount / size);
-            const currentPage = page || 1;
+            const currentPage = Number.parseInt(page) || 1;
 
             return {rows: rows.rows, totalCount, totalPages, currentPage};
         } catch (error) {

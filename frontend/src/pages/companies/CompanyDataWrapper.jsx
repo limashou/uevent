@@ -8,6 +8,14 @@ export const CompanyDataContext = createContext();
 function CompanyDataWrapper({ children }) {
     const { company_id } = useParams();
     const [companyData, setCompanyData] = useState(null);
+
+    const [permissions, setPermissions] = useState({
+        company_edit: false,
+        eject_members: false,
+        news_creation: false,
+        event_creation: false
+    });
+
     const [companyMembers, setCompanyMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [userData] = useContext(UserContext);
@@ -17,17 +25,16 @@ function CompanyDataWrapper({ children }) {
             try {
                 const companyDataResponse = await Requests.companyById(company_id);
                 if (companyDataResponse.state === true) {
-                    companyDataResponse.data.logo = Requests.get_company_logo_link(companyDataResponse.data.id);
-                    if (companyDataResponse.data.founder_id === userData.id)
-                        companyDataResponse.data.permissions = true;
-                    setCompanyData(companyDataResponse.data);
-                    setLoading(false);
+                    companyDataResponse.data.data.logo = Requests.get_company_logo_link(companyDataResponse.data.data.id);
+                    setCompanyData(companyDataResponse.data.data);
+                    setPermissions(companyDataResponse.data.permissions);
                 }
 
                 const companyMembersResponse = await Requests.companyMembers(company_id);
                 if (companyMembersResponse.state === true) {
                     setCompanyMembers(companyMembersResponse.data);
                 }
+                setLoading(false);
             } catch (error) {
                 console.error("Error fetching company data:", error);
             }
@@ -41,7 +48,8 @@ function CompanyDataWrapper({ children }) {
         companyMembers,
         setCompanyMembers,
         loading,
-        setLoading
+        setLoading,
+        permissions
     };
 
     return (

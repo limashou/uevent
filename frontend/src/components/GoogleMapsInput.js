@@ -24,7 +24,7 @@ function loadScript(src, position, id) {
 
 const autocompleteService = { current: null };
 
-export default function GoogleMaps({ onChange, defaultValue = '', inputLabel = 'Add a location' }) {
+function GoogleMapsInput({ onChange, defaultValue = '', inputLabel = 'Add a location' }) {
     const [value, setValue] = React.useState(defaultValue);
     const [inputValue, setInputValue] = React.useState(defaultValue);
     const [options, setOptions] = React.useState([defaultValue]);
@@ -33,7 +33,7 @@ export default function GoogleMaps({ onChange, defaultValue = '', inputLabel = '
     if (typeof window !== 'undefined' && !loaded.current) {
         if (!document.querySelector('#google-maps')) {
             loadScript(
-                `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`,
+                `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&loading=async`,
                 document.querySelector('head'),
                 'google-maps',
             );
@@ -87,6 +87,36 @@ export default function GoogleMaps({ onChange, defaultValue = '', inputLabel = '
         };
     }, [value, inputValue, fetch]);
 
+    const getPlaceDetails = (newValue) => {
+        // alert(JSON.stringify(newValue));
+        if (!newValue){
+            onChange(undefined);
+            return;
+        }
+        if (!window.google || !window.google.maps.places) {
+            console.error('Google Places API is not available.');
+            return;
+        }
+
+        const placesService = new window.google.maps.places.PlacesService(document.createElement('div'));
+        const request = {
+            placeId: newValue.place_id,
+            fields: ['geometry'],
+        };
+
+        placesService.getDetails(request, (result, status) => {
+            if (status === 'OK') {
+                onChange({
+                    text: newValue.description,
+                    location: result.geometry.location,
+                });
+            } else {
+                console.error('Place details request failed:', status);
+            }
+        });
+    };
+
+
     return (
         <Autocomplete
             id="google-map-demo"
@@ -104,7 +134,7 @@ export default function GoogleMaps({ onChange, defaultValue = '', inputLabel = '
             onChange={(event, newValue) => {
                 setOptions(newValue ? [newValue, ...options] : options);
                 setValue(newValue);
-                onChange(newValue);
+                getPlaceDetails(newValue);
             }}
             onInputChange={(event, newInputValue) => {
                 setInputValue(newInputValue);
@@ -148,3 +178,5 @@ export default function GoogleMaps({ onChange, defaultValue = '', inputLabel = '
         />
     );
 }
+
+export default GoogleMapsInput;

@@ -119,8 +119,8 @@ async function allEventsByCompany(req,res){
                  order: order,
                  field: field,
              });
-        const filteredEvents = allEvents.rows.map(({ id, name, description, date, format, theme}) => ({ id, name, description, date,format, theme}));
-        res.json(new Response(true, "All events by page" + page, filteredEvents));
+        allEvents.rows = allEvents.rows.map(({ id, name, description, date, format, theme}) => ({ id, name, description, date, format, theme}));
+        res.json(new Response(true, null, allEvents));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -146,8 +146,8 @@ async function allEvents(req,res){
             order: order,
             field: field,
         });
-        const filteredEvents = allEvents.rows.map(({ id, name, description, date, format, theme}) => ({ id, name, description, date,format, theme}));
-        res.json(new Response(true, "All events by page" + page, filteredEvents));
+        allEvents.rows = allEvents.rows.map(({ id, name, description, date, format, theme}) => ({ id, name, description, date,format, theme}));
+        res.json(new Response(true, null, allEvents));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));

@@ -15,6 +15,12 @@ import Company from "./pages/companies/Company";
 import CompanySettings from "./pages/companies/CompanySettings";
 import CompanyDataWrapper from "./pages/companies/CompanyDataWrapper";
 import AcceptInvitation from "./pages/AcceptInvitation";
+import EventCreation from "./pages/companies/EventCreation";
+import EventLayout from "./pages/events/EventLayout";
+import Events from "./pages/events/Events";
+import Event from "./pages/events/Event";
+import EventSettings from "./pages/events/EventSettings";
+import EventDataWrapper from "./pages/events/EventDataWrapper";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registration = lazy(() => import("./pages/auth/Registration"));
@@ -38,11 +44,19 @@ function App() {
                     <Route path=":company_id" element={<CompanyDataWrapper />}>
                         <Route index element={<Company />} />
                         <Route path="settings" element={<CompanySettings />} />
+                        <Route path="eventCreation" element={<EventCreation />} />
                     </Route>
                 </Route>
                 <Route path="users" element={<UserLayout />}>
                     <Route path="me/settings" element={<ProfileSettings />} />
                     <Route path=":user_id" element={<Profile />} />
+                </Route>
+                <Route path="events" element={<EventLayout />}>
+                    <Route index element={<Events />} />
+                    <Route path=":event_id" element={<EventDataWrapper />} >
+                        <Route index element={<Event />} />
+                        <Route path="settings" element={<EventSettings />} />
+                    </Route>
                 </Route>
                 <Route path="accept-invitation/:invitationCode" element={<AcceptInvitation />}/>
             </Route>

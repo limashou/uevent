@@ -54,8 +54,8 @@ async function updateUser(req, res) {
 async function getById(req,res){
     try {
         let user = new User();
-        const { id } = req.params;
-        const cId = id === 'me' ? req.senderData?.id : Number.parseInt(id);
+        const { user_id } = req.params;
+        const cId = user_id === 'me' ? req.senderData?.id : Number.parseInt(user_id);
         if (cId === undefined)
             return res.json(new Response(false, "Not authorized"));
         const usersFoundById = await user.find({ id: cId });
@@ -68,7 +68,7 @@ async function getById(req,res){
         }else {
             filteredUser = usersFoundById.map(({ id, full_name }) => ({ id, full_name }));
         }
-        res.json(new Response(true, "users by id", filteredUser[0]));
+        res.json(new Response(true, "users by user_id", filteredUser[0]));
     } catch (error) {
         console.log(error);
         res.status(500).json(new Response(false, "Internal server error"));

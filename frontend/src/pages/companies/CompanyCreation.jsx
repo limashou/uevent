@@ -1,33 +1,44 @@
 import {companyNameValidation, emailValidation} from "../../Utils/InputHandlers";
 import CustomInputField from "../../components/CustomInputField";
 import {useState} from "react";
-import GoogleMaps from "../../components/GoogleMapsTest";
+import GoogleMapsInput from "../../components/GoogleMapsInput";
 import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
 import CustomTextArea from "../../components/CustomTextArea";
 import CustomImageDropzone from "../../components/CustomImageDropzone";
 import {Stack} from "@mui/material";
 import Box from "@mui/material/Box";
+import MapView from "../../components/MapView";
+
 function CompanyCreation() {
     //{ name, email, location, description }
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [selectedLocation, setSelectedLocation] = useState('');
+    const [locationObj, setLocationObj] = useState();
     const [description, setDescription] = useState('');
     const [companyLogo, setCompanyLogo] = useState();
+
+    const [mapLoad, setMapLoad] = useState(false);
+
     const handleLocationSelect = (newValue) => {
-        setSelectedLocation(newValue?.description || '');
+        // alert(JSON.stringify(newValue));
+        setLocationObj(newValue);
+        setMapLoad(true);
     };
 
     async function createCompany() {
-        if (name === '' || email === '' || selectedLocation === '') {
+        if (name === '' || email === '' || !locationObj) {
             return alert('please fill all fields');
         }
         let data = {
             name: name,
             email: email,
-            location: selectedLocation,
+            location: locationObj.text,
+            latitude: locationObj.location.lat(),
+            longitude: locationObj.location.lng(),
         }
+        console.log(locationObj);
+        console.log(data);
         if (description !== '')
             data.description = description;
         const resp = await Requests.createCompany(data);
@@ -62,8 +73,15 @@ function CompanyCreation() {
                         label="Email"
                         type="email"
                     />
-                    <div>{selectedLocation}</div>
-                    <GoogleMaps onChange={handleLocationSelect} />
+                    <div>{JSON.stringify(locationObj)}</div>
+                    <GoogleMapsInput onChange={handleLocationSelect} />
+                    {mapLoad && locationObj?.location &&
+                        <MapView lat={locationObj.location.lat()} lng={locationObj.location.lng()} />
+                    }
+                    {/*<PlaceComponent*/}
+                    {/*    location={undefined}*/}
+                    {/*    setLocation={(valut) => {alert(JSON.stringify(valut))}}*/}
+                    {/*/>*/}
                     <CustomTextArea
                         onChange={(value) => setDescription(value)}
                     />

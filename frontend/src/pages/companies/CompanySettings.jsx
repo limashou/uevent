@@ -11,7 +11,7 @@ import {useParams} from "react-router-dom";
 import CustomInputField from "../../components/CustomInputField";
 import {companyNameValidation, emailValidation, fullNameValidation, memberRoles} from "../../Utils/InputHandlers";
 import {Alert} from "@mui/material";
-import GoogleMaps from "../../components/GoogleMapsTest";
+import GoogleMapsInput from "../../components/GoogleMapsInput";
 import CustomTextArea from "../../components/CustomTextArea";
 import CustomSearch from "../../components/CustomSearch";
 import CustomSelector from "../../components/CustomSelector";
@@ -20,7 +20,8 @@ function CompanySettings() {
     const { company_id } = useParams();
     const { companyData, setCompanyData } = useContext(CompanyDataContext);
     const { companyMembers, setCompanyMembers } = useContext(CompanyDataContext);
-    const { loading, setLoading } = useContext(CompanyDataContext);
+    const { loading } = useContext(CompanyDataContext);
+    const { permissions } = useContext(CompanyDataContext);
     const [editedFields, setEditedFields] = useState({});
     const [inlineAlert, setInlineAlert] = useState({
         severity: 'success',
@@ -145,7 +146,7 @@ function CompanySettings() {
                             type="email"
                             key={companyData.email}
                         />
-                        <GoogleMaps
+                        <GoogleMapsInput
                             defaultValue={companyData.location}
                             onChange={(newValue) => putEditedField('location', newValue?.description || '')}
                             inputLabel="Location"
@@ -175,7 +176,7 @@ function CompanySettings() {
                             <Typography variant="p" component="div">
                                 {member.full_name}
                             </Typography>
-                            {companyData.permissions === true && member.role !== 'founder' ? (
+                            {permissions.eject_members === true && member.role !== 'founder' ? (
                                 <>
                                     <CustomSelector
                                         defaultValue={member.role}

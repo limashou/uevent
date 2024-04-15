@@ -3,7 +3,7 @@ import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import { useState } from "react";
 
-function CustomImageDropzone({ imageLink, onFileSelected }) {
+function CustomImageDropzone({ imageLink = '', onFileSelected }) {
     const [imageSrc, setImageSrc] = useState(imageLink);
 
     const { getRootProps, getInputProps } = useDropzone({
@@ -16,10 +16,10 @@ function CustomImageDropzone({ imageLink, onFileSelected }) {
 
             if (validFiles.length > 0) {
                 const file = acceptedFiles[0];
-                onFileSelected(file);
                 const reader = new FileReader();
                 reader.onload = () => {
                     setImageSrc(reader.result);
+                    onFileSelected(file, reader.result);
                 };
                 reader.readAsDataURL(file);
             }

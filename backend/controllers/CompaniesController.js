@@ -117,7 +117,7 @@ async function allCompanies(req, res) {
                     filters: filters,
                     join: 'SELECT companies.*, users.full_name AS founder_name, ' +
                         'CASE WHEN COUNT(company_members) > 0 THEN ' +
-                        'json_agg(json_build_object(\'role\', company_members.role, \'member_id\', company_members.member_id)) ' +
+                        'json_agg(json_build_object(\'role\', company_members.role_id, \'member_id\', company_members.member_id)) ' +
                         'ELSE NULL END AS members ' +
                         'FROM companies ' +
                         'LEFT JOIN users ON companies.founder_id = users.id ' +

@@ -15,7 +15,7 @@ import {logout} from "../Utils/Utils";
 import {UserContext} from "../pages/RootLayout";
 
 const pages = [
-    {to: '/users/me', text: 'Events'},
+    {to: '/events', text: 'Events'},
     {to: '/companies', text: 'Companies'},
 ];
 const settings = [

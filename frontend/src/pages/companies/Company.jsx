@@ -11,7 +11,6 @@ import Requests from "../../api/Requests";
 import {useContext, useEffect, useState} from "react";
 import {CompanyDataContext} from "./CompanyDataWrapper";
 import UsersLine from "../../components/UsersLine";
-import {useDropzone} from "react-dropzone";
 import Box from "@mui/material/Box";
 
 function Company() {
@@ -19,6 +18,7 @@ function Company() {
     const { companyData } = useContext(CompanyDataContext);
     const { companyMembers } = useContext(CompanyDataContext);
     const { loading } = useContext(CompanyDataContext);
+    const { permissions } = useContext(CompanyDataContext);
     const [companyEvents, setCompanyEvents] = useState([]);
 
 
@@ -27,7 +27,7 @@ function Company() {
             try {
                 const resp = await Requests.companyEvents(company_id);
                 if (resp.state === true) {
-                    setCompanyEvents(resp.data);
+                    setCompanyEvents(resp.data.rows);
                 }
             } catch (error) {
                 console.error("Error fetching company data:", error);
@@ -55,19 +55,28 @@ function Company() {
                                 src={Requests.get_company_logo_link(companyData.id)}
                                 sx={{ width: 150, height: 150 }}
                             >{companyData.name}</Avatar>
-                            <Box>
+                            <Box display="flex" gap={2}>
                                 <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
                                     {companyData.name}
                                 </Typography>
-                                <Link to={`/companies/${company_id}/settings`}>Settings</Link>
+                                {permissions.company_edit &&
+                                    <Link to={`/companies/${company_id}/settings`}>Settings</Link>
+                                }
+                                {permissions.news_creation &&
+                                    <Link to={`/companies/${company_id}/settings`}>Create news</Link>
+                                }
+                                {permissions.event_creation &&
+                                    <Link to={`/companies/${company_id}/eventCreation`}>Create event</Link>
+                                }
                             </Box>
                         </Stack>
                         <DescriptionInfo icon={<DescriptionIcon />} text={companyData.description} />
                         <DescriptionInfo icon={<EmailIcon />} text={companyData.email} />
                         <DescriptionInfo icon={<LocationOnIcon />} text={companyData.location} />
                         <UsersLine companyMembers={companyMembers} />
+                        <Typography>Company events:</Typography>
                         {companyEvents.map((event) => (
-                            <div>{JSON.stringify(event)}</div>
+                            <div key={`company-event-${event.id}`}>{JSON.stringify(event)}</div>
                         ))}
                     </>
                 )}

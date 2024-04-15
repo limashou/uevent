@@ -86,13 +86,17 @@ function ProfileSettings() {
             <Box gap={4} p={1}>
                 <CustomImageDropzone
                     imageLink={userData.avatar}
-                    onFileSelected={(file) => {
+                    onFileSelected={(file, renderedImage) => {
                         Requests.avatarUpload(file).then((resp) => {
-                            if (resp.state !== true)
+                            if (resp.state !== true){
                                 setInlineAlert({
                                     severity: 'error',
                                     message: resp?.message || 'Error',
                                 });
+                            }
+                            else {
+                                setUserData({...userData, avatar: renderedImage})
+                            }
                         });
                     }}
                 />
