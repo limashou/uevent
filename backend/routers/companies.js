@@ -39,5 +39,9 @@ router.patch('/:company_id/changeSubscribe', company_controller.userChangeSubscr
 //events
 router.get('/:company_id/events', events_controller.allEventsByCompany);
 router.post('/:company_id/create', events_controller.createEvent);
+//
+router.get('/filters/name', company_controller.filtersByCompany);
+router.get('/filters/founder', company_controller.filtersByFounder);
+
 
 module.exports = router;

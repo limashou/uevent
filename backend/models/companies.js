@@ -35,6 +35,38 @@ class Companies extends Model {
             return  false;
         }
     }
+
+    async companyName() {
+        const selectColumns = ['companies.id', 'companies.name'];
+        const query = `
+        SELECT ${selectColumns.join(', ')}
+        FROM companies
+    `;
+        try {
+            const { rows } = await client.query(query);
+            return rows;
+        } catch (error) {
+            console.error("Error finding by name part:", error);
+            return  false;
+        }
+    }
+
+    async founderName() {
+        const selectColumns = ['companies.id', 'users.full_name'];
+        const query = `
+        SELECT ${selectColumns.join(', ')}
+        FROM companies
+        JOIN users ON companies.founder_id = users.id
+    `;
+        try {
+            const { rows } = await client.query(query);
+            return rows;
+        } catch (error) {
+            console.error("Error finding by name part:", error);
+            return  false;
+        }
+    }
+
     async isFounder(founder_id, company_id){
         const query = `
         SELECT COUNT(*) 
@@ -93,12 +125,12 @@ class Companies extends Model {
                         'name', c.name,
                         'email', c.email,
                         'location', c.location,
-                        'latitude', c.latitude,
-                        'longitude', c.longitude,
+--                         'latitude', c.latitude,
+--                         'longitude', c.longitude,
                         'description', c.description,
                         'photo', c.photo,
                         'founder_id', c.founder_id,
-                        'creation_day', c.creation_day,
+                        'creation_day', c.creation_day
                     )
                     FROM companies c
                     WHERE c.id = $2

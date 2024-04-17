@@ -35,9 +35,8 @@ async function getById(req, res) {
     try {
         let company = new Companies();
         const { company_id } = req.params;
-        // console.log(req.senderData.id);
         const senderDataId = req.senderData ? req.senderData.id : undefined;
-        const result = await company.getCompanyAndPermissions(senderDataId, company_id);
+        const result = await company.getCompanyAndPermissions(req.senderData.id, company_id);
         if (result.length === 0)
             return NOT_FOUND_ERROR(res, 'company');
         res.json(new Response(true, null, result));
@@ -709,6 +708,34 @@ async function userUnsubscribe(req, res) {
 
 /** /=======================/ module exports /=======================/ */
 
+async function filtersByCompany(req,res){
+    try {
+        const companyName = await new Companies().companyName();
+        if(companyName.length === 0) {
+            return res.json(new Response(false, ""));
+        }
+        res.json(new Response(true,"", companyName));
+    } catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
+
+async function filtersByFounder(req,res){
+    try {
+        const founderName = await new Companies().founderName();
+        if(founderName.length === 0) {
+            return res.json(new Response(false, ""));
+        }
+        res.json(new Response(true,"", founderName));
+    } catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
+
+/** /=======================/ module exports /=======================/ */
+
 module.exports = {
     // company
     createCompanies,
@@ -742,5 +769,8 @@ module.exports = {
     //user
     userSubscribe,
     userUnsubscribe,
-    userChangeSubscribe
+    userChangeSubscribe,
+    //filters
+    filtersByCompany,
+    filtersByFounder
 }
