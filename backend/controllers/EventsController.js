@@ -204,13 +204,13 @@ async function eventPosterUpload(req, res) {
     if (!events_id){
         return res.json(new Response(false, 'Company id is empty!'));
     }
-    if (!(await events.havePermission(events_id,req.senderData.id))) {
-        return res.json(new Response(false, "deny permission "));
-    }
     const filename = photo.filename.toString().toLowerCase();
     if (filename.endsWith('.png') || filename.endsWith('.jpg') || filename.endsWith('.jpeg')){
         events.find({id: events_id}).then((results) => {
             let eventData = results[0];
+            if (!(events.havePermission(results[0].company_id,req.senderData.id))) {
+                return res.json(new Response(false, "deny permission "));
+            }
             eventData.poster = photo.filename;
             console.log(eventData);
             events.updateById(eventData).then(() => {
