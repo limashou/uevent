@@ -175,15 +175,15 @@ async function eventByID(req,res){
 }
 
 async function eventPoster(req, res) {
-    const { event_id } = req.params;
-    new Events().find({id: event_id})
+    const { events_id } = req.params;
+    new Events().find({id: events_id})
         .then((result)=>{
             if (result.length === 0){
                 res.json(new Response(false, 'Event with this id not found!'))
             }
             else{
-                let filename = result[0].photo
-                const filePath = path.join(__dirname, '../images/poster', filename);
+                let filename = result[0].poster
+                const filePath = path.join(__dirname, '../images/poster/events', filename);
                 res.sendFile(filePath);
             }
         }).catch((error)=>{
@@ -197,19 +197,19 @@ async function eventPosterUpload(req, res) {
     }
     let events = new Events();
     const photo = req.file;
-    const { event_id } = req.params;
+    const { events_id } = req.params;
     if(req.senderData.id === undefined){
         return res.json(new Response(false, "You need authorize for this action"));
     }
-    if (!event_id){
+    if (!events_id){
         return res.json(new Response(false, 'Company id is empty!'));
     }
-    if (!(await events.havePermission(event_id,req.senderData.id))) {
+    if (!(await events.havePermission(events_id,req.senderData.id))) {
         return res.json(new Response(false, "deny permission "));
     }
     const filename = photo.filename.toString().toLowerCase();
     if (filename.endsWith('.png') || filename.endsWith('.jpg') || filename.endsWith('.jpeg')){
-        events.find({id: event_id}).then((results) => {
+        events.find({id: events_id}).then((results) => {
             let eventData = results[0];
             eventData.poster = photo.filename;
             console.log(eventData);

@@ -460,7 +460,7 @@ async function companyNewsPoster(req, res) {
             }
             else{
                 let filename = result[0].photo
-                const filePath = path.join(__dirname, '../images/poster', filename);
+                const filePath = path.join(__dirname, '../images/poster/news', filename);
                 res.sendFile(filePath);
             }
         }).catch((error)=>{
