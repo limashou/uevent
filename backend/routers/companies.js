@@ -27,7 +27,7 @@ router.get('/news', company_controller.allNews);
 router.post('/:company_id/news/create', company_controller.createNews);
 router.patch('/:company_id/news/edit', company_controller.editNews);
 router.delete('/:company_id/news/delete/:id', company_controller.deleteNews);
-router.patch('/:company_id/posterUpload/:news_id', uploadNews.single('poster'), company_controller.companyNewsPosterUpload);
+router.patch('/:company_id/posterUpload/:news_id', uploadNews.single('news_poster'), company_controller.companyNewsPosterUpload);
 router.get('/:company_id/poster/:news_id', company_controller.companyNewsPoster);
 //notification
 router.get('/:company_id/notifications', company_controller.getNotification);

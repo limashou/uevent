@@ -2,6 +2,9 @@ const Events = require('../models/events');
 const EventComments = require('../models/event_comments');
 const Response = require("../models/response");
 const UserNotification = require('../models/user_notification');
+const Companies = require("../models/companies");
+const path = require("path");
+const fs = require("fs");
 
 
 /** /=======================/events function /=======================/ */
@@ -170,6 +173,67 @@ async function eventByID(req,res){
         res.json(new Response(false, error.toString()));
     }
 }
+
+async function eventPoster(req, res) {
+    const { event_id } = req.params;
+    new Events().find({id: event_id})
+        .then((result)=>{
+            if (result.length === 0){
+                res.json(new Response(false, 'Event with this id not found!'))
+            }
+            else{
+                let filename = result[0].photo
+                const filePath = path.join(__dirname, '../images/poster', filename);
+                res.sendFile(filePath);
+            }
+        }).catch((error)=>{
+        res.json(new Response(false, error.toString()))
+    });
+}
+
+async function eventPosterUpload(req, res) {
+    if (!req.file) {
+        return res.json(new Response(false, 'Ошибка загрузки файла!'));
+    }
+    let events = new Events();
+    const photo = req.file;
+    const { event_id } = req.params;
+    if(req.senderData.id === undefined){
+        return res.json(new Response(false, "You need authorize for this action"));
+    }
+    if (!event_id){
+        return res.json(new Response(false, 'Company id is empty!'));
+    }
+    if (!(await events.havePermission(event_id,req.senderData.id))) {
+        return res.json(new Response(false, "deny permission "));
+    }
+    const filename = photo.filename.toString().toLowerCase();
+    if (filename.endsWith('.png') || filename.endsWith('.jpg') || filename.endsWith('.jpeg')){
+        events.find({id: event_id}).then((results) => {
+            let eventData = results[0];
+            eventData.poster = photo.filename;
+            console.log(eventData);
+            events.updateById(eventData).then(() => {
+                res.json(new Response(true, 'Фото успешно обновлено'));
+            })
+                .catch((error)=> {
+                    res.json(new Response(false, error.toString()))
+                })
+        }).catch((error) => {
+            console.log(error);
+            res.json(new Response(false, `Not found company with id ${company_id}`))
+        })
+    }
+    else {
+        res.json(new Response(false, 'Данный тип изображения не поддерживается'));
+        fs.unlink(photo.path, (err) => {
+            if (err) {
+                console.error(`Ошибка при удалении файла: ${err}`);
+            }
+        });
+    }
+}
+
 /** /=======================/events comments function /=======================/ */
 
 async function createComment(req,res){
@@ -272,6 +336,8 @@ module.exports = {
     allEventsByCompany,
     allEvents,
     eventByID,
+    eventPoster,
+    eventPosterUpload,
     //comment
     createComment,
     editComment,

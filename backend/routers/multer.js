@@ -16,6 +16,7 @@ const storageUser = multer.diskStorage({
         }
     }
 });
+
 const storageCompany = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = './images/logo';
@@ -38,6 +39,7 @@ const storageCompany = multer.diskStorage({
         }
     }
 });
+
 const storageEvent = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, './images/poster/events');
@@ -53,6 +55,7 @@ const storageEvent = multer.diskStorage({
         }
     }
 });
+
 const storageNews = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, './images/poster/news');
