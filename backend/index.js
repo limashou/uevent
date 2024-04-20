@@ -5,7 +5,9 @@ const cookieParser = require('cookie-parser');
 const router = require('./routers/main');
 const cors = require('cors');
 const client = require("./db");
-const {tokenMiddleware,sessionMiddleware} = require("./routers/always_use");
+const sessionMiddleware = require("./middleware/session");
+const tokenMiddleware = require("./middleware/token");
+const sessionLimiter = require("./middleware/sessionLimiter");
 
 const app = express();
 
@@ -28,6 +30,7 @@ app.use(bodyParser.json());
 app.use(sessionMiddleware);
 app.use(tokenMiddleware);
 app.use(router);
+app.use(sessionLimiter);
 app.use(express.static('images'));
 
 client.connect()

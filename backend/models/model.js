@@ -133,5 +133,18 @@ class Model {
             throw error;
         }
     }
+
+    async loadEnumValues(enumName) {
+        const query = `
+        SELECT unnest(enum_range(NULL::${enumName}))
+    `;
+        try {
+            const result = await client.query(query);
+            return result.rows.map(row => row.unnest);
+        } catch (error) {
+            console.error(`Error loading enum values for ${enumName} from database:`, error);
+            throw error;
+        }
+    }
 }
 module.exports = Model;

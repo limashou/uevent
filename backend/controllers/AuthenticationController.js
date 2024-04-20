@@ -46,12 +46,7 @@ async function register(req, res) {
 
 async function login(req, res) {
     const {username, password} = req.body;
-    let user = new User();
-    if (!password) {
-        res.json(new Response(false, 'Пароль не указан'));
-        return;
-    }
-    user.find({username: username})
+    new User().find({username: username})
         .then(async (usersFound) => {
             if (usersFound.length === 0) {
                 res.json(new Response(false, 'Нет пользователя с такими данными'));

@@ -2,7 +2,6 @@ const Events = require('../models/events');
 const EventComments = require('../models/event_comments');
 const Response = require("../models/response");
 const UserNotification = require('../models/user_notification');
-const Companies = require("../models/companies");
 const path = require("path");
 const fs = require("fs");
 
@@ -16,14 +15,11 @@ async function createEvent(req,res){
         }
         let event = new Events();
         const { company_id } = req.params;
-        const {name, notification, description, location, latitude, longitude, date, format, theme} = req.body;
-        if (name === undefined || date === undefined || format === undefined || theme === undefined) {
-            return res.json(new Response(false, "Some parameters are missing"));
-        }
+        const {name, notification, description, location, /*latitude, longitude ,*/ date, format, theme} = req.body;
         if(!(await event.havePermission(company_id,req.senderData.id))) {
             return res.json(new Response(false,"Not enough permission"));
         }
-        const result = await event.create(name, notification, description, location, latitude, longitude ,date, format, theme ,company_id);
+        const result = await event.create(name, notification, description, location, /*latitude, longitude ,*/date, format, theme ,company_id);
         let userNotification = new UserNotification();
         const newsSubscription = await userNotification.isNewEvents(company_id);
         if (newsSubscription) {
@@ -45,7 +41,7 @@ async function editEvent(req,res){
     try {
         let event = new Events();
         const { event_id } = req.params;
-        const { name, notification, description, location, latitude, longitude ,date, format, theme} = req.body;
+        const { name, notification, description, location, /*latitude, longitude ,*/date, format, theme} = req.body;
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
@@ -58,7 +54,7 @@ async function editEvent(req,res){
             return res.json(new Response(false,"Not enough permission"));
         }
 
-        let updatedFields = { name, notification, description, location, latitude, longitude ,date, format, theme };
+        let updatedFields = { name, notification, description, location, /*latitude, longitude ,*/date, format, theme };
         await event.updateById( { id: foundEvent[0].id, ...updatedFields });
         let userNotification = new UserNotification();
         const newsSubscription = await userNotification.isUpdateEvents(foundEvent[0].company_id);

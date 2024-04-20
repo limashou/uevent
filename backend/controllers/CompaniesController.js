@@ -17,9 +17,6 @@ async function createCompanies(req, res) {
     try {
         let company = new Companies();
         const { name, email, location,latitude,longitude, description } = req.body;
-        if (name === undefined || email === undefined || location === undefined || latitude === undefined || longitude === undefined) {
-            return res.json(new Response(false, "Some parameters are missing"));
-        }
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
@@ -406,14 +403,14 @@ async function createNews(req,res){
 
 async function editNews(req,res){
     try {
-        const { company_id } = req.params;
+        const { news_id } = req.params;
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
-        const {id, title, content} = req.body;
+        const  { title, content} = req.body;
         const company_news = new CompanyNews();
-        const companyNewsFound = await company_news.find({ id: id });
-        if(!(await company_news.havePermission(company_id, req.senderData.id))) {
+        const companyNewsFound = await company_news.find({ id: news_id });
+        if(!(await company_news.havePermission(companyNewsFound[0].company_id, req.senderData.id))) {
             return res.json(new Response(false,"deny permission "));
         }
         if (companyNewsFound.length === 0) {
@@ -433,9 +430,9 @@ async function deleteNews(req,res){
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
-        const { id } = req.params
+        const { news_id } = req.params
         const company_news = new CompanyNews();
-        const companyNewsFound = await company_news.find({ id: id});
+        const companyNewsFound = await company_news.find({ id: news_id});
         if(!(await company_news.havePermission(companyNewsFound[0].company_id, req.senderData.id))) {
             return res.json(new Response(false,"deny permission "));
         }
@@ -477,16 +474,16 @@ async function companyNewsPosterUpload(req, res) {
     }
     let company_news = new CompanyNews();
     const poster = req.file;
-    const {news_id,company_id} = req.params;
+    const {news_id} = req.params;
     if (!news_id){
-        return res.json(new Response(false, 'Company id is empty!'));
-    }
-    if (!(await company_news.havePermission(company_id, req.senderData.id))) {
-        return res.json(new Response(false, "deny permission "));
+        return res.json(new Response(false, 'news id is empty!'));
     }
     const filename = poster.filename.toString().toLowerCase();
     if (filename.endsWith('.png') || filename.endsWith('.jpg') || filename.endsWith('.jpeg')){
         company_news.find({id: news_id}).then((results) => {
+            if (!(company_news.havePermission(results[0].company_id, req.senderData.id))) {
+                return res.json(new Response(false, "deny permission "));
+            }
             let companyData = results[0];
             companyData.poster = poster.filename;
             console.log(companyData);
