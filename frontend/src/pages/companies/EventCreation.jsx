@@ -1,13 +1,13 @@
-import CustomInputField from "../../components/CustomInputField";
+import CustomInputField from "../../components/inputs/CustomInputField";
 import {useState} from "react";
-import CustomTextArea from "../../components/CustomTextArea";
-import CustomImageDropzone from "../../components/CustomImageDropzone";
-import CustomSelector from "../../components/CustomSelector";
+import CustomTextArea from "../../components/inputs/CustomTextArea";
+import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
+import CustomSelector from "../../components/inputs/CustomSelector";
 import {Stack} from "@mui/material";
 import {useParams} from "react-router-dom";
 import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
-import GoogleMapsInput from "../../components/GoogleMapsInput";
+import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
 import {FORMATS, THEMES} from "../../Utils/InputHandlers";
 
 function EventCreation() {

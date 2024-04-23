@@ -263,11 +263,19 @@ export default class Requests {
         return resp.data;
     }
 
-    static async companyNews(company_id, data = {
-        page: 1,
-        limit: 3,
-        order: 'ASC',
-    }){
+    static async newsPosterUpload(news_id, file) {
+        const data = new FormData();
+        data.append('photo', file);
+        const config = {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        };
+        const resp = await axiosInstance.patch(`/news/${news_id}/posterUpload`, data, config);
+        return resp.data;
+    }
+
+    static async companyNews(company_id, data = { page: 1, limit: 3, order: 'ASC' }){
         const config = {
             params: {
                 page: data.page,
@@ -279,5 +287,9 @@ export default class Requests {
             `/companies/${company_id}/news`, config
         );
         return resp.data;
+    }
+
+    static get_news_poster_link(news_id){
+        return `${domain}/news/${news_id}/poster`;
     }
 }

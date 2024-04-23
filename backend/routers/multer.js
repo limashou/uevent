@@ -82,13 +82,13 @@ const storageNews = multer.diskStorage({
         });
     },
     filename: (req, file, cb) => {
-        const account_id = req.params.news_id;
+        const { news_id } = req.params;
 
-        if (account_id) {
+        if (news_id) {
             const newFilename = `news_poster_${news_id}${path.extname(file.originalname)}`;
             cb(null, newFilename);
         } else {
-            cb(new Error('account_id not provided in headers'));
+            cb(new Error('news_id not provided in params'));
         }
     }
 });

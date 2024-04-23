@@ -1,5 +1,5 @@
 import Container from "@mui/material/Container";
-import CustomSearch from "../../components/CustomSearch";
+import CustomSearch from "../../components/inputs/CustomSearch";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Requests from "../../api/Requests";
@@ -10,7 +10,7 @@ import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
 
 import { debounce } from 'lodash';
-import CustomSelector from "../../components/CustomSelector";
+import CustomSelector from "../../components/inputs/CustomSelector";
 
 function Companies() {
     const [companies, setCompanies] = useState([]);
@@ -95,7 +95,12 @@ function Companies() {
                 <Container maxWidth="xl">
                     {loading ? ( // Отображение скелетона во время загрузки
                         Array.from({ length: ONE_PAGE_LIMIT }).map((_, index) => (
-                            <Container key={index} sx={{ height: '175px', display: 'flex', alignItems: 'center', gap: 2, p: 2, '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.3)' } }}>
+                            <Container key={index}
+                                       sx={{ height: '175px', display: 'flex',
+                                           alignItems: 'center', gap: 2, p: 2,
+                                           boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.2)",
+                                       }}
+                            >
                                 <Skeleton variant="circular" width={100} height={100} />
                                 <Container sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                                     <Skeleton variant="text" width="40%" height={40} />

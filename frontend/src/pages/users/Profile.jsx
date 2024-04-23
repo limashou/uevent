@@ -6,12 +6,11 @@ import {UserContext} from "../RootLayout";
 import {useParams} from "react-router-dom";
 import Requests from "../../api/Requests";
 import CompanyMini from "../../components/CompanyMini";
-import {Company, User} from "../../api/Types";
 
 function Profile() {
     const { user_id} = useParams();
     const [ userData ] = useContext(UserContext);
-    const [profileData, setProfileData] = useState(new User);
+    const [profileData, setProfileData] = useState(undefined);
     const [userCompanies, setUserCompanies] = useState([]);
 
     useEffect(() => {

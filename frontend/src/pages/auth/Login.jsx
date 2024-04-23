@@ -4,7 +4,7 @@ import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
 import {passwordValidation, usernameValidation} from "../../Utils/InputHandlers";
-import CustomInputField from "../../components/CustomInputField";
+import CustomInputField from "../../components/inputs/CustomInputField";
 
 function Login() {
     const [username, setUsername] = useState('');

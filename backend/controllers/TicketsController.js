@@ -10,7 +10,7 @@ const { PassThrough } = require('stream');
 const CompanyNotification = require('../models/company_notification');
 /** /=======================/tickets function /=======================/ */
 
-async function creteTickets(req,res){
+async function createTickets(req, res){
     try {
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
@@ -18,7 +18,7 @@ async function creteTickets(req,res){
         const tickets = new Tickets();
         const event = new Events();
         const { event_id } = req.params;
-        const { ticket_type,price, available_tickets } = req.body;
+        const { ticket_type, price, available_tickets } = req.body;
         if(Object.keys(req.body).length === 0) {
             return res.json(new Response(false, "Empty body"));
         }
@@ -262,7 +262,7 @@ async function informationByTicket(req,res){
 }
 
 module.exports = {
-    creteTickets,
+    createTickets,
     editTickets,
     removeTickets,
     getTicketsByEvent,

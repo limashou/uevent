@@ -1,11 +1,11 @@
 import {companyNameValidation, emailValidation} from "../../Utils/InputHandlers";
-import CustomInputField from "../../components/CustomInputField";
+import CustomInputField from "../../components/inputs/CustomInputField";
 import {useState} from "react";
-import GoogleMapsInput from "../../components/GoogleMapsInput";
+import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
 import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
-import CustomTextArea from "../../components/CustomTextArea";
-import CustomImageDropzone from "../../components/CustomImageDropzone";
+import CustomTextArea from "../../components/inputs/CustomTextArea";
+import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
 import {Stack} from "@mui/material";
 import Box from "@mui/material/Box";
 import MapView from "../../components/MapView";
