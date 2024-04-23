@@ -14,16 +14,12 @@ function CompanyCreation() {
     //{ name, email, location, description }
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [locationObj, setLocationObj] = useState();
+    const [locationObj, setLocationObj] = useState(undefined);
     const [description, setDescription] = useState('');
     const [companyLogo, setCompanyLogo] = useState();
-
-    const [mapLoad, setMapLoad] = useState(false);
-
     const handleLocationSelect = (newValue) => {
         // alert(JSON.stringify(newValue));
         setLocationObj(newValue);
-        setMapLoad(true);
     };
 
     async function createCompany() {
@@ -36,8 +32,8 @@ function CompanyCreation() {
             location: locationObj.text,
             latitude: locationObj.location.lat(),
             longitude: locationObj.location.lng(),
+            description: description,
         }
-        console.log(locationObj);
         console.log(data);
         if (description !== '')
             data.description = description;
@@ -45,6 +41,9 @@ function CompanyCreation() {
         if (resp.state === true){
             if (companyLogo){
                 const resp2 = await Requests.companyLogoUpload(resp.data, companyLogo);
+                if (resp2.state !== true){
+                    alert('Error uploading logo');
+                }
             }
             window.location.href = `/companies/${resp.data}`;
         }
@@ -73,15 +72,8 @@ function CompanyCreation() {
                         label="Email"
                         type="email"
                     />
-                    <div>{JSON.stringify(locationObj)}</div>
+                    {/*<div>{JSON.stringify(locationObj)}</div>*/}
                     <GoogleMapsInput onChange={handleLocationSelect} />
-                    {mapLoad && locationObj?.location &&
-                        <MapView lat={locationObj.location.lat()} lng={locationObj.location.lng()} />
-                    }
-                    {/*<PlaceComponent*/}
-                    {/*    location={undefined}*/}
-                    {/*    setLocation={(valut) => {alert(JSON.stringify(valut))}}*/}
-                    {/*/>*/}
                     <CustomTextArea
                         onChange={(value) => setDescription(value)}
                     />

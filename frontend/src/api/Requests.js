@@ -1,5 +1,6 @@
 import axios from "axios";
 import {logout} from "../Utils/Utils";
+import AnnouncementCreation from "../pages/companies/news/AnnouncementCreation";
 
 const ip = new URL(window.location.origin).hostname;
 const domain = `http://${ip}:3001/api`;
@@ -133,6 +134,17 @@ export default class Requests {
         );
         return resp.data;
     }
+
+    static async allFoundersFilters(){
+        const resp = await axiosInstance.get(`/companies/filters/founder`);
+        return resp.data;
+    }
+
+    static async allCompaniesFilters(){
+        const resp = await axiosInstance.get('/companies/filters/name');
+        return resp.data;
+    }
+
     static async companyEvents(company_id,
                                page = 1,
                                limit = 20,
@@ -194,6 +206,9 @@ export default class Requests {
     }
 
     //EVENTS
+    static get_event_poster_link(event_id){
+        return `${domain}/events/${event_id}/poster`;
+    }
     static async eventCreation(company_id, eventData){
         const resp = await axiosInstance.post(`/companies/${company_id}/create`, eventData);
         return resp.data
@@ -204,19 +219,64 @@ export default class Requests {
         return resp.data;
     }
 
+    static async posterUpload(event_id, file) {
+        const data = new FormData();
+        data.append('photo', file);
+        const config = {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        };
+        const resp = await axiosInstance.patch(`/events/${event_id}/upload`, data, config);
+        return resp.data;
+    }
+
     static async allEvents({page = 1, limit = 20, order = 'ASC',
-                               searchValue = '', company_id = ''}){
+                               searchValue = '', company_id = '',
+                               dateFrom = '', dateTo = '',
+                               formats = [], themes = []}){
         const config = {
             params: {
                 page: page,
                 limit: limit,
                 order: order,
                 search: searchValue,
-                company_id: company_id
+                company_id: company_id,
+                dateFrom: dateFrom,
+                dateTo: dateTo,
+                formats: formats,
+                themes: themes
             }
         };
         const resp = await axiosInstance.get(
             `/events`, config
+        );
+        return resp.data;
+    }
+
+    // NEWS
+    static async announcementCreation(company_id, title, content){
+        const resp = await axiosInstance.post(`companies/${company_id}/news/create`, {
+            title: title,
+            content: content,
+        });
+        return resp.data;
+    }
+
+    static async companyNews(company_id, data = {
+        page: 1,
+        limit: 3,
+        order: 'ASC',
+    }){
+        const config = {
+            params: {
+                page: data.page,
+                limit: data.limit,
+                order: data.order,
+            }
+        };
+        const resp = await axiosInstance.get(
+            `/companies/${company_id}/news`, config
         );
         return resp.data;
     }

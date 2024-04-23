@@ -134,15 +134,45 @@ async function allEvents(req,res){
             limit = 20,
             field = 'date',
             order = 'ASC',
+            search = '',
+            dateFrom,
+            dateTo,
+            formats = [],
+            themes = [],
+            company_id
         } = req.query;
 
-        if(page < 1 ) {
+        const filters = [];
+        if (search.trim() !== '')
+            filters.push(`LOWER(name) LIKE '%${search.toLowerCase()}%'`);
+        if (new Date(dateFrom).toString() !== 'Invalid Date') {
+            const dateFromString = new Date(dateFrom).toISOString();
+            filters.push(`date > '${dateFromString}'`);
+        }
+
+        if (new Date(dateTo).toString() !== 'Invalid Date') {
+            const dateToString = new Date(dateTo).toISOString();
+            filters.push(`date < '${dateToString}'`);
+        }
+
+        if (formats.length > 0){
+            filters.push(`format in ('${formats.join('\',\'')}')`);
+        }
+        if (themes.length > 0){
+            filters.push(`theme in ('${themes.join('\',\'')}')`);
+        }
+        if (company_id){
+            filters.push(`company_id = ${company_id}`);
+        }
+
+        if(page < 1) {
             return res.json(new Response(false, `Incorrect page. Page must be greater than or equal to 1, but your page is ${page}`));
         }
         let allEvents = await events.find_with_sort({
             page: page,
             size: limit,
             order: order,
+            filters: filters,
             field: field,
         });
         allEvents.rows = allEvents.rows.map(({ id, name, description, date, format, theme}) => ({ id, name, description, date,format, theme}));
@@ -171,8 +201,8 @@ async function eventByID(req,res){
 }
 
 async function eventPoster(req, res) {
-    const { events_id } = req.params;
-    new Events().find({id: events_id})
+    const { event_id } = req.params;
+    new Events().find({id: event_id})
         .then((result)=>{
             if (result.length === 0){
                 res.json(new Response(false, 'Event with this id not found!'))
@@ -193,16 +223,16 @@ async function eventPosterUpload(req, res) {
     }
     let events = new Events();
     const photo = req.file;
-    const { events_id } = req.params;
+    const { event_id } = req.params;
     if(req.senderData.id === undefined){
         return res.json(new Response(false, "You need authorize for this action"));
     }
-    if (!events_id){
+    if (!event_id){
         return res.json(new Response(false, 'Company id is empty!'));
     }
     const filename = photo.filename.toString().toLowerCase();
     if (filename.endsWith('.png') || filename.endsWith('.jpg') || filename.endsWith('.jpeg')){
-        events.find({id: events_id}).then((results) => {
+        events.find({id: event_id}).then((results) => {
             let eventData = results[0];
             if (!(events.havePermission(results[0].company_id,req.senderData.id))) {
                 return res.json(new Response(false, "deny permission "));

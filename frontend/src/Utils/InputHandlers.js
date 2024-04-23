@@ -91,3 +91,15 @@ export const memberRoles = [
     { value: 'news_maker', label: 'News Maker' },
     { value: 'editor', label: 'Editor' },
 ];
+
+export const FORMATS = [
+    {value: 'conferences'},
+    {value: 'lectures'},
+    {value: 'workshops'},
+    {value: 'fests'}
+];
+export const THEMES = [
+    {value: 'business'},
+    {value: 'politics'},
+    {value: 'psychology'}
+];

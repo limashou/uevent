@@ -2,6 +2,7 @@ const Router = require('express')
 const router = new Router;
 const events_controller = require('../controllers/EventsController');
 const ticket = require("../controllers/TicketsController");
+const {uploadEvent} = require("./multer");
 const {uploadNews} = require("./multer");
 const validateRequest = require("../middleware/validateRequest");
 const {eventValidationChain} = require("../validators/events");
@@ -16,8 +17,8 @@ router.get('/:event_id', events_controller.eventByID);
 //comment
 router.post('/:event_id/comments/create', events_controller.createComment);
 router.get('/:event_id/comments', events_controller.allComments);
-router.get('/:events_id/poster', events_controller.eventPoster);
-router.patch('/:events_id/upload', uploadNews.single('event_poster'), events_controller.eventPosterUpload);
+router.get('/:event_id/poster',events_controller.eventPoster);
+router.patch('/:event_id/upload', uploadEvent.single('photo'), events_controller.eventPosterUpload);
 //tickets
 router.post('/:event_id/create', ticketValidationChain, validateRequest, ticket.creteTickets);
 router.get('/:event_id/tickets', ticket.getTicketsByEvent);

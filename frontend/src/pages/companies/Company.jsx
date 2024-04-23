@@ -63,7 +63,7 @@ function Company() {
                                     <Link to={`/companies/${company_id}/settings`}>Settings</Link>
                                 }
                                 {permissions.news_creation &&
-                                    <Link to={`/companies/${company_id}/settings`}>Create news</Link>
+                                    <Link to={`/companies/${company_id}/newsCreation`}>Create news</Link>
                                 }
                                 {permissions.event_creation &&
                                     <Link to={`/companies/${company_id}/eventCreation`}>Create event</Link>

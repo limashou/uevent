@@ -10,6 +10,7 @@ import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
 
 import { debounce } from 'lodash';
+import CustomSelector from "../../components/CustomSelector";
 
 function Companies() {
     const [companies, setCompanies] = useState([]);
@@ -18,15 +19,21 @@ function Companies() {
 
     const [searchValue, setSearchValue] = useState('');
     const [searchOptions, setSearchOptions] = useState([]);
+
+    const [founderIdFilter, setFounderIdFilter] = useState(undefined);
     const ONE_PAGE_LIMIT = 4;
     const [loading, setLoading] = useState(true);
 
     const debouncedFetchData = debounce(async () => {
         setLoading(true); // Установка состояния загрузки перед запросом данных
-        const resp = await Requests.allCompanies({
+        const params = {
             limit: ONE_PAGE_LIMIT,
             searchValue: searchValue
-        })
+        };
+        if (founderIdFilter){
+            params.founder_id = founderIdFilter;
+        }
+        const resp = await Requests.allCompanies(params);
         if (resp.state === true) {
             setCompanies(resp.data.rows);
             setTotalPages(resp.data.totalPages);
@@ -38,11 +45,29 @@ function Companies() {
     }, 1000); // Задержка в 2000 миллисекунд (2 секунды)
 
     useEffect(() => {
-        setLoading(true); // Установка состояния загрузки после получения данных
+        setLoading(true);
         debouncedFetchData();
         return debouncedFetchData.cancel; // Отмена предыдущего вызова debouncedFetchData при изменении page или searchValue
-    }, [page, searchValue]);
+    }, [page, searchValue, founderIdFilter]);
 
+
+    const [founders, setFounders] = useState([]);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const resp = await Requests.allFoundersFilters();
+                if (resp.state === true) {
+                    // alert(JSON.stringify(resp.data));
+                    setFounders(resp.data.map(({id, full_name}) => (
+                        {value: id, label: full_name}
+                    )));
+                }
+            } catch (error) {
+                console.error("Error fetching founders:", error);
+            }
+        };
+        fetchData();
+    }, []);
     const handlePageChange = (event, value) => {
         setPage(value);
     };
@@ -59,9 +84,9 @@ function Companies() {
                         Create company
                     </Button>
                 </Link>
-                <div>
-                    Filters content
-                </div>
+                <CustomSelector label="Founder" options={founders} onChange={(value) => {
+                    setFounderIdFilter(value);
+                }} />
             </Container>
             <Container>
                 <Container sx={{ display: 'flex' }}>

@@ -21,6 +21,10 @@ import Events from "./pages/events/Events";
 import Event from "./pages/events/Event";
 import EventSettings from "./pages/events/EventSettings";
 import EventDataWrapper from "./pages/events/EventDataWrapper";
+import News from "./pages/companies/news/News";
+import AnnouncementCreation from "./pages/companies/news/AnnouncementCreation";
+import Announcement from "./pages/companies/news/Announcement";
+import AnnouncementEdit from "./pages/companies/news/AnnouncementEdit";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registration = lazy(() => import("./pages/auth/Registration"));
@@ -38,13 +42,14 @@ function App() {
                     <Route path="password-recovery" element={<PasswordRecovery />} />
                     <Route path="password-reset/:token" element={<PasswordReset />} />
                 </Route>
-                <Route path="companies" element={<CompaniesLayout />}>
+                <Route path="companies" element={<CompaniesLayout />} >
                     <Route index element={<Companies />} />
                     <Route path="creation" element={<CompanyCreation />} />
                     <Route path=":company_id" element={<CompanyDataWrapper />}>
                         <Route index element={<Company />} />
                         <Route path="settings" element={<CompanySettings />} />
                         <Route path="eventCreation" element={<EventCreation />} />
+                        <Route path="newsCreation" element={<AnnouncementCreation />} />
                     </Route>
                 </Route>
                 <Route path="users" element={<UserLayout />}>

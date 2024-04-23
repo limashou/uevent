@@ -27,7 +27,6 @@ function CustomNavigation() {
     const [anchorElUser, setAnchorElUser] = useState(null);
     const [userData] = useContext(UserContext);
 
-    // alert(JSON.stringify(userData));
     const handleOpenUserMenu = (event) => {
         setAnchorElUser(event.currentTarget);
     };
@@ -44,7 +43,7 @@ function CustomNavigation() {
                         variant="h6"
                         noWrap
                         component="a"
-                        href="/users/me"
+                        href="/events"
                         sx={{
                             mr: 2,
                             display: { xs: 'none', md: 'flex' },
@@ -69,13 +68,13 @@ function CustomNavigation() {
                             </Link>
                         ))}
                     </Box>
-                    { userData !== undefined ?
+                    { userData ?
                         (
                             <div>
                                 <Box sx={{ flexGrow: 0 }}>
                                     <Tooltip title="Open settings">
                                         <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                            <Avatar alt="NN" src={userData.avatar} />
+                                            <Avatar alt="NN" src={userData.photo} />
                                         </IconButton>
                                     </Tooltip>
                                     <Menu

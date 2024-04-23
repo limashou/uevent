@@ -6,11 +6,12 @@ import {UserContext} from "../RootLayout";
 import {useParams} from "react-router-dom";
 import Requests from "../../api/Requests";
 import CompanyMini from "../../components/CompanyMini";
+import {Company, User} from "../../api/Types";
 
 function Profile() {
-    const {user_id} = useParams();
-    const [userData] = useContext(UserContext);
-    const [profileData, setProfileData] = useState();
+    const { user_id} = useParams();
+    const [ userData ] = useContext(UserContext);
+    const [profileData, setProfileData] = useState(new User);
     const [userCompanies, setUserCompanies] = useState([]);
 
     useEffect(() => {
@@ -57,7 +58,7 @@ function Profile() {
                     <>
                         <Avatar
                             alt={profileData.full_name}
-                            src={profileData.avatar}
+                            src={profileData.photo}
                             sx={{ width: 100, height: 100 }}
                         />
                         <Typography variant="h3">

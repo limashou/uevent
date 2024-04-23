@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS events(
     location VARCHAR(256),
     latitude DECIMAL(10, 6),
     longitude DECIMAL(10, 6),
-    date TIMESTAMP,
+    date TIMESTAMP WITH TIME ZONE,
     format formats,
     theme themes,
     company_id INTEGER NOT NULL,
@@ -83,8 +83,8 @@ CREATE TABLE IF NOT EXISTS tickets (
     price DECIMAL(10, 2) NOT NULL,
     available_tickets INT NOT NULL,
     status statuses,
-    events_id INTEGER NOT NULL,
-    CONSTRAINT fk_event_id FOREIGN KEY (events_id) REFERENCES events(id) ON DELETE CASCADE
+    event_id INTEGER NOT NULL,
+    CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS user_tickets (

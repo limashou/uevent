@@ -8,18 +8,8 @@ import {useParams} from "react-router-dom";
 import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
 import GoogleMapsInput from "../../components/GoogleMapsInput";
+import {FORMATS, THEMES} from "../../Utils/InputHandlers";
 
-const formats = [
-    {value: 'conferences'},
-    {value: 'lectures'},
-    {value: 'workshops'},
-    {value: 'fests'}
-];
-const themes = [
-    {value: 'business'},
-    {value: 'politics'},
-    {value: 'psychology'}
-];
 function EventCreation() {
     const { company_id } = useParams();
     const [title, setTitle] = useState('');
@@ -28,28 +18,41 @@ function EventCreation() {
     const [poster, setPoster] = useState();
     const [format, setFormat] = useState('');
     const [theme, setTheme] = useState('');
-    const [locationObj, setLocationObj] = useState();
+    const [locationObj, setLocationObj] = useState(undefined);
     async function createEvent() {
-        alert(JSON.stringify({
-            name: title,
-            date: date,
-            format: format,
-            theme: theme
-        }));
         if (title === '' || date === '' || format === '' || theme === '' || !locationObj) {
             alert('fill all fields');
             return;
         }
+        if (new Date(date).toString() === 'Invalid Date'
+            || new Date(date).getTime() < new Date().getTime()){
+            alert('invalid date');
+            return;
+        }
         const resp = await Requests.eventCreation(company_id, {
             name: title,
-            date: date,
+            description: description,
+            date: new Date(date).toISOString(),
             format: format,
             theme: theme,
             location: locationObj.text,
             latitude: locationObj.location.lat(),
             longitude: locationObj.location.lng(),
+            notification: true,
         });
-        alert(JSON.stringify(resp));
+
+        if (resp.state === true){
+            if (poster){
+                const resp2 = await Requests.posterUpload(resp.data, poster);
+                if (resp2.state !== true){
+                    alert(JSON.stringify(resp2));
+                }
+            }
+            window.location.href = `/events/${resp.data}`;
+        }
+        else
+            alert(JSON.stringify(resp));
+
     }
     return (
         <>
@@ -73,16 +76,17 @@ function EventCreation() {
                     id="eventDate"
                     label="Event date"
                     type="datetime-local"
+                    InputLabelProps={{ shrink: true }}
                 />
                 <CustomSelector
-                    defaultValue={format[0]}
                     onChange={(value) => setFormat(value)}
-                    options={formats}
+                    label="Format"
+                    options={FORMATS}
                 />
                 <CustomSelector
-                    defaultValue={themes[0]}
                     onChange={(value) => setTheme(value)}
-                    options={themes}
+                    label="Theme"
+                    options={THEMES}
                 />
                 <GoogleMapsInput onChange={setLocationObj} />
                 <Button onClick={createEvent}>Create</Button>

@@ -530,7 +530,7 @@ async function allCompanyNews(req, res) {
         const {
             page = 1,
             limit = 20,
-            field = 'name',
+            field = 'title',
             order = 'ASC',
         } = req.query;
 

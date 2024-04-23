@@ -88,6 +88,7 @@ function GoogleMapsInput({ onChange, defaultValue = '', inputLabel = 'Add a loca
     }, [value, inputValue, fetch]);
 
     const getPlaceDetails = (newValue) => {
+        console.log(newValue);
         // alert(JSON.stringify(newValue));
         if (!newValue){
             onChange(undefined);

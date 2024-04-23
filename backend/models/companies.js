@@ -146,7 +146,7 @@ class Companies extends Model {
             return rows[0];
         } catch (error) {
             console.error("Error retrieving company and permissions:", error);
-            return { state: false, message: "Error retrieving company and permissions", data: { permissions: { event_creation: false, company_edit: false, news_creation: false, eject_members: false }, company: null } };
+            return [];
         }
     }
 }

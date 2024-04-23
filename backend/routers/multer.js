@@ -4,7 +4,14 @@ const path = require('path');
 
 const storageUser = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './images/avatar');
+        const uploadDir = './images/avatar';
+        fs.mkdir(uploadDir, { recursive: true }, (err) => {
+            if (err) {
+                console.error('Error creating directory:', err);
+            } else {
+                cb(null, uploadDir);
+            }
+        });
     },
     filename: (req, file, cb) => {
         const account_id = req.senderData.id;
@@ -42,12 +49,19 @@ const storageCompany = multer.diskStorage({
 
 const storageEvent = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './images/poster/events');
+        const uploadDir = './images/poster/events';
+        fs.mkdir(uploadDir, { recursive: true }, (err) => {
+            if (err) {
+                console.error('Error creating directory:', err);
+            } else {
+                cb(null, uploadDir);
+            }
+        });
     },
     filename: (req, file, cb) => {
-        const account_id = req.params.event_id;
+        const event_id = req.params.event_id;
 
-        if (account_id) {
+        if (event_id) {
             const newFilename = `event_poster_${event_id}${path.extname(file.originalname)}`;
             cb(null, newFilename);
         } else {
@@ -58,7 +72,14 @@ const storageEvent = multer.diskStorage({
 
 const storageNews = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './images/poster/news');
+        const uploadDir = './images/poster/news';
+        fs.mkdir(uploadDir, { recursive: true }, (err) => {
+            if (err) {
+                console.error('Error creating directory:', err);
+            } else {
+                cb(null, uploadDir);
+            }
+        });
     },
     filename: (req, file, cb) => {
         const account_id = req.params.news_id;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 
-function CustomSelector({ defaultValue = '', onChange, options = [] }) {
+function CustomSelector({ defaultValue = '', onChange, options = [], label = 'Role' }) {
     const handleChange = (event) => {
         if (onChange) {
             onChange(event.target.value);
@@ -10,10 +10,10 @@ function CustomSelector({ defaultValue = '', onChange, options = [] }) {
 
     return (
         <FormControl fullWidth>
-            <InputLabel>Role</InputLabel>
+            <InputLabel>{label}</InputLabel>
             <Select
                 defaultValue={defaultValue}
-                label="Role"
+                label={label}
                 onChange={handleChange}
             >
                 {options.map((option) => (
