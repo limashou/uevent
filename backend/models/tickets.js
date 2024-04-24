@@ -6,12 +6,12 @@ class Tickets extends Model {
     constructor() {
         super('tickets');
     }
-    createTickets(ticket_type,price, available_tickets,status,events_id) {
+    createTickets(ticket_type,price, available_tickets,status,event_id) {
         this.ticket_type = ticket_type;
         this.price = price;
         this.available_tickets = available_tickets;
         this.status = status;
-        this.events_id = events_id;
+        this.event_id = event_id;
         return this.insert();
     }
 }

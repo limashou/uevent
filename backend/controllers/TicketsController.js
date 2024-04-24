@@ -52,7 +52,7 @@ async function editTickets(req,res){
         if(Object.keys(req.body).length === 0) {
             return res.json(new Response(false, "Empty body"));
         }
-        const eventFound = await event.find({id: ticketsFound[0].events_id});
+        const eventFound = await event.find({id: ticketsFound[0].event_id});
         if(eventFound.length === 0) {
             res.json(new Response(false,"Wrong event id"));
         }
@@ -100,13 +100,13 @@ async function removeTickets(req,res){
 
 async function getTicketsByEvent(req,res) {
     try {
-        const { events_id } = req.params;
+        const { event_id } = req.params;
         const tickets = new Tickets();
-        const ticketsFound = await tickets.find({events_id: events_id});
+        const ticketsFound = await tickets.find({event_id: event_id});
         if(ticketsFound.length === null) {
             return res.json(new Response(true, "Not found tickets"));
         }
-        res.json(new Response(true,"All tickets by event_id" + events_id, ticketsFound));
+        res.json(new Response(true,"All tickets by event_id" + event_id, ticketsFound));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -122,7 +122,7 @@ async function generateTicketPdf(user_id, ticket_id, ticket_status) {
         let event = new Events();
         const ticketFound = await ticket.find({ id: ticket_id });
         const userFound = await user.find({ id: user_id });
-        const eventFound = await event.find({ id: ticketFound[0].events_id });
+        const eventFound = await event.find({ id: ticketFound[0].event_id });
         const doc = new pdfkit();
 
         const qrData = `https://example.com/ticket/${ticket_id}`;
