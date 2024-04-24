@@ -5,10 +5,10 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import {Alert} from "@mui/material";
 import Requests from "../../api/Requests";
-import CustomInputField from "../../components/CustomInputField";
+import CustomInputField from "../../components/inputs/CustomInputField";
 import {emailValidation, fullNameValidation, passwordValidation} from "../../Utils/InputHandlers";
 import {UserContext} from "../RootLayout";
-import CustomImageDropzone from "../../components/CustomImageDropzone";
+import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
 
 function ProfileSettings() {
     const [userData, setUserData] = useContext(UserContext);

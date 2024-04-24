@@ -12,23 +12,22 @@ import {useContext, useEffect, useState} from "react";
 import {CompanyDataContext} from "./CompanyDataWrapper";
 import UsersLine from "../../components/UsersLine";
 import Box from "@mui/material/Box";
+import CompanyNewsElement from "../../components/CompanyNewsElement";
+import EventMini from "../../components/EventMini";
+import {Badge, Tab, Tabs} from "@mui/material";
 
 function Company() {
     const { company_id } = useParams();
-    const { companyData } = useContext(CompanyDataContext);
-    const { companyMembers } = useContext(CompanyDataContext);
-    const { loading } = useContext(CompanyDataContext);
-    const { permissions } = useContext(CompanyDataContext);
+    const { companyData, companyMembers, loading, permissions } = useContext(CompanyDataContext);
     const [companyEvents, setCompanyEvents] = useState([]);
-
-
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const resp = await Requests.companyEvents(company_id);
-                if (resp.state === true) {
-                    setCompanyEvents(resp.data.rows);
-                }
+                Requests.companyEvents(company_id).then((resp) => {
+                    if (resp.state === true) {
+                        setCompanyEvents(resp.data.rows);
+                    }
+                });
             } catch (error) {
                 console.error("Error fetching company data:", error);
             }
@@ -36,50 +35,67 @@ function Company() {
         fetchData();
     }, [company_id]);
 
+    const [tabsValue, setTabsValue] = useState(0);
+
+    const handleChange = (event, newValue) => {
+        setTabsValue(newValue);
+    };
+
+    // Проверяем, есть ли данные и они загружены
+    if (!companyData || loading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <Container maxWidth="md" className={'center-block'}>
             <Stack spacing={4}>
-                {loading ? (
-                    <>
-                        <Skeleton variant="circular" width={150} height={150} />
-                        <Skeleton variant="text" width="60%" />
-                        <Skeleton variant="text" width="80%" />
-                        <Skeleton variant="text" width="70%" />
-                        <Skeleton variant="text" width="90%" />
-                    </>
-                ) : (
-                    <>
-                        <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar
-                                variant="rounded"
-                                src={Requests.get_company_logo_link(companyData.id)}
-                                sx={{ width: 150, height: 150 }}
-                            >{companyData.name}</Avatar>
-                            <Box display="flex" gap={2}>
-                                <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
-                                    {companyData.name}
-                                </Typography>
-                                {permissions.company_edit &&
-                                    <Link to={`/companies/${company_id}/settings`}>Settings</Link>
-                                }
-                                {permissions.news_creation &&
-                                    <Link to={`/companies/${company_id}/newsCreation`}>Create news</Link>
-                                }
-                                {permissions.event_creation &&
-                                    <Link to={`/companies/${company_id}/eventCreation`}>Create event</Link>
-                                }
-                            </Box>
-                        </Stack>
-                        <DescriptionInfo icon={<DescriptionIcon />} text={companyData.description} />
-                        <DescriptionInfo icon={<EmailIcon />} text={companyData.email} />
-                        <DescriptionInfo icon={<LocationOnIcon />} text={companyData.location} />
+                <Stack direction="row" alignItems="center" spacing={2}>
+                    <Avatar
+                        variant="rounded"
+                        src={Requests.get_company_logo_link(companyData.id)}
+                        sx={{ width: 150, height: 150 }}
+                    >{companyData.name}</Avatar>
+                    <Box display="flex" gap={2}>
+                        <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
+                            {companyData.name}
+                        </Typography>
+                        {permissions.company_edit &&
+                            <Link to={`/companies/${company_id}/settings`}>Settings</Link>
+                        }
+                        {permissions.news_creation &&
+                            <Link to={`/companies/${company_id}/newsCreation`}>Create news</Link>
+                        }
+                        {permissions.event_creation &&
+                            <Link to={`/companies/${company_id}/eventCreation`}>Create event</Link>
+                        }
+                    </Box>
+                </Stack>
+                <Box sx={{ width: '100%', }}>
+                    <Tabs value={tabsValue} onChange={handleChange} centered>
+                        <Tab label="Events" />
+                        <Tab label="News" />
+                        <Tab label="Members" />
+                        <Tab label="About" />
+                    </Tabs>
+                    {tabsValue === 0 &&
+                        companyEvents.map((event) => (
+                            <EventMini eventData={event} />
+                        ))
+                    }
+                    {tabsValue === 1 &&
+                        <CompanyNewsElement company_id={company_id} />
+                    }
+                    {tabsValue === 2 &&
                         <UsersLine companyMembers={companyMembers} />
-                        <Typography>Company events:</Typography>
-                        {companyEvents.map((event) => (
-                            <div key={`company-event-${event.id}`}>{JSON.stringify(event)}</div>
-                        ))}
-                    </>
-                )}
+                    }
+                    {tabsValue === 3 &&
+                        <>
+                            <DescriptionInfo icon={<DescriptionIcon />} text={companyData.description} />
+                            <DescriptionInfo icon={<EmailIcon />} text={companyData.email} />
+                            <DescriptionInfo icon={<LocationOnIcon />} text={companyData.location} />
+                        </>
+                    }
+                </Box>
             </Stack>
         </Container>
     );

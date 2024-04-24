@@ -1,9 +1,9 @@
 import {Stack} from "@mui/material";
-import CustomImageDropzone from "../../../components/CustomImageDropzone";
+import CustomImageDropzone from "../../../components/inputs/CustomImageDropzone";
 import Box from "@mui/material/Box";
-import CustomInputField from "../../../components/CustomInputField";
+import CustomInputField from "../../../components/inputs/CustomInputField";
 import {companyNameValidation, emailValidation} from "../../../Utils/InputHandlers";
-import CustomTextArea from "../../../components/CustomTextArea";
+import CustomTextArea from "../../../components/inputs/CustomTextArea";
 import Button from "@mui/material/Button";
 import {useState} from "react";
 import {useParams} from "react-router-dom";
@@ -21,9 +21,17 @@ function AnnouncementCreation() {
             return;
         }
         const resp = await Requests.announcementCreation(company_id, title, content);
-        if (resp.state !== true){
-            alert(JSON.stringify(resp));
+        if (resp.state === true){
+            if (newsPoster) {
+                const poster_resp = await Requests.newsPosterUpload(resp.data, newsPoster);
+                if (poster_resp.state !== true){
+                    alert(JSON.stringify(poster_resp));
+                }
+            }
+            window.location.href = `/companies/${company_id}`;
         }
+        else
+            alert(JSON.stringify(resp));
     }
     return (
         <div className={'center-block'}>

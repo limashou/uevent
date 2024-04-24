@@ -268,7 +268,7 @@ async function createComment(req,res){
         const { event_id } = req.params;
         const {text} = req.body;
         if (text === undefined) {
-            return res.json(new Response(false, "You cant creat comment without text"));
+            return res.json(new Response(false, "You cant create comment without text"));
         }
         if(req.senderData.id === undefined){
             return res.json(new Response(false,"You need to authorize for this"));

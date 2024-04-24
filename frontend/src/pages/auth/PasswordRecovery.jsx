@@ -4,7 +4,7 @@ import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
 import {emailValidation} from "../../Utils/InputHandlers";
-import CustomInputField from "../../components/CustomInputField";
+import CustomInputField from "../../components/inputs/CustomInputField";
 
 function PasswordRecovery() {
     const [email, setEmail] = useState('');

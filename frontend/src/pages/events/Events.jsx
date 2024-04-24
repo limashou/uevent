@@ -4,16 +4,16 @@ import Requests from "../../api/Requests";
 import Container from "@mui/material/Container";
 import {Link} from "react-router-dom";
 import Button from "@mui/material/Button";
-import CustomSearch from "../../components/CustomSearch";
+import CustomSearch from "../../components/inputs/CustomSearch";
 import Skeleton from "@mui/material/Skeleton";
 import CompanyMini from "../../components/CompanyMini";
 import Stack from "@mui/material/Stack";
 import Pagination from "@mui/material/Pagination";
 import EventMini from "../../components/EventMini";
-import CustomInputField from "../../components/CustomInputField";
-import CustomMultiSelect from "../../components/CustomMultiSelect";
+import CustomInputField from "../../components/inputs/CustomInputField";
+import CustomMultiSelect from "../../components/inputs/CustomMultiSelect";
 import {FORMATS, THEMES} from "../../Utils/InputHandlers";
-import CustomSelector from "../../components/CustomSelector";
+import CustomSelector from "../../components/inputs/CustomSelector";
 
 function Events() {
     const [events, setEvents] = useState([]);
@@ -37,6 +37,7 @@ function Events() {
         const data = {
             limit: ONE_PAGE_LIMIT,
             searchValue: searchValue,
+            page: page
         }
         if (new Date(dateFrom).toString() !== 'Invalid Date')
             data.dateFrom = new Date(dateFrom).toISOString()
@@ -130,7 +131,12 @@ function Events() {
                 <Container maxWidth="xl">
                     {loading ? ( // Отображение скелетона во время загрузки
                         Array.from({ length: ONE_PAGE_LIMIT }).map((_, index) => (
-                            <Container key={index} sx={{ height: '175px', display: 'flex', alignItems: 'center', gap: 2, p: 2, '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.3)' } }}>
+                            <Container key={index}
+                                       sx={{ height: '175px', display: 'flex',
+                                           alignItems: 'center',
+                                           boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.2)",
+                                       }}
+                            >
                                 <Skeleton variant="circular" width={100} height={100} />
                                 <Container sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                                     <Skeleton variant="text" width="40%" height={40} />

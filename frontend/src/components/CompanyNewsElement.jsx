@@ -1,14 +1,15 @@
 import {useEffect, useState} from "react";
 import Requests from "../api/Requests";
+import {Announcement} from "./Announcement";
 
 function CompanyNewsElement({ company_id }) {
     const [news, setNews] = useState([]);
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const resp = await Requests.companyNews(company_id);
-                alert(JSON.stringify(resp.data));
+                const resp = await Requests.companyNews(company_id, {page: page});
                 if (resp.state === true) {
                     setNews(resp.data.rows);
                 }
@@ -17,10 +18,12 @@ function CompanyNewsElement({ company_id }) {
             }
         };
         fetchData();
-    }, [company_id]);
+    }, [company_id, page]);
 
     return (
-        <div>{JSON.stringify(news)}</div>
+        news.map((announcement) => (
+            <Announcement announcementData={announcement} />
+        ))
     )
 }
 

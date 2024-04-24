@@ -456,7 +456,7 @@ async function companyNewsPoster(req, res) {
                 res.json(new Response(false, 'Пользователя с таким id не найдено!'))
             }
             else{
-                let filename = result[0].photo
+                let filename = result[0].poster
                 const filePath = path.join(__dirname, '../images/poster/news', filename);
                 res.sendFile(filePath);
             }

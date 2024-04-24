@@ -20,7 +20,7 @@ router.get('/:event_id/comments', events_controller.allComments);
 router.get('/:event_id/poster',events_controller.eventPoster);
 router.patch('/:event_id/upload', uploadEvent.single('photo'), events_controller.eventPosterUpload);
 //tickets
-router.post('/:event_id/create', ticketValidationChain, validateRequest, ticket.creteTickets);
+router.post('/:event_id/create', ticketValidationChain, validateRequest, ticket.createTickets);
 router.get('/:event_id/tickets', ticket.getTicketsByEvent);
 
 //users

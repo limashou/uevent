@@ -2,7 +2,6 @@ import {createContext, useContext, useEffect, useState} from "react";
 import {Outlet, useParams} from "react-router-dom";
 import Requests from "../../api/Requests";
 import {UserContext} from "../RootLayout";
-const { Company } = require('../../api/Types');
 
 export const CompanyDataContext = createContext();
 

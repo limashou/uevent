@@ -3,7 +3,7 @@ import {Link, useParams} from 'react-router-dom';
 import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
-import CustomInputField from "../../components/CustomInputField";
+import CustomInputField from "../../components/inputs/CustomInputField";
 import {passwordValidation} from "../../Utils/InputHandlers";
 
 function PasswordRecovery() {
