@@ -5,13 +5,13 @@ class Events extends Model {
     constructor() {
         super('events');
     }
-    create(name, notification, description, location, /*latitude, longitude,*/date,format, theme, company_id) {
+    create(name, notification, description, location, latitude, longitude,date,format, theme, company_id) {
         this.name = name;
         this.notification = notification;
         this.description = description;
         this.location = location;
-        // this.latitude = latitude;
-        // this.longitude = longitude;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.date = date;
         this.format = format;
         this.theme = theme;
