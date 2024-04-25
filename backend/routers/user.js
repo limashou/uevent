@@ -11,4 +11,5 @@ router.patch('/update', editProfileValidationChain, validateRequest, user.update
 router.patch('/avatar', uploadUser.single('photo'), user.avatarUpload);
 router.get('/:user_id/avatar', user.userAvatar);
 router.post('/findBy', user.findByFullName);
+router.get('/notification',user.getNotification);
 module.exports = router;

@@ -8,11 +8,12 @@ class Tickets_users extends Model  {
         super('user_tickets');
     }
 
-    buy(ticket_status,user_id,ticket_id,show_username = false){
+    buy(ticket_status,user_id,ticket_id,show_username = false,purchase_token = null) {
         this.ticket_status = ticket_status;
         this.user_id = user_id;
         this.ticket_id = ticket_id;
         this.show_username = show_username;
+        this.purchase_token = purchase_token;
         return this.insert();
     }
 

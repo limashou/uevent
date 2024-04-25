@@ -76,6 +76,22 @@ class User_notification extends Model{
         }
     }
 
+    async getNotification(user_id){
+        const query = `
+        SELECT *
+        FROM user_notification
+        JOIN user_subscribe ON user_notification.user_subscribe_id = user_subscribe.id
+        WHERE user_subscribe.user_id = $1
+    `;
+        const values = [user_id];
+        try {
+            const { rows } = await client.query(query, values);
+            return rows;
+        } catch (error) {
+            console.error("Error:", error);
+            return  false;
+        }
+    }
 }
 
 module.exports = User_notification;

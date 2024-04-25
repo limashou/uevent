@@ -4,7 +4,8 @@ const router = new Router;
 
 router.patch('/:ticket_id/edit',ticket.editTickets)
 router.delete('/:ticket_id/delete',ticket.removeTickets);
-router.post('/buy/:ticket_id',ticket.buyTicket);
+router.post('/:ticket_id/buy',ticket.buyTicket);
+router.post('/:ticket_id/reserve',ticket.reservedTicket);
 router.delete('/:ticket_id/cancel',ticket.cancelTicket);
 
 router.get('/information/:id',ticket.informationByTicket);

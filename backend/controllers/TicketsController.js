@@ -97,7 +97,7 @@ async function removeTickets(req,res){
         res.json(new Response(false, error.toString()));
     }
 }
-
+//proverka kipil polzovatel bilet ile net
 async function getTicketsByEvent(req,res) {
     try {
         const { event_id } = req.params;
@@ -178,14 +178,44 @@ async function generateTicketPdf(user_id, ticket_id, ticket_status) {
     }
 }
 
-
 async function buyTicket(req,res){
     try {
         if(Object.keys(req.body).length === 0) {
             return res.json(new Response(false, "Empty body"));
         }
         const { ticket_id } = req.params;
-        const { ticket_status ,show_username } = req.body;
+        const {show_username, token } = req.body;
+        const ticketUser = new TicketsUsers();
+        if(req.senderData.id === undefined) {
+            return res.json(new Response(false,"You need to authorize for buy or reserved ticket"))
+        }
+        if(await ticketUser.isNotificationEnabled(ticket_id)) {
+            const currentTime = new Date();
+            let notification = new CompanyNotification();
+            const information = await ticketUser.getInformation(ticket_id, req.senderData.id);
+            await notification.create("Event ticket purchase " + information[0].name,
+                "The " + information[0].full_name + " bought a " + information[0].ticket_type + " ticket to the event",
+                information[0].company_id, currentTime);
+        }
+        const result = await ticketUser.find({ticket_id: ticket_id, user_id: req.senderData.id });
+        await ticketUser.updateById({ id: result[0].id,
+            ticket_status: 'bought',
+            show_username: show_username,
+            purchase_token: token,
+            purchase_date: new Date().toISOString(),
+        })
+        await generateTicketPdf(req.senderData.id,ticket_id,'bought');
+        res.json(new Response(true, "Ticket bought successfully",result));
+    }catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
+
+//sdelat maksimym na 10 minyt
+async function reservedTicket(req,res){
+    try {
+        const { ticket_id } = req.params;
         const ticketUser = new TicketsUsers();
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"You need to authorize for buy or reserved ticket"))
@@ -193,17 +223,8 @@ async function buyTicket(req,res){
         if(await ticketUser.DATAUS(ticket_id)){
             return res.json(new Response(false, "All tickets are sold out"));
         }
-        if(await ticketUser.isNotificationEnabled(ticket_id)) {
-            const currentTime = new Date();
-            let notification = new CompanyNotification();
-            const information = await ticketUser.getInformation(ticket_id, req.senderData.id);
-            await notification.create("Event ticket purchase " + information[0].name,
-                "The " + information[0].full_name + " " + ticket_status +" a " + information[0].ticket_type + " ticket to the event",
-                information[0].company_id, currentTime);
-        }
-        const result = await ticketUser.buy(ticket_status,req.senderData.id,ticket_id,show_username);
-        await generateTicketPdf(req.senderData.id,ticket_id,ticket_status);
-        res.json(new Response(true, "Ticket " + ticket_status +" successfully",result));
+        const result = await ticketUser.buy('reserved', req.senderData.id, ticket_id);
+        res.json(new Response(true, "Ticket reserved successfully",result));
     }catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -218,11 +239,8 @@ async function cancelTicket(req,res){
         }
         let ticket_user = new TicketsUsers();
         const found = await ticket_user.find({ ticket_id: ticket_id, user_id: req.senderData.id })
-        if(req.senderData.id === found[0].user_id) {
-            return res.json(new Response(false,"It's not your ticket"))
-        }
-        await ticket_user.rollbackAvailableTickets(ticket_id);
         await ticket_user.deleteRecord({ id: found[0].id });
+        await ticket_user.rollbackAvailableTickets(ticket_id);
         return res.json(new Response(true,"You successfully canceled ticket"))
     }catch (error) {
         console.error(error);
@@ -269,5 +287,6 @@ module.exports = {
     buyTicket,
     cancelTicket,
     informationByTicket,
-    getUsers
+    getUsers,
+    reservedTicket
 }

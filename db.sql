@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS companies(
     description TEXT,
     photo VARCHAR(256),
     founder_id INTEGER NOT NULL,
-    creation_day TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    creation_day TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_id FOREIGN KEY (founder_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS company_news(
     poster VARCHAR(256),
     title VARCHAR(90) NOT NULL,
     content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE
 );
 
@@ -73,9 +73,10 @@ CREATE TABLE IF NOT EXISTS events(
     format formats,
     theme themes,
     company_id INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE IF NOT EXISTS tickets (
     id SERIAL PRIMARY KEY,
@@ -84,8 +85,10 @@ CREATE TABLE IF NOT EXISTS tickets (
     available_tickets INT NOT NULL,
     status statuses,
     event_id INTEGER NOT NULL,
-    CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+    CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+    CONSTRAINT unique_event_ticket UNIQUE (event_id, ticket_type)
 );
+
 
 CREATE TABLE IF NOT EXISTS user_tickets (
     id SERIAL PRIMARY KEY,
@@ -93,7 +96,8 @@ CREATE TABLE IF NOT EXISTS user_tickets (
     user_id INT NOT NULL,
     ticket_id INT NOT NULL,
     show_username BOOLEAN DEFAULT TRUE,
-    purchase_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    purchase_token VARCHAR(256),
+    purchase_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_ticket_id FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
 );
@@ -103,7 +107,7 @@ CREATE TABLE IF NOT EXISTS company_notification (
     title VARCHAR(50),
     description TEXT,
     company_id INTEGER NOT NULL,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE
 );
 
@@ -124,7 +128,7 @@ CREATE TABLE IF NOT EXISTS user_notification (
     description TEXT,
     user_subscribe_id INTEGER NOT NULL,
     link VARCHAR(80) NOT NULL,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_subscribe_id FOREIGN KEY (user_subscribe_id) REFERENCES user_subscribe(id) ON DELETE CASCADE
 );
 
@@ -133,7 +137,7 @@ CREATE TABLE IF NOT EXISTS event_comments(
     comment TEXT NOT NULL ,
     event_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -157,13 +161,3 @@ VALUES ('founder',true,true,true,true),
        ('news_maker',false,false,true,false),
        ('worker',false,false,false,false);
 
--- CREATE TABLE IF NOT EXISTS locations (
---                                          id SERIAL PRIMARY KEY,
---                                          street_address VARCHAR(255) NOT NULL,
---                                          city VARCHAR(100) NOT NULL,
---                                          state VARCHAR(100),
---                                          country VARCHAR(100) NOT NULL,
---                                          postal_code VARCHAR(20),
---                                          latitude DECIMAL(10, 6),
---                                          longitude DECIMAL(10, 6)
--- );

@@ -6,7 +6,7 @@ const eventValidationChain = [
         .trim()
         .isString()
         .isLength({min: 3, max: 70})
-        .withMessage('Name must be between 1 and 70 characters long'),
+        .withMessage('Name must be between 3 and 70 characters long'),
     body('notification')
         .optional()
         .isBoolean()
@@ -15,7 +15,7 @@ const eventValidationChain = [
         .optional()
         .isString()
         .isLength({min: 1, max: 10000})
-        .withMessage('Name must be between 1 and 70 characters long')
+        .withMessage('Description must be between 1 and 70 characters long')
         .trim(),
     body('location')
         .optional()

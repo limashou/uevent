@@ -1,5 +1,6 @@
 const User = require('../models/users');
 const Response = require("../models/response");
+const UserNotification = require('../models/user_notification');
 const fs = require('fs');
 const path = require("path");
 const bcrypt = require("bcrypt");
@@ -26,9 +27,6 @@ async function updateUser(req, res) {
     const { old_password, password, email, full_name } = req.body;
     const user = new User();
     try {
-        if(Object.keys(req.body).length === 0) {
-            return res.json(new Response(false,"Empty body"));
-        }
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
         }
@@ -143,6 +141,21 @@ async function avatarUpload(req, res) {
     }
 }
 
+async function getNotification(req,res){
+    try {
+        if(req.senderData.id === undefined) {
+            return res.json(new Response(false,"Unauthorized. Please log in."))
+        }
+        const result = await new UserNotification().getNotification(req.senderData.id);
+        if(result.length === 0) {
+            return res.json(new Response(true, "You don't have any notifications."));
+        }
+        res.json(new Response(true,"Notifications retrieved successfully.", result));
+    }catch (error) {
+        console.log(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
 module.exports = {
     getAllUser,
     getById,
@@ -150,4 +163,5 @@ module.exports = {
     userAvatar,
     updateUser,
     findByFullName,
+    getNotification
 }
