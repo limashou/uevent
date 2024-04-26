@@ -103,3 +103,8 @@ export const THEMES = [
     {value: 'politics'},
     {value: 'psychology'}
 ];
+
+export const TICKET_TYPES = [
+    {value: 'common'},
+    {value: 'VIP'},
+];

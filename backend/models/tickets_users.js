@@ -1,7 +1,5 @@
 const Model = require("./model");
-const { Client } = require('pg');
 const client = require("../db");
-let dbClient;
 
 class Tickets_users extends Model  {
     constructor() {
@@ -21,15 +19,6 @@ class Tickets_users extends Model  {
     async DATAUS(ticketId) {
         let soldOut = false;
         try {
-            dbClient = new Client({
-                user: 'mpoljatsky',
-                host: 'localhost',
-                database: 'uevent_lubiviy_poliatskiy',
-                password: 'securepass',
-                port: 5433,
-            });
-
-            await dbClient.connect();
 
             const checkQuery = `
             SELECT available_tickets
@@ -37,17 +26,17 @@ class Tickets_users extends Model  {
             WHERE id = $1;
         `;
             const checkValues = [ticketId];
-            const checkResult = await dbClient.query(checkQuery, checkValues);
+            const checkResult = await client.query(checkQuery, checkValues);
 
-            await dbClient.query('BEGIN');
+            await client.query('BEGIN');
 
-            if (checkResult.rows.length === 0 || checkResult.rows[0].available_tickets === 0) {
+            if (checkResult.rows.length === 1 || checkResult.rows[0].available_tickets === 0) {
                 const updateStatusQuery = `
                 UPDATE tickets
                 SET status = 'sold out'
-                WHERE id = $1;
-            `;
-                await dbClient.query(updateStatusQuery, checkValues);
+                WHERE id = $1;`;
+
+                await client.query(updateStatusQuery, checkValues);
                 soldOut = true;
             } else {
                 const updateQuery = `
@@ -56,36 +45,23 @@ class Tickets_users extends Model  {
                 WHERE id = $1
                 AND available_tickets > 0;
             `;
-                await dbClient.query(updateQuery, checkValues);
+                await client.query(updateQuery, checkValues);
             }
 
-            await dbClient.query('COMMIT');
+            await client.query('COMMIT');
         } catch (error) {
-            if (dbClient) {
-                await dbClient.query('ROLLBACK');
+            if (client) {
+                await client.query('ROLLBACK');
                 console.error('Error updating tickets:', error);
             }
             throw error;
-        } finally {
-            if (dbClient) {
-                await dbClient.end();
-            }
         }
         return soldOut;
     }
 
     async rollbackAvailableTickets(ticketId) {
         try {
-            dbClient = new Client({
-                user: 'mpoljatsky',
-                host: 'localhost',
-                database: 'uevent_lubiviy_poliatskiy',
-                password: 'securepass',
-                port: 5433,
-            });
-
-            await dbClient.connect();
-            await dbClient.query('BEGIN');
+            await client.query('BEGIN');
 
             const updateQuery = `
             UPDATE tickets
@@ -94,19 +70,15 @@ class Tickets_users extends Model  {
             AND available_tickets > 0;
         `;
             const updateValues = [ticketId];
-            await dbClient.query(updateQuery, updateValues);
+            await client.query(updateQuery, updateValues);
 
-            await dbClient.query('COMMIT');
+            await client.query('COMMIT');
         } catch (error) {
-            if (dbClient) {
-                await dbClient.query('ROLLBACK');
+            if (client) {
+                await client.query('ROLLBACK');
                 console.error('Error updating tickets:', error);
             }
             throw error;
-        } finally {
-            if (dbClient) {
-                await dbClient.end();
-            }
         }
     }
 

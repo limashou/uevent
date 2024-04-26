@@ -117,7 +117,7 @@ function CompanySettings() {
                                 imageLink={companyData.logo}
                                 onFileSelected={(file) => {
                                     Requests.companyLogoUpload(company_id, file).then((resp) => {
-                                        if (resp.data.state !== true)
+                                        if (resp.state !== true)
                                             alert(resp?.message || 'Error')
                                     });
                                 }}

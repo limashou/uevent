@@ -1,7 +1,7 @@
 import React from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 
-const MapView = ({ lat, lng }) => {
+const MapView = React.memo(({ lat, lng }) => {
     const mapStyles = {
         height: '400px',
         width: '100%',
@@ -37,6 +37,6 @@ const MapView = ({ lat, lng }) => {
             )}
         </>
     );
-};
+});
 
 export default MapView;

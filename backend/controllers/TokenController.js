@@ -62,7 +62,7 @@ function verifyToken(req, res) {
             }
             // else {
                 req.senderData = decoded;
-                console.log(decoded);
+                // console.log(decoded);
                 resolve();
             // }
         });

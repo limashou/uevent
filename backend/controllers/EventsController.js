@@ -15,7 +15,7 @@ async function createEvent(req,res){
         }
         let event = new Events();
         const { company_id } = req.params;
-        const {name, notification, description, location, latitude, longitude , date, format, theme} = req.body;
+        const {name, notification, description, location, latitude, longitude, date, format, theme} = req.body;
         if(!(await event.havePermission(company_id,req.senderData.id))) {
             return res.json(new Response(false,"Not enough permission"));
         }
@@ -333,8 +333,6 @@ async function allComments(req,res){
         const {
             page = 1,
             limit = 20,
-            field = 'created_at',
-            order = 'ASC',
         } = req.query;
 
         if(page < 1 ) {
@@ -344,8 +342,8 @@ async function allComments(req,res){
             event_id: event_id,
             page: page,
             size: limit,
-            order: order,
-            field: field,
+            order: 'ASC',
+            field: 'created_at',
         });
         res.json(new Response(true, "All events by page" + page, allComments));
     } catch (error) {

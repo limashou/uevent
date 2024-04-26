@@ -29,9 +29,9 @@ function Profile() {
                 alert(resp.message || 'Error');
             }
         };
-        if (userData.id)
+        if (userData?.id)
             fetchData();
-    }, [user_id, userData.id]);
+    }, [user_id, userData]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -42,9 +42,12 @@ function Profile() {
             // alert(JSON.stringify(resp));
             setUserCompanies(resp.data.rows);
         };
-        if (userData.id)
+        if (userData?.id)
             fetchData();
-    }, [user_id, userData.id]);
+    }, [user_id, userData]);
+
+    if (!profileData)
+        return <div>Loading...</div>
 
     return (
         <>

@@ -19,8 +19,12 @@ axiosInstance.interceptors.response.use(
         return response;
     },
     async error => {
+        console.log(error);
         if (error.response.status === 401) {
             await logout();
+        }
+        if (error.response?.data?.message) {
+            return Promise.resolve(error.response); // Возвращаем обычный ответ, если есть данные JSON
         }
         return Promise.reject(error);
     }
@@ -201,8 +205,9 @@ export default class Requests {
                 'Content-Type': 'multipart/form-data',
             }
         };
-        return await
+        const resp = await
             axiosInstance.patch(`/companies/${company_id}/logo`, data, config);
+        return resp.data;
     }
 
     //EVENTS
@@ -211,7 +216,7 @@ export default class Requests {
     }
     static async eventCreation(company_id, eventData){
         const resp = await axiosInstance.post(`/companies/${company_id}/create`, eventData);
-        return resp.data
+        return resp.data;
     }
 
     static async eventById(event_id) {
@@ -254,6 +259,35 @@ export default class Requests {
         return resp.data;
     }
 
+    static async eventComments(event_id, page = 1, limit = 10) {
+        const config = {
+            params: {
+                page: page,
+                limit: limit,
+            }
+        };
+        const resp = await axiosInstance.get(
+            `/events/${event_id}/comments`, config
+        );
+        return resp.data;
+    }
+    static async createComment(event_id, text){
+        const resp = await axiosInstance
+            .post(`/events/${event_id}/comments/create`, {text});
+        return resp.data;
+    }
+
+    static async createTicket(event_id, ticket_type, price = 0, available_tickets){
+        const resp = await axiosInstance
+            .post(`/events/${event_id}/create`, {ticket_type, price, available_tickets});
+        return resp.data;
+    }
+
+    static async eventTickets(event_id){
+        const resp = await axiosInstance.get(`/events/${event_id}/tickets`);
+        return resp.data;
+    }
+
     // NEWS
     static async announcementCreation(company_id, title, content){
         const resp = await axiosInstance.post(`companies/${company_id}/news/create`, {
@@ -291,5 +325,26 @@ export default class Requests {
 
     static get_news_poster_link(news_id){
         return `${domain}/news/${news_id}/poster`;
+    }
+
+    //TICKETS
+    static async createCheckoutSession(
+        name = 'zaloopa',
+        amount = 9.99,
+        successUrl = `http://${ip}:3000/success`,
+        cancelUrl = `http://${ip}:3000/cancel`){
+        return await axiosInstance.post('/payment/create_session', {name, amount, successUrl, cancelUrl});
+    }
+
+    static async reserveTicket(ticket_id){
+        const resp = await axiosInstance
+            .post(`/tickets/${ticket_id}/reserve`);
+        return resp.data;
+    }
+
+    static async buyTicket(ticket_id, token = 'sdfsdf32fds', show_username = false){
+        const resp = await axiosInstance
+            .post(`/tickets/${ticket_id}/buy`, {token, show_username});
+        return resp.data;
     }
 }

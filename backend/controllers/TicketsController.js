@@ -106,7 +106,7 @@ async function getTicketsByEvent(req,res) {
         if(ticketsFound.length === null) {
             return res.json(new Response(true, "Not found tickets"));
         }
-        res.json(new Response(true,"All tickets by event_id" + event_id, ticketsFound));
+        res.json(new Response(true, "All tickets by event_id " + event_id, ticketsFound));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));

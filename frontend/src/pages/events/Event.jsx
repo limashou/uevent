@@ -1,4 +1,4 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import { EventDataContext } from "./EventDataWrapper";
 import {Grid, Stack, Tab, Tabs, Typography} from "@mui/material";
 import MapView from "../../components/MapView";
@@ -6,10 +6,13 @@ import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Requests from "../../api/Requests";
 import Box from "@mui/material/Box";
-import {Link} from "react-router-dom";
-import EventMini from "../../components/EventMini"; // Импортируем компоненты Material-UI
+import {Link, useParams} from "react-router-dom";
+import TicketCreation from "../../components/TicketCreation";
+import TicketElement from "../../components/TicketElement";
+import Comments from "../../components/Comments";
 
 function Event() {
+    const { event_id} = useParams();
     const { eventData, loading } = useContext(EventDataContext);
 
     const [tabsValue, setTabsValue] = useState(0);
@@ -18,7 +21,25 @@ function Event() {
         setTabsValue(newValue);
     };
 
-    // Проверяем, есть ли данные и они загружены
+    const [tickets, setTickets] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const resp = await Requests.eventTickets(event_id);
+                // console.log('eventTickets:');
+                // console.log(resp);
+                if (resp.state === true) {
+                    setTickets(resp.data);
+                }
+            } catch (error) {
+                console.error("Error fetching event data:", error);
+            }
+        };
+        fetchData();
+    }, [event_id]);
+
+
     if (!eventData || loading) {
         return <div>Loading...</div>;
     }
@@ -54,14 +75,29 @@ function Event() {
                                 <Typography><strong>Тема:</strong> {eventData.theme}</Typography>
                             </>
                         }
-                        {tabsValue === 1 &&
-                            <Box key={`${eventData.latitude}-${eventData.longitude}`}>
-                                <Typography><strong>Местоположение:</strong> {eventData.location}</Typography>
-                                <MapView lat={Number.parseFloat(eventData.latitude)} lng={Number.parseFloat(eventData.longitude)} />
-                            </Box>
-                        }
+                        <Box sx={{display: tabsValue === 1 ? '' : 'none'}}>
+                            <Typography><strong>Местоположение:</strong> {eventData.location}</Typography>
+                            <MapView lat={Number.parseFloat(eventData.latitude)} lng={Number.parseFloat(eventData.longitude)} />
+                        </Box>
                         {tabsValue === 2 &&
-                            <div>in process</div>
+                            <>
+                                <div>
+                                    {tickets.map((ticketData) => (
+                                        <TicketElement ticketData={ticketData} />
+                                    ))}
+                                </div>
+                                <TicketCreation event_id={eventData.id} />
+                            </>
+                        }
+                        {tabsValue === 3 &&
+                            <>
+                                <div>Users in process</div>
+                            </>
+                        }
+                        {tabsValue === 4 &&
+                            <>
+                                <Comments event_id={event_id} />
+                            </>
                         }
                     </Box>
                 </Stack>
