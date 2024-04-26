@@ -10,11 +10,11 @@ import {Link, useParams} from "react-router-dom";
 import TicketCreation from "../../components/TicketCreation";
 import TicketElement from "../../components/TicketElement";
 import Comments from "../../components/Comments";
+import Visitor from "../../components/Visitor";
 
 function Event() {
     const { event_id} = useParams();
     const { eventData, loading } = useContext(EventDataContext);
-
     const [tabsValue, setTabsValue] = useState(0);
 
     const handleChange = (event, newValue) => {
@@ -22,6 +22,7 @@ function Event() {
     };
 
     const [tickets, setTickets] = useState([]);
+    const [visitors, setVisitors] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -32,6 +33,12 @@ function Event() {
                 if (resp.state === true) {
                     setTickets(resp.data);
                 }
+
+                const respUsers = await Requests.eventUsers(event_id);
+                if (respUsers.state === true){
+                    setVisitors(respUsers.data);
+                }
+                // alert(JSON.stringify(respUsers));
             } catch (error) {
                 console.error("Error fetching event data:", error);
             }
@@ -91,7 +98,9 @@ function Event() {
                         }
                         {tabsValue === 3 &&
                             <>
-                                <div>Users in process</div>
+                            {visitors.map((visitorData) => (
+                                <Visitor visitorData={visitorData} />
+                            ))}
                             </>
                         }
                         {tabsValue === 4 &&

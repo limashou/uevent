@@ -1,9 +1,7 @@
 const stripe = require('stripe')('sk_test_51P9CstEsTOLnosuywUMmL8iuef3sGKNc65KQ4UyRxVLeYI8TCzHTxldCqR8meJxswSracsgKuD1C0hCcTQzZNIcm00zZZ2JKKK')
 
-async function createPaymentIntent(req, res) {
+async function createPaymentIntent(name, description, amount, successUrl, cancelUrl) {
     try {
-        const { name, description, amount, successUrl, cancelUrl } = req.body;
-
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
@@ -23,12 +21,23 @@ async function createPaymentIntent(req, res) {
             success_url: successUrl,
             cancel_url: cancelUrl,
         });
-
-        res.json({ sessionId: session.id });
+        return session.id;
     } catch (error) {
         console.error('Error creating checkout session:', error);
-        res.status(500).json({ error: 'Failed to create checkout session' });
+        return undefined;
     }
 }
 
-module.exports = createPaymentIntent;
+async function checkPaymentStatus(sessionId) {
+    try {
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        return session.payment_status === 'paid';
+    } catch (error) {
+        return false;
+    }
+}
+
+module.exports = {
+    createPaymentIntent,
+    checkPaymentStatus
+};

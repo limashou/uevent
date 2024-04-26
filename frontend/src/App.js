@@ -22,6 +22,7 @@ import Event from "./pages/events/Event";
 import EventSettings from "./pages/events/EventSettings";
 import EventDataWrapper from "./pages/events/EventDataWrapper";
 import AnnouncementCreation from "./pages/companies/news/AnnouncementCreation";
+import TicketBuyConfirm from "./pages/tickets/TicketBuyConfirm";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registration = lazy(() => import("./pages/auth/Registration"));
@@ -60,6 +61,7 @@ function App() {
                         <Route path="settings" element={<EventSettings />} />
                     </Route>
                 </Route>
+                <Route path="ticketbuyconfirm/:ticket_id" element={<TicketBuyConfirm />} />
                 <Route path="accept-invitation/:invitationCode" element={<AcceptInvitation />}/>
             </Route>
         )

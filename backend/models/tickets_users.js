@@ -6,12 +6,12 @@ class Tickets_users extends Model  {
         super('user_tickets');
     }
 
-    buy(ticket_status,user_id,ticket_id,show_username = false,purchase_token = null) {
+    buy(ticket_status,user_id,ticket_id,show_username = false, session_id = null) {
         this.ticket_status = ticket_status;
         this.user_id = user_id;
         this.ticket_id = ticket_id;
         this.show_username = show_username;
-        this.purchase_token = purchase_token;
+        this.session_id = session_id;
         return this.insert();
     }
 
@@ -30,7 +30,7 @@ class Tickets_users extends Model  {
 
             await client.query('BEGIN');
 
-            if (checkResult.rows.length === 1 || checkResult.rows[0].available_tickets === 0) {
+            if (checkResult.rows.length === 0 || checkResult.rows[0].available_tickets === 0) {
                 const updateStatusQuery = `
                 UPDATE tickets
                 SET status = 'sold out'
@@ -83,7 +83,9 @@ class Tickets_users extends Model  {
     }
 
     async getInformationById(id){
-        const selectColumns = ['events.name',
+        const selectColumns = [
+            'events.id AS event_id',
+            'events.name',
             'events.date',
             'events.format',
             'events.theme',
@@ -97,7 +99,7 @@ class Tickets_users extends Model  {
         FROM user_tickets
         JOIN users ON user_tickets.user_id = users.id
         JOIN tickets ON user_tickets.ticket_id = tickets.id
-        JOIN events ON tickets.events_id = events.id
+        JOIN events ON tickets.event_id = events.id
         WHERE user_tickets.id = $1
     `;
         const values = [id];
@@ -114,7 +116,7 @@ class Tickets_users extends Model  {
         const query = `
         SELECT e.notification
         FROM events e
-        JOIN tickets t ON e.id = t.events_id
+        JOIN tickets t ON e.id = t.event_id
         WHERE t.id = $1;
     `;
         const values = [ticketId];
@@ -132,7 +134,7 @@ class Tickets_users extends Model  {
         SELECT ${selectColumns.join(', ')}
         FROM tickets
         JOIN users ON users.id = $2
-        JOIN events ON tickets.events_id = events.id
+        JOIN events ON tickets.event_id = events.id
         WHERE tickets.id = $1
     `;
         const values = [ticketId,user_id];
@@ -162,7 +164,7 @@ class Tickets_users extends Model  {
                     JOIN
                 tickets t ON ut.ticket_id = t.id
             WHERE
-                t.events_id = $1;
+                t.event_id = $1;
         `;
 
         const values = [event_id];

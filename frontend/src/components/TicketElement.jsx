@@ -11,22 +11,19 @@ function TicketElement({ ticketData }) {
     async function onBuy() {
         try {
             setProcessing(true);
-            const resp = await Requests.reserveTicket(id);
+            const resp = await Requests.reserveTicket(
+                id,
+                `${window.location.origin}/ticketbuyconfirm/${id}`,
+                window.location.href
+            )
             if (resp.state !== true){
                 alert(resp.message || 'Error');
                 setProcessing(false);
                 return;
             }
             const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-            const respSession = await Requests.createCheckoutSession(
-                `Ticket ${id}`,
-                price,
-                window.location.href,
-                window.location.href
-                );
-            const sessionId = respSession.data.sessionId;
-            stripe.redirectToCheckout({
-                sessionId: sessionId
+            await stripe.redirectToCheckout({
+                sessionId: resp.data.sessionId
             });
             setProcessing(false);
         } catch (e) {
@@ -38,10 +35,7 @@ function TicketElement({ ticketData }) {
         <Card variant="outlined" style={{ minWidth: 275, margin: '10px' }}>
             <CardContent>
                 <Typography variant="h2" color="textSecondary" gutterBottom>
-                    Ticket Details
-                </Typography>
-                <Typography color="textSecondary">
-                    Type: {ticket_type}
+                    {ticket_type.toUpperCase()}
                 </Typography>
                 <Typography variant="body2" component="p">
                     Price: ${price}
@@ -53,7 +47,7 @@ function TicketElement({ ticketData }) {
                     Event ID: {event_id}
                 </Typography>
                 <Button
-                    disabled={processing}
+                    disabled={processing || available_tickets === 0}
                     onClick={onBuy}
                     variant="contained"
                 >

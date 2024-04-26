@@ -8,5 +8,5 @@ router.post('/:ticket_id/buy', ticket.buyTicket);
 router.post('/:ticket_id/reserve', ticket.reservedTicket);
 router.delete('/:ticket_id/cancel', ticket.cancelTicket);
 
-router.get('/information/:id',ticket.informationByTicket);
+router.get('/information/:user_ticket_id',ticket.informationByTicket);
 module.exports = router;

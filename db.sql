@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS user_tickets (
     user_id INT NOT NULL,
     ticket_id INT NOT NULL,
     show_username BOOLEAN DEFAULT TRUE,
-    purchase_token VARCHAR(256),
+    session_id VARCHAR(256),
     purchase_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_ticket_id FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE

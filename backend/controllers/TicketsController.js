@@ -8,6 +8,7 @@ const User  = require('../models/users');
 const QRCode = require('qrcode');
 const { PassThrough } = require('stream');
 const CompanyNotification = require('../models/company_notification');
+const {createPaymentIntent, checkPaymentStatus} = require("./StripeController");
 /** /=======================/tickets function /=======================/ */
 
 async function createTickets(req, res){
@@ -178,17 +179,33 @@ async function generateTicketPdf(user_id, ticket_id, ticket_status) {
     }
 }
 
-async function buyTicket(req,res){
+async function buyTicket(req, res){
     try {
         if(Object.keys(req.body).length === 0) {
             return res.json(new Response(false, "Empty body"));
         }
         const { ticket_id } = req.params;
-        const {show_username, token } = req.body;
+        const {show_username } = req.body;
         const ticketUser = new TicketsUsers();
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"You need to authorize for buy or reserved ticket"))
         }
+        const result = await ticketUser.find({ticket_id: ticket_id, user_id: req.senderData.id });
+        // проверка не куплен ли уже билет
+        if (result[0].ticket_status === 'bought'){
+            return res.json(new Response(true, "Ticket already bought", result[0].id));
+        }
+        //проверка оплаты:
+        const paymentSuccess = await checkPaymentStatus(result[0].session_id);
+        if (!paymentSuccess){
+            return res.json(new Response(false, 'payment not found'));
+        }
+        await ticketUser.updateById({
+            id: result[0].id,
+            ticket_status: 'bought',
+            show_username: show_username,
+            purchase_date: new Date().toISOString(),
+        })
         if(await ticketUser.isNotificationEnabled(ticket_id)) {
             const currentTime = new Date();
             let notification = new CompanyNotification();
@@ -197,15 +214,8 @@ async function buyTicket(req,res){
                 "The " + information[0].full_name + " bought a " + information[0].ticket_type + " ticket to the event",
                 information[0].company_id, currentTime);
         }
-        const result = await ticketUser.find({ticket_id: ticket_id, user_id: req.senderData.id });
-        await ticketUser.updateById({ id: result[0].id,
-            ticket_status: 'bought',
-            show_username: show_username,
-            purchase_token: token,
-            purchase_date: new Date().toISOString(),
-        })
         await generateTicketPdf(req.senderData.id,ticket_id,'bought');
-        res.json(new Response(true, "Ticket bought successfully",result));
+        res.json(new Response(true, "Ticket bought successfully", result[0].id));
     }catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -216,16 +226,28 @@ async function buyTicket(req,res){
 async function reservedTicket(req,res){
     try {
         const { ticket_id } = req.params;
+        const { successUrl, cancelUrl } = req.body;
         const ticketUser = new TicketsUsers();
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"You need to authorize for buy or reserved ticket"))
         }
-        if(await ticketUser.DATAUS(ticket_id)){
+        if(await ticketUser.DATAUS(Number.parseInt(ticket_id))){
             return res.json(new Response(false, "All tickets are sold out"));
         }
-        const result = await ticketUser.buy('reserved', req.senderData.id, ticket_id);
-        res.json(new Response(true, "Ticket reserved successfully",result));
-    }catch (error) {
+        // название, цену и дескрипшн из тикета подтянешь (название = тип билета, описание - вьеби название мероприятия)
+        const sessionId = await createPaymentIntent(
+            'name',
+            'description',
+            99.9,
+            successUrl,
+            cancelUrl
+        );
+        if (sessionId === undefined){
+            return res.json(new Response(false, 'Error creating checkout session'));
+        }
+        const userTicketId = await ticketUser.buy('reserved', req.senderData.id, ticket_id, false, sessionId);
+        res.json(new Response(true, "Ticket reserved successfully", {id: userTicketId, sessionId: sessionId}));
+    } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
     }
@@ -254,9 +276,9 @@ async function getUsers(req, res){
         let ticket_user = new TicketsUsers();
         const result = await ticket_user.getUserByEventId(event_id);
         if(result.length === 0){
-            res.json(new Response(false,"Empty result"));
+            return res.json(new Response(false,"Empty result"));
         }
-        res.json(new Response(false, "visitors",result));
+        res.json(new Response(true,"visitors", result));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -265,9 +287,9 @@ async function getUsers(req, res){
 
 async function informationByTicket(req,res){
     try {
-        const {id} = req.params;
+        const {user_ticket_id} = req.params;
         const ticket_user = new TicketsUsers();
-        const found  = await ticket_user.getInformationById(id);
+        const found  = await ticket_user.getInformationById(user_ticket_id);
         if (found.length === null) {
             res.json(new Response(false,"empty find"));
         }

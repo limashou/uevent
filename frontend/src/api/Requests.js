@@ -20,7 +20,7 @@ axiosInstance.interceptors.response.use(
     },
     async error => {
         console.log(error);
-        if (error.response.status === 401) {
+        if (error.response?.status === 401) {
             await logout();
         }
         if (error.response?.data?.message) {
@@ -277,6 +277,11 @@ export default class Requests {
         return resp.data;
     }
 
+    static async eventUsers(event_id){
+        const resp = await axiosInstance.get(`/events/${event_id}/visitors`);
+        return resp.data;
+    }
+
     static async createTicket(event_id, ticket_type, price = 0, available_tickets){
         const resp = await axiosInstance
             .post(`/events/${event_id}/create`, {ticket_type, price, available_tickets});
@@ -336,15 +341,21 @@ export default class Requests {
         return await axiosInstance.post('/payment/create_session', {name, amount, successUrl, cancelUrl});
     }
 
-    static async reserveTicket(ticket_id){
+    static async reserveTicket(ticket_id, successUrl = window.location.href, cancelUrl = window.location.href){
         const resp = await axiosInstance
-            .post(`/tickets/${ticket_id}/reserve`);
+            .post(`/tickets/${ticket_id}/reserve`,{successUrl, cancelUrl});
         return resp.data;
     }
 
-    static async buyTicket(ticket_id, token = 'sdfsdf32fds', show_username = false){
+    static async buyTicket(ticket_id, show_username = false){
         const resp = await axiosInstance
-            .post(`/tickets/${ticket_id}/buy`, {token, show_username});
+            .post(`/tickets/${ticket_id}/buy`, {show_username});
+        return resp.data;
+    }
+
+    static async informationTicket(ticket_id){
+        const resp = await axiosInstance
+            .get(`/tickets/information/${ticket_id}`);
         return resp.data;
     }
 }
