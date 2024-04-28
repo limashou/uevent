@@ -1,95 +1,74 @@
-import {Alert} from "@mui/material";
 import {Link, useParams} from 'react-router-dom';
 import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import {passwordValidation} from "../../Utils/InputHandlers";
+import {enqueueSnackbar} from "notistack";
 
 function PasswordRecovery() {
     const { token } = useParams();
 
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
-
-    const [inlineAlert, setInlineAlert] = useState({
-        severity: 'success',
-        message: null,
-    });
-
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+    const [status, setStatus] = useState(false);
 
     async function checkEntities() {
         if (password === '' || passwordConfirm === '') {
-            setInlineAlert({
-                severity: 'warning',
-                message: 'Fill all fields correctly',
-            });
-            setTimeout(() => {
-                setInlineAlert({
-                    severity: 'success',
-                    message: null,
-                });
-            }, 5000);
+            enqueueSnackbar('Fill all fields correctly', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             setIsButtonDisabled(false);
             return;
         }
         try {
             const resp = await Requests.passwordResetConfirm(token, password);
             if (resp.state === true){
-                setInlineAlert({
-                    severity: 'success',
-                    message: 'Password was successfully changed',
-                });
+                setStatus(true);
+                enqueueSnackbar('Password was successfully changed', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             }
             else {
-                setInlineAlert({
-                    severity: 'error',
-                    message: resp?.message || 'Error',
-                });
+                enqueueSnackbar(resp?.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                 setIsButtonDisabled(false);
             }
         } catch (e) {
-            setInlineAlert({
-                severity: 'error',
-                message: 'Error',
-            });
+            enqueueSnackbar(e.message, { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
     }
 
     return (
         <>
-            <h1>Enter new password</h1>
-            <CustomInputField
-                handleInput={passwordValidation}
-                onChangeChecked={(key, value) => setPassword(value)}
-                id="password"
-                label="Password"
-                type="password"
-            />
-            <CustomInputField
-                handleInput={passwordValidation}
-                onChangeChecked={(key, value) => setPasswordConfirm(value)}
-                id="passwordConfirm"
-                label="Password confirm"
-                type="password"
-            />
-            {inlineAlert.message &&
-                <Alert severity={inlineAlert.severity}>
-                    {inlineAlert.message}
-                </Alert>
+            <h1>{status ? 'You can close this page' : 'Enter new password'}</h1>
+            {!status &&
+                <>
+                    <CustomInputField
+                        handleInput={passwordValidation}
+                        onChangeChecked={(key, value) => setPassword(value)}
+                        id="password"
+                        label="Password"
+                        type="password"
+                    />
+                    <CustomInputField
+                        handleInput={passwordValidation}
+                        onChangeChecked={(key, value) => setPasswordConfirm(value)}
+                        id="passwordConfirm"
+                        label="Password confirm"
+                        type="password"
+                    />
+                    <Button
+                        variant="contained"
+                        disabled={isButtonDisabled}
+                        onClick={() => {
+                            setIsButtonDisabled(true);
+                            checkEntities();
+                        }}
+                    >Change password</Button>
+                </>
             }
-            <div>
-                <p><Link to="/auth/login">Login</Link></p>
-            </div>
-            <Button
-                variant="contained"
-                disabled={isButtonDisabled}
-                onClick={() => {
-                    setIsButtonDisabled(true);
-                    checkEntities();
-                }}
-            >Change password</Button>
+            {status &&
+                <div>
+                    <p><Link to="/auth/login">To login page</Link></p>
+                </div>
+            }
         </>
     )
 }

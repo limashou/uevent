@@ -1,4 +1,4 @@
-import {Component, lazy} from "react";
+import React, {lazy} from "react";
 import {createBrowserRouter, createRoutesFromElements, Route, RouterProvider} from "react-router-dom";
 import {ThemeProvider} from "@mui/material";
 
@@ -23,6 +23,7 @@ import EventSettings from "./pages/events/EventSettings";
 import EventDataWrapper from "./pages/events/EventDataWrapper";
 import AnnouncementCreation from "./pages/companies/news/AnnouncementCreation";
 import TicketBuyConfirm from "./pages/tickets/TicketBuyConfirm";
+import {SnackbarProvider} from "notistack";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registration = lazy(() => import("./pages/auth/Registration"));
@@ -69,7 +70,9 @@ function App() {
 
     return (
         <ThemeProvider theme={theme}>
-            <RouterProvider router={router}/>
+            <SnackbarProvider maxSnack={3}>
+                <RouterProvider router={router}/>
+            </SnackbarProvider>
         </ThemeProvider>
     );
 }

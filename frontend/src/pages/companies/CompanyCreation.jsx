@@ -8,7 +8,7 @@ import CustomTextArea from "../../components/inputs/CustomTextArea";
 import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
 import {Stack} from "@mui/material";
 import Box from "@mui/material/Box";
-import MapView from "../../components/MapView";
+import {enqueueSnackbar} from "notistack";
 
 function CompanyCreation() {
     //{ name, email, location, description }
@@ -23,8 +23,8 @@ function CompanyCreation() {
     };
 
     async function createCompany() {
-        if (name === '' || email === '' || !locationObj) {
-            return alert('please fill all fields');
+        if (name === '' || email === '' || description === '' || !locationObj) {
+            return enqueueSnackbar('Please fill all fields', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
         let data = {
             name: name,
@@ -35,20 +35,18 @@ function CompanyCreation() {
             description: description,
         }
         console.log(data);
-        if (description !== '')
-            data.description = description;
         const resp = await Requests.createCompany(data);
         if (resp.state === true){
             if (companyLogo){
                 const resp2 = await Requests.companyLogoUpload(resp.data, companyLogo);
                 if (resp2.state !== true){
-                    alert('Error uploading logo');
+                    return enqueueSnackbar(resp2?.message || 'Error uploading logo', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                 }
             }
             window.location.href = `/companies/${resp.data}`;
         }
         else
-            alert(resp?.message || 'Error');
+            enqueueSnackbar(resp?.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
     }
 
     return (
@@ -82,7 +80,9 @@ function CompanyCreation() {
             <Button
                 variant="contained"
                 onClick={createCompany}
-            >Create Company</Button>
+            >
+                Create Company
+            </Button>
         </div>
     )
 }

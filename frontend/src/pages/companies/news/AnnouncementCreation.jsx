@@ -2,12 +2,13 @@ import {Stack} from "@mui/material";
 import CustomImageDropzone from "../../../components/inputs/CustomImageDropzone";
 import Box from "@mui/material/Box";
 import CustomInputField from "../../../components/inputs/CustomInputField";
-import {companyNameValidation, emailValidation} from "../../../Utils/InputHandlers";
+import {companyNameValidation} from "../../../Utils/InputHandlers";
 import CustomTextArea from "../../../components/inputs/CustomTextArea";
 import Button from "@mui/material/Button";
 import {useState} from "react";
 import {useParams} from "react-router-dom";
 import Requests from "../../../api/Requests";
+import {enqueueSnackbar} from "notistack";
 
 function AnnouncementCreation() {
     const { company_id } = useParams();
@@ -17,21 +18,21 @@ function AnnouncementCreation() {
 
     const createAnnouncement = async () => {
         if (title.trim() === '' || content.trim() === '') {
-            alert('fill all fields');
-            return;
+            return enqueueSnackbar('Fill all fields', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
         const resp = await Requests.announcementCreation(company_id, title, content);
         if (resp.state === true){
+            enqueueSnackbar('Announcement create', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             if (newsPoster) {
                 const poster_resp = await Requests.newsPosterUpload(resp.data, newsPoster);
                 if (poster_resp.state !== true){
-                    alert(JSON.stringify(poster_resp));
+                    enqueueSnackbar(poster_resp?.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                 }
             }
             window.location.href = `/companies/${company_id}`;
         }
         else
-            alert(JSON.stringify(resp));
+            enqueueSnackbar(resp?.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
     }
     return (
         <div className={'center-block'}>

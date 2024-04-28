@@ -7,6 +7,7 @@ export const CompanyDataContext = createContext();
 
 function CompanyDataWrapper({ children }) {
     const { company_id } = useParams();
+    const [ userData ] = useContext(UserContext);
     const [companyData, setCompanyData] = useState(null);
 
     const [permissions, setPermissions] = useState({
@@ -18,7 +19,7 @@ function CompanyDataWrapper({ children }) {
 
     const [companyMembers, setCompanyMembers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [userData] = useContext(UserContext);
+    const [notificationsEnable, setNotificationsEnable] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -33,6 +34,9 @@ function CompanyDataWrapper({ children }) {
                 const companyMembersResponse = await Requests.companyMembers(company_id);
                 if (companyMembersResponse.state === true) {
                     setCompanyMembers(companyMembersResponse.data);
+                    if (companyMembersResponse.data.some(member => member.id === userData.id)){
+                        setNotificationsEnable(true);
+                    }
                 }
                 setLoading(false);
             } catch (error) {
@@ -49,7 +53,8 @@ function CompanyDataWrapper({ children }) {
         setCompanyMembers,
         loading,
         setLoading,
-        permissions
+        permissions,
+        notificationsEnable
     };
 
     return (

@@ -1,23 +1,17 @@
 import {useContext, useState} from "react";
-import {useDropzone} from 'react-dropzone';
-import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import {Alert} from "@mui/material";
 import Requests from "../../api/Requests";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import {emailValidation, fullNameValidation, passwordValidation} from "../../Utils/InputHandlers";
 import {UserContext} from "../RootLayout";
 import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
+import {enqueueSnackbar} from "notistack";
 
 function ProfileSettings() {
     const [userData, setUserData] = useContext(UserContext);
     const [editedFields, setEditedFields] = useState({});
     const [passwordConfirm, setPasswordConfirm] = useState('');
-    const [inlineAlert, setInlineAlert] = useState({
-        severity: 'success',
-        message: null,
-    });
 
     function putEditedField(key, value) {
         if (value === '' || (key in userData && userData[key] === value)){
@@ -30,26 +24,14 @@ function ProfileSettings() {
 
     async function submitChanges() {
         if (Object.keys(editedFields).length === 0){
-            setInlineAlert({
-                severity: 'warning',
-                message: 'Nothing to save',
-            });
-            return;
+            return enqueueSnackbar('Nothing to save', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
         if (('password' in editedFields && !('old_password' in editedFields))
             || ('old_password' in editedFields && !('password' in editedFields))){
-            setInlineAlert({
-                severity: 'warning',
-                message: 'All passwords fields required',
-            });
-            return;
+            return enqueueSnackbar('All passwords fields required', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
         if ('password' in editedFields && editedFields.password !== passwordConfirm){
-            setInlineAlert({
-                severity: 'warning',
-                message: 'Passwords different',
-            });
-            return;
+            return enqueueSnackbar('Passwords different', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
         const resp = await Requests.edit_user(editedFields);
         if (resp.state === true){
@@ -60,25 +42,13 @@ function ProfileSettings() {
                     updatedUserData[key] = editedFields[key];
                 }
             });
-            setInlineAlert({
-                severity: 'success',
-                message: 'Changes saved',
-            });
-            setTimeout(() => {
-                setInlineAlert({
-                    severity: 'success',
-                    message: '',
-                });
-            }, 3000);
+            enqueueSnackbar('Changes saved', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             setUserData(updatedUserData);
             setEditedFields({});
             setPasswordConfirm('');
         }
         else
-            setInlineAlert({
-                severity: 'error',
-                message: resp?.message || 'Error',
-            });
+            enqueueSnackbar(resp?.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
     }
 
     return (
@@ -89,13 +59,11 @@ function ProfileSettings() {
                     onFileSelected={(file, renderedImage) => {
                         Requests.avatarUpload(file).then((resp) => {
                             if (resp.state !== true){
-                                setInlineAlert({
-                                    severity: 'error',
-                                    message: resp?.message || 'Error',
-                                });
+                                enqueueSnackbar(resp?.message || 'Error uploading avatar', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                             }
                             else {
-                                setUserData({...userData, avatar: renderedImage})
+                                enqueueSnackbar('Avatar changed', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+                                setUserData({...userData, avatar: renderedImage});
                             }
                         });
                     }}
@@ -141,11 +109,6 @@ function ProfileSettings() {
                         label="Password confirm"
                         type="password"
                     />
-                    {inlineAlert.message &&
-                        <Alert severity={inlineAlert.severity}>
-                            {inlineAlert.message}
-                        </Alert>
-                    }
                     <Button
                         variant="contained"
                         disabled={Object.keys(editedFields).length === 0}

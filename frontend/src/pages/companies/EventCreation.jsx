@@ -9,6 +9,7 @@ import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
 import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
 import {FORMATS, THEMES} from "../../Utils/InputHandlers";
+import {enqueueSnackbar} from "notistack";
 
 function EventCreation() {
     const { company_id } = useParams();
@@ -21,13 +22,11 @@ function EventCreation() {
     const [locationObj, setLocationObj] = useState(undefined);
     async function createEvent() {
         if (title === '' || date === '' || format === '' || theme === '' || !locationObj) {
-            alert('fill all fields');
-            return;
+            return enqueueSnackbar('Fill all fields', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
         if (new Date(date).toString() === 'Invalid Date'
             || new Date(date).getTime() < new Date().getTime()){
-            alert('invalid date');
-            return;
+            return enqueueSnackbar('Invalid date', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
         const resp = await Requests.eventCreation(company_id, {
             name: title,
@@ -44,14 +43,16 @@ function EventCreation() {
         if (resp.state === true){
             if (poster){
                 const resp2 = await Requests.posterUpload(resp.data, poster);
-                if (resp2.state !== true){
-                    alert(JSON.stringify(resp2));
+                if (resp2.state === true){
+                    enqueueSnackbar('Poster upload', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                 }
+                else
+                    enqueueSnackbar(resp2?.message || 'Error uploading poster', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             }
             window.location.href = `/events/${resp.data}`;
         }
         else
-            alert(JSON.stringify(resp));
+            enqueueSnackbar(resp?.message || 'Error creating event', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
 
     }
     return (

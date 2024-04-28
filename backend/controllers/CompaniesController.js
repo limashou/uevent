@@ -391,7 +391,7 @@ async function createNews(req,res){
                 await notification.notification("The " + newsSubscriptionElement.name + " has some new news",
                     "There is a new news item on the company page titled: " + title + ".",
                     "/api/companies/" + company_id + "/news/" + result,
-                    newsSubscriptionElement.id)
+                    newsSubscriptionElement.user_subscribe_id)
             }
         }
         res.json(new Response(true, "successfully create", result));
@@ -590,7 +590,7 @@ async function getNotification(req,res){
             page = 1,
             limit = 20,
             field = 'date',
-            order = 'ASC',
+            order = 'DESC',
         } = req.query;
         if(req.senderData.id === undefined) {
             return res.json(new Response(false, "You need authorize for this action"));

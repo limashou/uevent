@@ -5,7 +5,6 @@ import Typography from "@mui/material/Typography";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Requests from "../../api/Requests";
 import {useContext, useEffect, useState} from "react";
@@ -14,11 +13,13 @@ import UsersLine from "../../components/UsersLine";
 import Box from "@mui/material/Box";
 import CompanyNewsElement from "../../components/CompanyNewsElement";
 import EventMini from "../../components/EventMini";
-import {Badge, Tab, Tabs} from "@mui/material";
+import {Tab, Tabs} from "@mui/material";
+import NotificationMenu from "../../components/NotificationMenu";
+import Button from "@mui/material/Button";
 
 function Company() {
     const { company_id } = useParams();
-    const { companyData, companyMembers, loading, permissions } = useContext(CompanyDataContext);
+    const { companyData, companyMembers, loading, permissions, notificationsEnable } = useContext(CompanyDataContext);
     const [companyEvents, setCompanyEvents] = useState([]);
     useEffect(() => {
         const fetchData = async () => {
@@ -68,6 +69,12 @@ function Company() {
                         {permissions.event_creation &&
                             <Link to={`/companies/${company_id}/eventCreation`}>Create event</Link>
                         }
+                        {notificationsEnable &&
+                            <NotificationMenu company_id={company_id} />
+                        }
+                        <Button onClick={() => {
+                            Requests.companySubscribe(company_id)
+                        }}>Subscribe</Button>
                     </Box>
                 </Stack>
                 <Box sx={{ width: '100%', }}>
@@ -86,7 +93,7 @@ function Company() {
                         <CompanyNewsElement company_id={company_id} />
                     }
                     {tabsValue === 2 &&
-                        <UsersLine companyMembers={companyMembers} />
+                        <UsersLine users={companyMembers} />
                     }
                     {tabsValue === 3 &&
                         <>

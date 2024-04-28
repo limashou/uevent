@@ -1,21 +1,21 @@
-import { Avatar, Typography, Stack, Chip, Box } from '@mui/material';
+import {Avatar, Box, Chip, Stack, Typography} from '@mui/material';
 import Requests from '../api/Requests';
-import { memberRoles } from "../Utils/InputHandlers";
+import {memberRoles} from "../Utils/InputHandlers";
 
-function UsersLine({ companyMembers }) {
+function UsersLine({ users }) {
     return (
-        <Stack direction="row" spacing={2}>
-            {companyMembers.map((companyMember) => (
-                <Box key={`company-member-${companyMember.id}`} display="flex" alignItems="center">
-                    <Avatar src={Requests.get_avatar_link(companyMember.id)}>{companyMember.full_name}</Avatar>
-                    <Box ml={1}>
-                        <Typography variant="body1">{companyMember.full_name}</Typography>
+        <Stack spacing={2}>
+            {users.map((userData) => (
+                <Box key={`company-member-${userData.id}`} display="flex" alignItems="center">
+                    <Avatar src={Requests.get_avatar_link(userData.id)}>{userData.full_name}</Avatar>
+                    <Stack direction="row" sx={{alignItems: 'center'}} ml={1} gap={1}>
+                        <Typography variant="h4">{userData.full_name}</Typography>
                         <Chip
-                            label={memberRoles.find(role => role.value === companyMember.role)?.label || companyMember.role}
+                            label={memberRoles.find(role => role.value === userData.role)?.label || userData.role}
                             variant="outlined"
-                            size="small"
+                            size="medium"
                         />
-                    </Box>
+                    </Stack>
                 </Box>
             ))}
         </Stack>

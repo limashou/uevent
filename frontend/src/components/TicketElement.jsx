@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import { Card, CardContent, Typography } from '@mui/material';
-import {loadStripe} from "@stripe/stripe-js";
+import {Card, CardContent, Typography} from '@mui/material';
 import Requests from "../api/Requests";
 import Button from "@mui/material/Button";
 
@@ -21,10 +20,10 @@ function TicketElement({ ticketData }) {
                 setProcessing(false);
                 return;
             }
-            const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-            await stripe.redirectToCheckout({
-                sessionId: resp.data.sessionId
-            });
+            // const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+            // await stripe.redirectToCheckout({
+            //     sessionId: resp.data.sessionId
+            // });
             setProcessing(false);
         } catch (e) {
             console.error(e);

@@ -1,6 +1,5 @@
 import axios from "axios";
 import {logout} from "../Utils/Utils";
-import AnnouncementCreation from "../pages/companies/news/AnnouncementCreation";
 
 const ip = new URL(window.location.origin).hostname;
 const domain = `http://${ip}:3001/api`;
@@ -75,6 +74,11 @@ export default class Requests {
             axiosInstance.get(`/users/${user_id}`);
         return resp.data;
     }
+
+    static async notifications() {
+        const resp = await axiosInstance.get(`users/notifications`);
+        return resp.data;
+    }
     static async avatarUpload(file){
         const data = new FormData();
         data.append('photo', file);
@@ -89,7 +93,9 @@ export default class Requests {
     static get_avatar_link(user_id){
         return `${domain}/users/${user_id}/avatar`;
     }
-    static async findUsername(body) {
+    static async findUsername(body = {
+        username_part: '', user_ids_to_exclude: []
+    }) {
         const resp = await axiosInstance.post(`/users/findBy`, body);
         return resp.data;
     }
@@ -138,17 +144,6 @@ export default class Requests {
         );
         return resp.data;
     }
-
-    static async allFoundersFilters(){
-        const resp = await axiosInstance.get(`/companies/filters/founder`);
-        return resp.data;
-    }
-
-    static async allCompaniesFilters(){
-        const resp = await axiosInstance.get('/companies/filters/name');
-        return resp.data;
-    }
-
     static async companyEvents(company_id,
                                page = 1,
                                limit = 20,
@@ -207,6 +202,16 @@ export default class Requests {
         };
         const resp = await
             axiosInstance.patch(`/companies/${company_id}/logo`, data, config);
+        return resp.data;
+    }
+    static async companyNotifications(company_id) {
+        const resp = await axiosInstance.get(`companies/${company_id}/notifications`);
+        return resp.data;
+    }
+
+    static async companySubscribe(company_id, update_events = true, new_news = true, new_events = true){
+        const resp = await axiosInstance
+            .post(`companies/${company_id}/subscribe`, {update_events, new_news, new_events});
         return resp.data;
     }
 
@@ -333,14 +338,6 @@ export default class Requests {
     }
 
     //TICKETS
-    static async createCheckoutSession(
-        name = 'zaloopa',
-        amount = 9.99,
-        successUrl = `http://${ip}:3000/success`,
-        cancelUrl = `http://${ip}:3000/cancel`){
-        return await axiosInstance.post('/payment/create_session', {name, amount, successUrl, cancelUrl});
-    }
-
     static async reserveTicket(ticket_id, successUrl = window.location.href, cancelUrl = window.location.href){
         const resp = await axiosInstance
             .post(`/tickets/${ticket_id}/reserve`,{successUrl, cancelUrl});

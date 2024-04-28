@@ -1,7 +1,7 @@
 import Container from "@mui/material/Container";
 import CustomSearch from "../../components/inputs/CustomSearch";
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import {Link} from "react-router-dom";
+import {useEffect, useState} from "react";
 import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
 import CompanyMini from "../../components/CompanyMini";
@@ -9,8 +9,8 @@ import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
 
-import { debounce } from 'lodash';
-import CustomSelector from "../../components/inputs/CustomSelector";
+import {debounce} from 'lodash';
+import {FounderSearch} from "../../components/inputs/FounderSearch";
 
 function Companies() {
     const [companies, setCompanies] = useState([]);
@@ -50,24 +50,6 @@ function Companies() {
         return debouncedFetchData.cancel; // Отмена предыдущего вызова debouncedFetchData при изменении page или searchValue
     }, [page, searchValue, founderIdFilter]);
 
-
-    const [founders, setFounders] = useState([]);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const resp = await Requests.allFoundersFilters();
-                if (resp.state === true) {
-                    // alert(JSON.stringify(resp.data));
-                    setFounders(resp.data.map(({id, full_name}) => (
-                        {value: id, label: full_name}
-                    )));
-                }
-            } catch (error) {
-                console.error("Error fetching founders:", error);
-            }
-        };
-        fetchData();
-    }, []);
     const handlePageChange = (event, value) => {
         setPage(value);
     };
@@ -84,9 +66,10 @@ function Companies() {
                         Create company
                     </Button>
                 </Link>
-                <CustomSelector label="Founder" options={founders} onChange={(value) => {
-                    setFounderIdFilter(value);
-                }} />
+                {/*<CustomSelector label="Founder" options={founders} onChange={(value) => {*/}
+                {/*    setFounderIdFilter(value);*/}
+                {/*}} />*/}
+                <FounderSearch handleIdSelect={setFounderIdFilter} />
             </Container>
             <Container>
                 <Container sx={{ display: 'flex' }}>

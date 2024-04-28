@@ -1,14 +1,14 @@
 import SearchIcon from "@mui/icons-material/Search";
 import {Autocomplete, TextField} from "@mui/material";
 
-function CustomSearch({value, options = [], handleSearchChange}) {
+function CustomSearch({value, options = [], handleSearchChange, label = 'Search'}) {
     return (
         <Autocomplete
             sx={{width: '100%'}}
             filterOptions={(x) => x}
             options={options}
             value={value}
-            freeSolo // Позволяет вводить свои собственные значения
+            freeSolo
             onInputChange={(event, newInputValue) => {
                 handleSearchChange(event, newInputValue); // Вызываем функцию handleSearchChange
             }}
@@ -19,7 +19,7 @@ function CustomSearch({value, options = [], handleSearchChange}) {
                 (props) => (
                     <TextField
                         {...props}
-                        label="Search"
+                        label={label}
                         variant="outlined"
                         InputProps={{
                             ...props.InputProps,

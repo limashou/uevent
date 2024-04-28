@@ -6,16 +6,16 @@ import Requests from "../../api/Requests";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
-import {useDropzone} from "react-dropzone";
 import {useParams} from "react-router-dom";
 import CustomInputField from "../../components/inputs/CustomInputField";
-import {companyNameValidation, emailValidation, fullNameValidation, memberRoles} from "../../Utils/InputHandlers";
-import {Alert} from "@mui/material";
+import {companyNameValidation, emailValidation, memberRoles} from "../../Utils/InputHandlers";
 import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
 import CustomTextArea from "../../components/inputs/CustomTextArea";
 import CustomSearch from "../../components/inputs/CustomSearch";
 import CustomSelector from "../../components/inputs/CustomSelector";
 import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
+import {enqueueSnackbar} from "notistack";
+
 function CompanySettings() {
     const { company_id } = useParams();
     const { companyData, setCompanyData } = useContext(CompanyDataContext);
@@ -23,11 +23,6 @@ function CompanySettings() {
     const { loading } = useContext(CompanyDataContext);
     const { permissions } = useContext(CompanyDataContext);
     const [editedFields, setEditedFields] = useState({});
-    const [inlineAlert, setInlineAlert] = useState({
-        severity: 'success',
-        message: null,
-    });
-
 
     const [invitesSearchInput, setInvitesSearchInput] = useState('');
     const [usersFound, setUsersFound] = useState([]);
@@ -47,7 +42,10 @@ function CompanySettings() {
                     setUsersFound(usersResp.data);
                     setSearchOptions([...new Set(usersResp.data.map(user => user.full_name))]);
                 }
+                else
+                    enqueueSnackbar(usersResp?.message || 'Error finding users', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             } catch (error) {
+                enqueueSnackbar(error.message, { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                 console.error("Error finding users:", error);
             }
         };
@@ -70,39 +68,22 @@ function CompanySettings() {
 
     async function submitChanges() {
         if (Object.keys(editedFields).length === 0){
-            setInlineAlert({
-                severity: 'warning',
-                message: 'Nothing to save',
-            });
-            return;
+            return enqueueSnackbar('Nothing to save', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
         const resp = await Requests.editCompany(company_id, editedFields);
         if (resp.state === true){
             let updatedCompanyData = { ...companyData };
-
             Object.keys(editedFields).forEach(key => {
                 if (updatedCompanyData.hasOwnProperty(key)) {
                     updatedCompanyData[key] = editedFields[key];
                 }
             });
-            setInlineAlert({
-                severity: 'success',
-                message: 'Changes saved',
-            });
-            setTimeout(() => {
-                setInlineAlert({
-                    severity: 'success',
-                    message: '',
-                });
-            }, 3000);
+            enqueueSnackbar('Changes saved', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             setCompanyData(updatedCompanyData);
             setEditedFields({});
         }
         else
-            setInlineAlert({
-                severity: 'error',
-                message: resp?.message || 'Error',
-            });
+            enqueueSnackbar(resp?.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
     }
 
     return (
@@ -117,8 +98,10 @@ function CompanySettings() {
                                 imageLink={companyData.logo}
                                 onFileSelected={(file) => {
                                     Requests.companyLogoUpload(company_id, file).then((resp) => {
-                                        if (resp.state !== true)
-                                            alert(resp?.message || 'Error')
+                                        if (resp.state === true)
+                                            enqueueSnackbar('Company logo changed', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+                                        else
+                                            enqueueSnackbar(resp?.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                                     });
                                 }}
                             />
@@ -153,11 +136,6 @@ function CompanySettings() {
                         />
                     </>
                 }
-                {inlineAlert.message &&
-                    <Alert severity={inlineAlert.severity}>
-                        {inlineAlert.message}
-                    </Alert>
-                }
                 <Button
                     variant="contained"
                     disabled={Object.keys(editedFields).length === 0}
@@ -183,14 +161,22 @@ function CompanySettings() {
                                         options={memberRoles}
                                         onChange={async (value) => {
                                         const resp = await Requests.changeMemberRole(company_id, member.id, value);
-                                        alert(JSON.stringify(resp));
-                                    }} />
+                                        if (resp.state === true)
+                                            enqueueSnackbar('Role changed', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+                                        else
+                                            enqueueSnackbar(resp?.message || 'Error changing role', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+                                        }} />
                                     <Button onClick={async (event) => {
                                         const resp = await Requests.ejectMember(company_id, member.id);
                                         if (resp.state === true) {
                                             setCompanyMembers(companyMembers.filter((item) => item.id !== member.id));
+                                            enqueueSnackbar('Member ejected', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                                         }
-                                    }} >delete</Button>
+                                        else
+                                            enqueueSnackbar(resp?.message || 'Error ejecting member', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+                                    }}>
+                                        delete
+                                    </Button>
                                 </>
                             ) : (
                                 <Typography variant="p" component="div">
@@ -218,10 +204,10 @@ function CompanySettings() {
                                 onClick={() => {
                                     Requests.memberInvite(companyData.id, user.id).then((resp) => {
                                         if (resp.state === true){
-                                            alert('invition send');
+                                            enqueueSnackbar('Invitation send', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                                         }
                                         else
-                                            alert(resp?.message || 'error');
+                                            enqueueSnackbar(resp?.message || 'error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                                     })
                                 }}
                             >Invite</Button>

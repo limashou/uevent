@@ -1,10 +1,10 @@
-import {Alert} from "@mui/material";
 import {Link} from 'react-router-dom';
 import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import {emailValidation, fullNameValidation, passwordValidation, usernameValidation} from "../../Utils/InputHandlers";
+import {enqueueSnackbar} from "notistack";
 
 function Registration() {
     const [username, setUsername] = useState('');
@@ -12,23 +12,9 @@ function Registration() {
     const [email, setEmail] = useState('');
     const [fullName, setFullName] = useState('');
 
-    const [inlineAlert, setInlineAlert] = useState({
-        severity: 'success',
-        message: null,
-    });
-
     async function checkEntities() {
         if (username === '' || password === '' || email === '' || fullName === '') {
-            setInlineAlert({
-                severity: 'warning',
-                message: 'Fill all fields correctly',
-            });
-            setTimeout(() => {
-                setInlineAlert({
-                    severity: 'success',
-                    message: null,
-                });
-            }, 5000);
+            enqueueSnackbar('Fill all fields correctly', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             return;
         }
         try {
@@ -36,23 +22,14 @@ function Registration() {
                 username, password, email, fullName
             );
             if (resp.state === true){
-                setInlineAlert({
-                    severity: 'success',
-                    message: 'Success',
-                });
-                // window.location.href = '/profile';
+                enqueueSnackbar('Success', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+                window.location.href = '/auth/login';
             }
             else {
-                setInlineAlert({
-                    severity: 'error',
-                    message: resp?.message || 'Error',
-                });
+                enqueueSnackbar(resp?.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             }
         } catch (e) {
-            setInlineAlert({
-                severity: 'error',
-                message: 'Error',
-            });
+            enqueueSnackbar(e.message, { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
     }
 
@@ -87,17 +64,15 @@ function Registration() {
                 label="Full name"
                 type="text"
             />
-            {inlineAlert.message &&
-                <Alert severity={`${inlineAlert.severity}`}>
-                    {inlineAlert.message}
-                </Alert>
-            }
             <div>
                 <p>Already have an account? <Link to="/auth/login">Login</Link></p>
             </div>
-            <Button variant="contained"
+            <Button
+                variant="contained"
                 onClick={checkEntities}
-            >Register</Button>
+            >
+                Register
+            </Button>
         </>
     )
 }

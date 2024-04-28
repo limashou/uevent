@@ -87,9 +87,9 @@ export const companyNameValidation = (event) => {
     }
 }
 export const memberRoles = [
-    { value: 'worker', label: 'Worker' },
-    { value: 'news_maker', label: 'News Maker' },
-    { value: 'editor', label: 'Editor' },
+    { value: 4, label: 'Worker' },
+    { value: 3, label: 'News Maker' },
+    { value: 2, label: 'Editor' },
 ];
 
 export const FORMATS = [

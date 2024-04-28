@@ -1,19 +1,13 @@
-import {Alert} from "@mui/material";
 import {Link} from 'react-router-dom';
 import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
 import {emailValidation} from "../../Utils/InputHandlers";
 import CustomInputField from "../../components/inputs/CustomInputField";
+import {enqueueSnackbar} from "notistack";
 
 function PasswordRecovery() {
     const [email, setEmail] = useState('');
-
-    const [inlineAlert, setInlineAlert] = useState({
-        severity: 'success',
-        message: null,
-    });
-
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [timer, setTimer] = useState(60);
 
@@ -34,16 +28,7 @@ function PasswordRecovery() {
 
     async function checkEntities() {
         if (email === '') {
-            setInlineAlert({
-                severity: 'warning',
-                message: 'Fill all fields correctly',
-            });
-            setTimeout(() => {
-                setInlineAlert({
-                    severity: 'success',
-                    message: null,
-                });
-            }, 5000);
+            enqueueSnackbar('Fill all fields correctly', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             setIsButtonDisabled(false);
             return;
         }
@@ -51,22 +36,12 @@ function PasswordRecovery() {
             disableButtonFor60Sec();
             const resp = await Requests.passwordResetCreate(email);
             if (resp.state === true){
-                setInlineAlert({
-                    severity: 'success',
-                    message: 'Recover link was send to your email',
-                });
+                enqueueSnackbar('Recover link was send to your email', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             }
-            else {
-                setInlineAlert({
-                    severity: 'error',
-                    message: resp?.message || 'Error',
-                });
-            }
+            else
+                enqueueSnackbar(resp?.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         } catch (e) {
-            setInlineAlert({
-                severity: 'error',
-                message: 'Error',
-            });
+            enqueueSnackbar(e.message, { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
     }
 
@@ -80,11 +55,6 @@ function PasswordRecovery() {
                 label="Email"
                 type="email"
             />
-            {inlineAlert.message &&
-                <Alert severity={inlineAlert.severity}>
-                    {inlineAlert.message}
-                </Alert>
-            }
             <div>
                 <p>Don't have an account? <Link to="/auth/registration">Register</Link></p>
             </div>

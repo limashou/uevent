@@ -2,18 +2,15 @@ import {useEffect, useState} from "react";
 import {debounce} from "lodash";
 import Requests from "../../api/Requests";
 import Container from "@mui/material/Container";
-import {Link} from "react-router-dom";
-import Button from "@mui/material/Button";
 import CustomSearch from "../../components/inputs/CustomSearch";
 import Skeleton from "@mui/material/Skeleton";
-import CompanyMini from "../../components/CompanyMini";
 import Stack from "@mui/material/Stack";
 import Pagination from "@mui/material/Pagination";
 import EventMini from "../../components/EventMini";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import CustomMultiSelect from "../../components/inputs/CustomMultiSelect";
 import {FORMATS, THEMES} from "../../Utils/InputHandlers";
-import CustomSelector from "../../components/inputs/CustomSelector";
+import {CompaniesSearch} from "../../components/inputs/CompaniesSearch";
 
 function Events() {
     const [events, setEvents] = useState([]);
@@ -28,9 +25,10 @@ function Events() {
     const [dateTo, setDateTo] = useState('');
 
 
+    //filters:
     const [formatsFilter, setFormatsFilter] = useState([]);
     const [themesFilter, setThemesFilter] = useState([]);
-    const [companyFilter, setCompanyFilter] = useState(undefined);
+    const [companyIdFilter, setCompanyIdFilter] = useState(undefined);
 
     const debouncedFetchData = debounce(async () => {
         setLoading(true);
@@ -49,8 +47,8 @@ function Events() {
         if (themesFilter.length > 0){
             data.themes = themesFilter;
         }
-        if (companyFilter){
-            data.company_id = companyFilter;
+        if (companyIdFilter){
+            data.company_id = companyIdFilter;
         }
 
         const resp = await Requests.allEvents(data);
@@ -69,7 +67,7 @@ function Events() {
         setLoading(true); // Установка состояния загрузки после получения данных
         debouncedFetchData();
         return debouncedFetchData.cancel; // Отмена предыдущего вызова debouncedFetchData при изменении page или searchValue
-    }, [page, searchValue, dateFrom, dateTo, formatsFilter, themesFilter, companyFilter]);
+    }, [page, searchValue, dateFrom, dateTo, formatsFilter, themesFilter, companyIdFilter]);
 
     const handlePageChange = (event, value) => {
         setPage(value);
@@ -79,24 +77,6 @@ function Events() {
         setSearchValue(newValue);
     };
 
-
-    const [companiesFilters, setCompaniesFilters] = useState([]);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const resp = await Requests.allCompaniesFilters();
-                if (resp.state === true) {
-                    // alert(JSON.stringify(resp.data));
-                    setCompaniesFilters(resp.data.map(({id, name}) => (
-                        {value: id, label: name}
-                    )));
-                }
-            } catch (error) {
-                console.error("Error fetching founders:", error);
-            }
-        };
-        fetchData();
-    }, []);
     return (
         <div className="few-blocks">
             <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -120,9 +100,7 @@ function Events() {
                 <CustomMultiSelect options={THEMES} label="Themes" onChange={(values) => {
                     setThemesFilter(values.map(({value}) => value));
                 }} />
-                <CustomSelector options={companiesFilters} label="Company" onChange={(value) => {
-                    setCompanyFilter(value);
-                }} />
+                <CompaniesSearch handleIdSelect={setCompanyIdFilter} />
             </Container>
             <Container>
                 <Container sx={{ display: 'flex' }}>

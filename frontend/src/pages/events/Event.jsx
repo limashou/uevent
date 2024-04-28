@@ -1,12 +1,12 @@
-import React, {useContext, useEffect, useMemo, useState} from "react";
-import { EventDataContext } from "./EventDataWrapper";
-import {Grid, Stack, Tab, Tabs, Typography} from "@mui/material";
+import React, {useContext, useEffect, useState} from "react";
+import {EventDataContext} from "./EventDataWrapper";
+import {List, ListItem, ListItemText, Stack, Tab, Tabs, Typography} from "@mui/material";
 import MapView from "../../components/MapView";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Requests from "../../api/Requests";
 import Box from "@mui/material/Box";
-import {Link, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import TicketCreation from "../../components/TicketCreation";
 import TicketElement from "../../components/TicketElement";
 import Comments from "../../components/Comments";
@@ -22,8 +22,10 @@ function Event() {
     };
 
     const [tickets, setTickets] = useState([]);
-    const [visitors, setVisitors] = useState([]);
+    const [visitorsWithName, setVisitorsWithName] = useState([]);
 
+
+    const [anonVisitors, setAnonVisitors] = useState(undefined);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -36,7 +38,8 @@ function Event() {
 
                 const respUsers = await Requests.eventUsers(event_id);
                 if (respUsers.state === true){
-                    setVisitors(respUsers.data);
+                    setVisitorsWithName(respUsers.data.users);
+                    setAnonVisitors(respUsers.data.visitorCounts);
                 }
                 // alert(JSON.stringify(respUsers));
             } catch (error) {
@@ -98,9 +101,18 @@ function Event() {
                         }
                         {tabsValue === 3 &&
                             <>
-                            {visitors.map((visitorData) => (
+                            {visitorsWithName.map((visitorData) => (
                                 <Visitor visitorData={visitorData} />
                             ))}
+                            {anonVisitors &&
+                                <List>
+                                    {Object.entries(anonVisitors).map(([visitor, count]) => (
+                                        <ListItem key={visitor}>
+                                            <ListItemText primary={visitor} secondary={`Count: ${count}`} />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            }
                             </>
                         }
                         {tabsValue === 4 &&

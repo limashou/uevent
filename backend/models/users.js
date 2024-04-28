@@ -15,14 +15,25 @@ class Users extends Model{
     async findByFullName(user_ids_to_exclude, stringValue) {
         const selectColumns = ['id', 'email', 'full_name'];
         const idPlaceholders = user_ids_to_exclude.map(() => '?').join(',');
-        const query = `
+
+        let query = `
         SELECT ${selectColumns.join(', ')}
         FROM users
         WHERE LOWER(full_name) LIKE $1
-        AND id <> ANY($2::int[])
-        LIMIT 5
     `;
-        const values = [`%${stringValue.toLowerCase()}%`, user_ids_to_exclude];
+        const values = [`%${stringValue.toLowerCase()}%`];
+
+        if (user_ids_to_exclude.length > 0) {
+            query += `
+            AND id <> ANY($2::int[])
+            LIMIT 5
+        `;
+            values.push(user_ids_to_exclude);
+        } else {
+            query += `
+            LIMIT 5
+        `;
+        }
 
         try {
             const { rows } = await client.query(query, values);

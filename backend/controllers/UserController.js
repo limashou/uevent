@@ -95,7 +95,7 @@ async function userAvatar(req, res) {
 async function findByFullName(req,res) {
     try {
         let user = new User();
-        const { username_part , user_ids_to_exclude } = req.body;
+        const { username_part , user_ids_to_exclude = [] } = req.body;
         const result = await user.findByFullName(user_ids_to_exclude,username_part);
         if(result !== null) {
             res.json(new Response(true," all user what found by " + username_part, result));

@@ -1,12 +1,13 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Typography } from "@mui/material";
+import {useParams} from "react-router-dom";
+import {useEffect, useState} from "react";
+import {Typography} from "@mui/material";
 import Requests from "../api/Requests";
 import Box from "@mui/material/Box";
 import CircularProgress from '@mui/material/CircularProgress';
+import {enqueueSnackbar} from "notistack";
+
 function AcceptInvitation() {
     const { invitationCode } = useParams();
-    const [status, setStatus] = useState('Accepting...');
     const [loading, setLoading] = useState(true); // Добавлено состояние для индикатора загрузки
 
     useEffect(() => {
@@ -14,15 +15,15 @@ function AcceptInvitation() {
             try {
                 const resp = await Requests.acceptMemberInvite(invitationCode);
                 if (resp.state === true) {
-                    setStatus('Invitation accepted');
+                    enqueueSnackbar('Invitation accepted', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                 } else {
-                    setStatus(resp.message || 'Error');
+                    enqueueSnackbar(resp.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                 }
             } catch (error) {
+                enqueueSnackbar(error?.message || 'Error accepting invite', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                 console.error("Error accepting invitation:", error);
-                setStatus('Error');
             } finally {
-                setTimeout(()=>{setLoading(false)}, 5000);
+                setLoading(false);
             }
         };
 
@@ -39,7 +40,7 @@ function AcceptInvitation() {
                     <Typography variant="h4">Accepting invite</Typography>
                 </>
             ) : (
-                <Typography variant="h4">{status}</Typography>
+                <Typography variant="h4">You can close this page</Typography>
             )}
         </>
     );

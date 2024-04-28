@@ -1,54 +1,31 @@
-import {Alert} from "@mui/material";
 import {Link} from 'react-router-dom';
 import {useState} from "react";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
 import {passwordValidation, usernameValidation} from "../../Utils/InputHandlers";
 import CustomInputField from "../../components/inputs/CustomInputField";
+import {enqueueSnackbar} from "notistack";
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [inlineAlert, setInlineAlert] = useState({
-        severity: 'success',
-        message: null,
-    });
-
     async function checkEntities() {
         if (username === '' || password === '') {
-            setInlineAlert({
-                severity: 'warning',
-                message: 'Fill all fields correctly',
-            });
-            setTimeout(() => {
-                setInlineAlert({
-                    severity: 'success',
-                    message: null,
-                });
-            }, 5000);
+            enqueueSnackbar('Fill all fields correctly', { variant: 'warning', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             return;
         }
         try {
             const resp = await Requests.login(username, password);
             if (resp.state === true){
-                setInlineAlert({
-                    severity: 'success',
-                    message: 'Success',
-                });
+                enqueueSnackbar('Success', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
                 localStorage.setItem('user_id', resp.data.user_id);
                 window.location.href = '/users/me';
             }
             else {
-                setInlineAlert({
-                    severity: 'error',
-                    message: resp?.message || 'Error',
-                });
+                enqueueSnackbar(resp?.message || 'Error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
             }
         } catch (e) {
-            setInlineAlert({
-                severity: 'error',
-                message: 'Error',
-            });
+            enqueueSnackbar(e.message, { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
         }
     }
 
@@ -69,11 +46,6 @@ function Login() {
                 label="Password"
                 type="password"
             />
-            {inlineAlert.message &&
-                <Alert severity={`${inlineAlert.severity}`}>
-                    {inlineAlert.message}
-                </Alert>
-            }
             <div>
                 <p>Don't have an account? <Link to='/auth/registration'>Register</Link></p>
                 <p>Forgot your password? <Link to={"/auth/password-recovery"}>Recovery</Link></p>
