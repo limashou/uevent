@@ -363,7 +363,7 @@ async function changeRole(req,res){
         if (companyMemberFound.length === 0) {
             return res.json(new Response(false, 'Пользователь не найден'));
         }
-        await company_member.updateById({ id: companyMemberFound[0].id, role });
+        await company_member.updateById({ id: companyMemberFound[0].id, role_id: role });
         res.json(new Response(true, 'Данные пользователя успешно обновлены'));
     } catch (error) {
         console.log(error);
