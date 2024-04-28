@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const client = require("../db");
 
 /** /=======================/ nodemailer transporter /=======================/ */
 
@@ -67,8 +68,37 @@ async function getLocationData(address) {
         return null;
     }
 }
+
+async function removeOldReservedTickets() {
+    try {
+        const { rows: ticketIds } = await client.query(
+            "SELECT ticket_id FROM user_tickets WHERE ticket_status = 'reserved' AND purchase_date <= NOW() - INTERVAL '10 minutes';"
+        );
+        const result = await client.query(
+            "DELETE FROM user_tickets WHERE ticket_status = 'reserved' AND purchase_date <= NOW() - INTERVAL '10 minutes';"
+        );
+        console.log(`Удалено записей: ${result.rowCount}`);
+        if (result.rowCount > 0) {
+            const ticketCountMap = ticketIds.reduce((acc, row) => {
+                acc[row.ticket_id] = (acc[row.ticket_id] || 0) + 1;
+                return acc;
+            }, {});
+            for (const [ticket_id, count] of Object.entries(ticketCountMap)) {
+                await client.query(
+                    "UPDATE tickets SET available_tickets = available_tickets + $1 WHERE id = $2",
+                    [count, ticket_id]
+                );
+            }
+            console.log(`Обновлено количество доступных билетов.`);
+        }
+    } catch (error) {
+        console.error('Ошибка при удалении записей:', error);
+    }
+}
+
 module.exports = {
     transporter,
     generateCode,
-    getLocationData
+    getLocationData,
+    removeOldReservedTickets
 }

@@ -2,13 +2,19 @@ const Tickets = require('../models/tickets');
 const Response = require("../models/response");
 const Events = require("../models/events");
 const TicketsUsers = require('../models/tickets_users');
-const {transporter} = require("./Helpers");
+const {transporter, removeOldReservedTickets} = require("./Helpers");
 const pdfkit = require('pdfkit');
 const User  = require('../models/users');
 const QRCode = require('qrcode');
 const { PassThrough } = require('stream');
 const CompanyNotification = require('../models/company_notification');
 const {createPaymentIntent, checkPaymentStatus} = require("./StripeController");
+const cron = require('node-cron');
+
+/** /=======================/remove reserved tickets /=======================/ */
+
+cron.schedule('*/10 * * * *', removeOldReservedTickets);
+
 /** /=======================/tickets function /=======================/ */
 
 async function createTickets(req, res){
@@ -98,10 +104,19 @@ async function removeTickets(req,res){
         res.json(new Response(false, error.toString()));
     }
 }
-//proverka kipil polzovatel bilet ile net
 async function getTicketsByEvent(req,res) {
     try {
         const { event_id } = req.params;
+        const ticketsUsers = new TicketsUsers();
+        const check = await  ticketsUsers.check(req.senderData.id, event_id)
+        if(check.exists === true) {
+            const ticket = await ticketsUsers.getInformationById(check.ticket_id);
+            return res.status(200).json({
+                state: true,
+                message: "You've already bought a ticket to this event",
+                data: ticket
+            });
+        }
         const tickets = new Tickets();
         const ticketsFound = await tickets.find({event_id: event_id});
         if(ticketsFound.length === null) {
@@ -222,7 +237,6 @@ async function buyTicket(req, res){
     }
 }
 
-//sdelat maksimym na 10 minyt
 async function reservedTicket(req,res){
     try {
         const { ticket_id } = req.params;
@@ -235,7 +249,9 @@ async function reservedTicket(req,res){
             return res.json(new Response(false, "All tickets are sold out"));
         }
         // название, цену и дескрипшн из тикета подтянешь (название = тип билета, описание - вьеби название мероприятия)
-        const sessionId = await createPaymentIntent(
+        const sessionId =
+            // "dfdfdfdf";
+            await createPaymentIntent(
             'name',
             'description',
             99.9,

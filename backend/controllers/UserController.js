@@ -1,6 +1,7 @@
 const User = require('../models/users');
 const Response = require("../models/response");
 const UserNotification = require('../models/user_notification');
+const UserTickets = require('../models/tickets_users');
 const fs = require('fs');
 const path = require("path");
 const bcrypt = require("bcrypt");
@@ -156,6 +157,23 @@ async function getNotification(req,res){
         res.json(new Response(false, error.toString()));
     }
 }
+
+async function getTickets(req,res) {
+    try {
+        if(req.senderData.id === undefined) {
+            return res.json(new Response(false,"Unauthorized. Please log in."))
+        }
+        const found = await new UserTickets().getAllTickets(req.senderData.id);
+        if(found.length === 0) {
+            return res.json(new Response(true,"You don't have a ticket to any event. "))
+        }
+        res.json(new Response(true,"", found));
+    }catch (error) {
+        console.log(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
+
 module.exports = {
     getAllUser,
     getById,
@@ -163,5 +181,6 @@ module.exports = {
     userAvatar,
     updateUser,
     findByFullName,
-    getNotification
+    getNotification,
+    getTickets
 }

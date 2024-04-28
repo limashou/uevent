@@ -1,12 +1,12 @@
 const Model = require("./model");
 const client = require("../db");
 
-class Tickets_users extends Model  {
+class Tickets_users extends Model {
     constructor() {
         super('user_tickets');
     }
 
-    buy(ticket_status,user_id,ticket_id,show_username = false, session_id = null) {
+    buy(ticket_status, user_id, ticket_id, show_username = false, session_id = null) {
         this.ticket_status = ticket_status;
         this.user_id = user_id;
         this.ticket_id = ticket_id;
@@ -21,30 +21,25 @@ class Tickets_users extends Model  {
         try {
 
             const checkQuery = `
-            SELECT available_tickets
-            FROM tickets
-            WHERE id = $1;
-        `;
+                SELECT available_tickets
+                FROM tickets
+                WHERE id = $1;
+            `;
             const checkValues = [ticketId];
             const checkResult = await client.query(checkQuery, checkValues);
 
             await client.query('BEGIN');
 
             if (checkResult.rows.length === 0 || checkResult.rows[0].available_tickets === 0) {
-                const updateStatusQuery = `
-                UPDATE tickets
-                SET status = 'sold out'
-                WHERE id = $1;`;
-
-                await client.query(updateStatusQuery, checkValues);
                 soldOut = true;
             } else {
                 const updateQuery = `
-                UPDATE tickets
-                SET available_tickets = available_tickets - 1
-                WHERE id = $1
-                AND available_tickets > 0;
-            `;
+                    UPDATE tickets
+                    SET available_tickets = available_tickets - 1,
+                        status = CASE WHEN available_tickets - 1 = 0 THEN 'sold out' ELSE status END
+                    WHERE id = $1
+                      AND available_tickets > 0;
+                `;
                 await client.query(updateQuery, checkValues);
             }
 
@@ -64,11 +59,11 @@ class Tickets_users extends Model  {
             await client.query('BEGIN');
 
             const updateQuery = `
-            UPDATE tickets
-            SET available_tickets = available_tickets + 1
-            WHERE id = $1
-            AND available_tickets > 0;
-        `;
+                UPDATE tickets
+                SET available_tickets = available_tickets + 1
+                WHERE id = $1
+                  AND available_tickets > 0;
+            `;
             const updateValues = [ticketId];
             await client.query(updateQuery, updateValues);
 
@@ -82,7 +77,7 @@ class Tickets_users extends Model  {
         }
     }
 
-    async getInformationById(id){
+    async getInformationById(id) {
         const selectColumns = [
             'events.id AS event_id',
             'events.name',
@@ -95,87 +90,171 @@ class Tickets_users extends Model  {
             'CASE WHEN user_tickets.show_username THEN users.full_name ELSE \'visitor\' END AS user_name'
         ];
         const query = `
-        SELECT ${selectColumns.join(', ')}
-        FROM user_tickets
-        JOIN users ON user_tickets.user_id = users.id
-        JOIN tickets ON user_tickets.ticket_id = tickets.id
-        JOIN events ON tickets.event_id = events.id
-        WHERE user_tickets.id = $1
-    `;
+            SELECT ${selectColumns.join(', ')}
+            FROM user_tickets
+                     JOIN users ON user_tickets.user_id = users.id
+                     JOIN tickets ON user_tickets.ticket_id = tickets.id
+                     JOIN events ON tickets.event_id = events.id
+            WHERE user_tickets.id = $1
+        `;
         const values = [id];
         try {
-            const { rows } = await client.query(query, values);
+            const {rows} = await client.query(query, values);
             return rows;
         } catch (error) {
             console.error("Error finding by name part:", error);
-            return  false;
+            return false;
         }
     }
 
     async isNotificationEnabled(ticketId) {
         const query = `
-        SELECT e.notification
-        FROM events e
-        JOIN tickets t ON e.id = t.event_id
-        WHERE t.id = $1;
-    `;
+            SELECT e.notification
+            FROM events e
+                     JOIN tickets t ON e.id = t.event_id
+            WHERE t.id = $1;
+        `;
         const values = [ticketId];
         try {
-            const { rows } = await client.query(query, values);
+            const {rows} = await client.query(query, values);
             return rows.length > 0 ? rows[0].notification : false;
         } catch (error) {
             console.error("Error checking notification:", error);
             return false;
         }
     }
-    async getInformation(ticketId,user_id){
-        const selectColumns = ['events.name','events.company_id','users.full_name','tickets.ticket_type'];
+
+    async getInformation(ticketId, user_id) {
+        const selectColumns = ['events.name', 'events.company_id', 'users.full_name', 'tickets.ticket_type'];
         const query = `
-        SELECT ${selectColumns.join(', ')}
-        FROM tickets
-        JOIN users ON users.id = $2
-        JOIN events ON tickets.event_id = events.id
-        WHERE tickets.id = $1
-    `;
-        const values = [ticketId,user_id];
+            SELECT ${selectColumns.join(', ')}
+            FROM tickets
+                     JOIN users ON users.id = $2
+                     JOIN events ON tickets.event_id = events.id
+            WHERE tickets.id = $1
+        `;
+        const values = [ticketId, user_id];
         try {
-            const { rows } = await client.query(query, values);
+            const {rows} = await client.query(query, values);
             return rows;
         } catch (error) {
             console.error("Error finding by name part:", error);
-            return  false;
+            return false;
         }
     }
 
-    async getUserByEventId(event_id){
+    async getUserByEventId(event_id) {
+        // Основной запрос для получения деталей пользователей, где show_username = true
         const query = `
-            SELECT
-                ut.id AS user_ticket_id,
-                ut.user_id,
-                t.ticket_type,
-                CASE
-                    WHEN ut.show_username THEN u.full_name
-                    ELSE 'visitor'
-                    END AS full_name
-            FROM
-                user_tickets ut
-                    JOIN
-                users u ON ut.user_id = u.id
-                    JOIN
-                tickets t ON ut.ticket_id = t.id
-            WHERE
-                t.event_id = $1;
-        `;
+        SELECT 
+            ut.id AS user_ticket_id,
+            ut.user_id,
+            t.ticket_type,
+            u.full_name AS full_name
+        FROM user_tickets ut
+        JOIN users u ON ut.user_id = u.id
+        JOIN tickets t ON ut.ticket_id = t.id
+        WHERE t.event_id = $1
+        AND ut.show_username = true
+    `;
+
+        // Запрос для подсчета количества "visitors" по типам билетов
+        const visitorCountQuery = `
+        SELECT 
+            t.ticket_type,
+            COUNT(*) AS visitor_count
+        FROM user_tickets ut
+        JOIN tickets t ON ut.ticket_id = t.id
+        WHERE t.event_id = $1
+        AND ut.show_username = false
+        GROUP BY t.ticket_type
+    `;
 
         const values = [event_id];
+
         try {
-            const { rows } = await client.query(query, values);
-            return rows;
+            const { rows } = await client.query(query, values); // Основной запрос
+            const { rows: visitorCounts } = await client.query(visitorCountQuery, values); // Подсчет "visitors"
+
+            // Создание объекта с подсчетом "visitors" по типам билетов
+            const visitorCountMap = {};
+            visitorCounts.forEach((row) => {
+                visitorCountMap[row.ticket_type] = row.visitor_count;
+            });
+
+            return {
+                users: rows, // Пользователи с show_username = true
+                visitorCounts: visitorCountMap // Подсчет "visitors" по типам билетов
+            };
         } catch (error) {
-            console.error("Error finding by name part:", error);
-            return  false;
+            console.error("Error finding users by event ID:", error);
+            return false;
         }
     }
+
+
+
+    async check(user_id, event_id) {
+        const query = `
+        SELECT ut.id
+        FROM user_tickets ut
+        JOIN tickets t ON ut.ticket_id = t.id
+        WHERE ut.user_id = $1
+          AND t.event_id = $2
+        LIMIT 1
+    `;
+        const values = [user_id, event_id];
+        try {
+            const { rows } = await client.query(query, values);
+            if (rows.length > 0) {
+                return { exists: true, ticket_id: rows[0].id };
+            } else {
+                return { exists: false };
+            }
+        } catch (error) {
+            console.error("Error checking user ticket:", error);
+            return { exists: false, error: error.toString() };
+        }
+    }
+
+
+    async getAllTickets(user_id, page = 1, size = 10) {
+        const offset = (page - 1) * size;
+        const query = `
+            SELECT events.name, user_tickets.id AS user_ticket_id
+            FROM events
+                     JOIN tickets ON events.id = tickets.event_id
+                     JOIN user_tickets ON tickets.id = user_tickets.ticket_id
+            WHERE user_tickets.user_id = $1
+            LIMIT $2 OFFSET $3
+        `;
+        const values = [user_id, size, offset];
+        try {
+            const {rows} = await client.query(query, values);
+
+            const countQuery = `
+                SELECT COUNT(*)
+                FROM user_tickets
+                         JOIN tickets ON user_tickets.ticket_id = tickets.id
+                         JOIN events ON tickets.event_id = events.id
+                WHERE user_tickets.user_id = $1
+            `;
+            const {rows: countRows} = await client.query(countQuery, [user_id]);
+            const totalCount = parseInt(countRows[0].count, 10);
+            const totalPages = Math.ceil(totalCount / size);
+
+            return {
+                tickets: rows,
+                totalCount,
+                totalPages,
+                currentPage: page
+            };
+        } catch (error) {
+            console.error("Error retrieving tickets:", error);
+            return false;
+        }
+    }
+
 }
 
 module.exports = Tickets_users;
