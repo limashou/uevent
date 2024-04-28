@@ -17,7 +17,7 @@ class Companies extends Model {
         return this.insert();
     }
     async findByName(stringValue) {
-        const selectColumns = ['companies.id', 'companies.name', 'companies.email','users.full_name'];
+        const selectColumns = ['companies.id', 'companies.name'];
         const query = `
         SELECT ${selectColumns.join(', ')}
         FROM companies

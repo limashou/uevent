@@ -31,7 +31,6 @@ class Users extends Model{
             throw error;
         }
     }
-
 }
 
 module.exports = Users;

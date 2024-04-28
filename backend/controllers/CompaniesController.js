@@ -224,21 +224,21 @@ async function companyLogoUpload(req, res) {
     }
 }
 
-// async function searchByCompanyName(req,res) {
-//     try {
-//         const { name_part } = req.body;
-//         let company = new Companies();
-//         const result = await company.findByName(name_part);
-//         if(result !== null) {
-//             res.json(new Response(true," all company what found by " + name_part, result));
-//         } else {
-//             res.json(new Response(true,"not found any company by name_part " + name_part));
-//         }
-//     }catch (error) {
-//         console.log(error);
-//         res.json(new Response(false,error.toString()));
-//     }
-// }
+async function searchByCompanyName(req,res) {
+    try {
+        const { name_part } = req.body;
+        let company = new Companies();
+        const result = await company.findByName(name_part);
+        if(result !== null) {
+            res.json(new Response(true," all company what found by " + name_part, result));
+        } else {
+            res.json(new Response(true,"not found any company by name_part " + name_part));
+        }
+    }catch (error) {
+        console.log(error);
+        res.json(new Response(false,error.toString()));
+    }
+}
 
 /** /=======================/company member function /=======================/ */
 async function addMember(req,res){
@@ -744,7 +744,7 @@ module.exports = {
     companyLogoUpload,
     companyLogo,
     // getCompany,
-    // searchByCompanyName,
+    searchByCompanyName,
     // member
     addMember,
     acceptMember,
