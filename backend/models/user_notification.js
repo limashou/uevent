@@ -78,7 +78,7 @@ class User_notification extends Model{
 
     async getNotification(user_id){
         const query = `
-        SELECT *
+        SELECT user_notification.id, user_notification.title, user_notification.description, user_notification.link, user_notification.date
         FROM user_notification
         JOIN user_subscribe ON user_notification.user_subscribe_id = user_subscribe.id
         WHERE user_subscribe.user_id = $1
