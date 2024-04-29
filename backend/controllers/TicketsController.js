@@ -108,21 +108,21 @@ async function getTicketsByEvent(req,res) {
     try {
         const { event_id } = req.params;
         const ticketsUsers = new TicketsUsers();
-        const check = await  ticketsUsers.check(req.senderData.id, event_id)
+        const check = await  ticketsUsers.check(req.senderData.id, event_id);
+        let buyStatus = check;
         if(check.exists === true) {
-            const ticket = await ticketsUsers.getInformationById(check.ticket_id);
-            return res.status(200).json({
-                state: true,
-                message: "You've already bought a ticket to this event",
-                data: ticket
-            });
+             buyStatus = {
+                 exists: true,
+                 message: "You've already bought a ticket to this event",
+                 user_ticket_id: check.ticket_id
+            };
         }
         const tickets = new Tickets();
         const ticketsFound = await tickets.find({event_id: event_id});
         if(ticketsFound.length === null) {
             return res.json(new Response(true, "Not found tickets"));
         }
-        res.json(new Response(true, "All tickets by event_id " + event_id, ticketsFound));
+        res.json(new Response(true, "All tickets by event_id " + event_id, {tickets: ticketsFound, buyStatus }));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -248,19 +248,19 @@ async function reservedTicket(req,res){
         if(await ticketUser.DATAUS(Number.parseInt(ticket_id))){
             return res.json(new Response(false, "All tickets are sold out"));
         }
-        // название, цену и дескрипшн из тикета подтянешь (название = тип билета, описание - вьеби название мероприятия)
+        // TODO название, цену и дескрипшн из тикета подтянешь (название = тип билета, описание - вьеби название мероприятия)
         const sessionId =
-            // "dfdfdfdf";
-            await createPaymentIntent(
-            'name',
-            'description',
-            99.9,
-            successUrl,
-            cancelUrl
-        );
-        if (sessionId === undefined){
-            return res.json(new Response(false, 'Error creating checkout session'));
-        }
+            "dfdfdfdf";
+        //     await createPaymentIntent(
+        //     'name',
+        //     'description',
+        //     99.9,
+        //     successUrl,
+        //     cancelUrl
+        // );
+        // if (sessionId === undefined){
+        //     return res.json(new Response(false, 'Error creating checkout session'));
+        // }
         const userTicketId = await ticketUser.buy('reserved', req.senderData.id, ticket_id, false, sessionId);
         res.json(new Response(true, "Ticket reserved successfully", {id: userTicketId, sessionId: sessionId}));
     } catch (error) {
@@ -271,14 +271,14 @@ async function reservedTicket(req,res){
 
 async function cancelTicket(req,res){
     try {
-        const { ticket_id} = req.params;
+        const { user_ticket_id } = req.params;
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"You need to authorize for buy or reserved ticket"))
         }
         let ticket_user = new TicketsUsers();
-        const found = await ticket_user.find({ ticket_id: ticket_id, user_id: req.senderData.id })
+        const found = await ticket_user.find({ id: user_ticket_id })
         await ticket_user.deleteRecord({ id: found[0].id });
-        await ticket_user.rollbackAvailableTickets(ticket_id);
+        await ticket_user.rollbackAvailableTickets(found[0].ticket_id);
         return res.json(new Response(true,"You successfully canceled ticket"))
     }catch (error) {
         console.error(error);
