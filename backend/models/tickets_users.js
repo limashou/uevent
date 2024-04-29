@@ -144,7 +144,6 @@ class Tickets_users extends Model {
     }
 
     async getUserByEventId(event_id) {
-        // Основной запрос для получения деталей пользователей, где show_username = true
         const query = `
         SELECT 
             ut.id AS user_ticket_id,
@@ -158,7 +157,6 @@ class Tickets_users extends Model {
         AND ut.show_username = true
     `;
 
-        // Запрос для подсчета количества "visitors" по типам билетов
         const visitorCountQuery = `
         SELECT 
             t.ticket_type,
@@ -173,18 +171,16 @@ class Tickets_users extends Model {
         const values = [event_id];
 
         try {
-            const { rows } = await client.query(query, values); // Основной запрос
-            const { rows: visitorCounts } = await client.query(visitorCountQuery, values); // Подсчет "visitors"
-
-            // Создание объекта с подсчетом "visitors" по типам билетов
+            const { rows } = await client.query(query, values);
+            const { rows: visitorCounts } = await client.query(visitorCountQuery, values);
             const visitorCountMap = {};
             visitorCounts.forEach((row) => {
                 visitorCountMap[row.ticket_type] = row.visitor_count;
             });
 
             return {
-                users: rows, // Пользователи с show_username = true
-                visitorCounts: visitorCountMap // Подсчет "visitors" по типам билетов
+                users: rows,
+                visitorCounts: visitorCountMap
             };
         } catch (error) {
             console.error("Error finding users by event ID:", error);
