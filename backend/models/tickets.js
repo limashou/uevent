@@ -14,6 +14,23 @@ class Tickets extends Model {
         this.event_id = event_id;
         return this.insert();
     }
+
+    async get(ticket_id){
+        const query = `
+        SELECT tickets.ticket_type, events.name, tickets.price
+        FROM tickets
+        JOIN events ON tickets.event_id = events.id
+        WHERE tickets.id = $1
+        `;
+        const values = [ticket_id];
+        try {
+            const { rows } = await client.query(query, values);
+            return rows;
+        } catch (error) {
+            console.error("Error:", error);
+            return  false;
+        }
+    }
 }
 
 module.exports = Tickets;

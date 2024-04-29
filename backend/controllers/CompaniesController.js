@@ -9,7 +9,9 @@ const {NOT_FOUND_ERROR} = require("./Errors");
 const {generateCode, transporter} = require("./Helpers");
 const CompanyNotification = require('../models/company_notification');
 const UserSubscribe = require('../models/user_subscribe');
+const Notification = require('../models/notification');
 const UserNotification = require('../models/user_notification');
+const client = require("../db");
 let SendDataForMember = { }
 
 /** /=======================/company function /=======================/ */
@@ -375,7 +377,7 @@ async function changeRole(req,res){
 async function createNews(req,res){
     try {
         let company_news = new CompanyNews();
-        let notification = new UserNotification();
+        let notification = new Notification();
         const { company_id } = req.params;
         if(req.senderData.id === undefined){
             return res.json(new Response(false, "You need authorize for this action"));
@@ -387,11 +389,11 @@ async function createNews(req,res){
         const newsSubscription = await notification.isNews(company_id);
         const result = await company_news.crate(company_id, title, content);
         if (newsSubscription) {
+            const newNotification = await notification.notification("The " + newsSubscription.name + " has some new news",
+                "There is a new news item on the company page titled: " + title + ".",
+                "/api/companies/" + company_id + "/news/" + result)
             for (const newsSubscriptionElement of newsSubscription) {
-                await notification.notification("The " + newsSubscriptionElement.name + " has some new news",
-                    "There is a new news item on the company page titled: " + title + ".",
-                    "/api/companies/" + company_id + "/news/" + result,
-                    newsSubscriptionElement.user_subscribe_id)
+                await new UserNotification().notification(newsSubscriptionElement.id,newNotification);
             }
         }
         res.json(new Response(true, "successfully create", result));
@@ -583,42 +585,44 @@ async function allNews(req, res) {
     }
 }
 /** /=======================/company notification function /=======================/ */
-async function getNotification(req,res){
+
+async function getCompanyNotification(req, res) {
     try {
         const { company_id } = req.params;
-        const {
-            page = 1,
-            limit = 20,
-            field = 'date',
-            order = 'DESC',
-        } = req.query;
-        if(req.senderData.id === undefined) {
-            return res.json(new Response(false, "You need authorize for this action"));
+        const { page = 1, limit = 20, field = 'date', order = 'DESC' } = req.query;
+        if (req.senderData.id === undefined) {
+            return res.json(new Response(false, "Unauthorized. Please log in."));
         }
-        if(page < 1 ) {
+        if (page < 1) {
             return res.json(new Response(false, `Incorrect page. Page must be greater than or equal to 1, but your page is ${page}`));
         }
-        const notification = new CompanyNotification();
-        if(!(await notification.isMember(company_id,req.senderData.id))){
-            return res.json(new Response(false, "You not member of the company"));
+        const companyNotification = new CompanyNotification();
+        if (!(await companyNotification.isMember(company_id, req.senderData.id))) {
+            return res.json(new Response(false, "You're not a member of the company."));
         }
-        const companyNotification = await notification.find_with_sort({
-            company_id: company_id,
-            page: page,
+        const companyNotifications = await companyNotification.find_with_sort({
+            company_id,
+            page,
             size: limit,
-            order: order,
-            field: field,
+            order,
+            field,
         });
-        if(companyNotification.length === 0) {
-            return res.json(new Response(true,"You haven't received any notifications"));
+        if (!companyNotifications.rows || companyNotifications.rows.length === 0) {
+            return res.status(200).json(new Response(true, "No notifications found for this company."));
         }
-        res.json(new Response(true, "all notification", companyNotification));
-    }catch (error) {
-        console.log(error);
-        res.json(new Response(false,error.toString()))
+        const lastReadNotificationId = companyNotifications.rows[0].id;
+        await client.query(
+            'UPDATE companies SET last_read_notification = $1 WHERE id = $2',
+            [lastReadNotificationId, company_id]
+        );
+        return res.json(new Response(true,
+            "Company notifications retrieved and last read notification updated successfully.", companyNotifications));
+
+    } catch (error) {
+        console.error("Error in getCompanyNotification:", error);
+        return res.json(new Response(false, "An error occurred while retrieving company notifications."));
     }
 }
-
 async function deleteNotification(req,res){
     try {
         const { company_id, notification_id } = req.params;

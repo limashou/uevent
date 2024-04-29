@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(70) NOT NULL,
     photo VARCHAR(256) NOT NULL DEFAULT 'default.png',
     email VARCHAR(256) NOT NULL UNIQUE,
-    full_name VARCHAR(60) NOT NULL
+    full_name VARCHAR(60) NOT NULL,
+    last_read_notification INTEGER DEFAULT NULL
+
 );
 
 CREATE TABLE IF NOT EXISTS companies(
@@ -28,6 +30,7 @@ CREATE TABLE IF NOT EXISTS companies(
     photo VARCHAR(256),
     founder_id INTEGER NOT NULL,
     creation_day TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    last_read_notification INTEGER DEFAULT NULL ,
     CONSTRAINT fk_user_id FOREIGN KEY (founder_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -119,17 +122,25 @@ CREATE TABLE IF NOT EXISTS user_subscribe(
     new_news BOOLEAN,
     new_events BOOLEAN,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE
+    CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE,
+    CONSTRAINT unique_user_subscribe UNIQUE (user_id, company_id)
+
 );
 
-CREATE TABLE IF NOT EXISTS user_notification (
+CREATE TABLE IF NOT EXISTS user_notification(
+    id SERIAL PRIMARY KEY,
+    user_subscribe_id INTEGER NOT NULL,
+    notification_id INTEGER NOT NULL,
+    CONSTRAINT fk_user_subscribe_id FOREIGN KEY (user_subscribe_id) REFERENCES user_subscribe(id) ON DELETE CASCADE,
+    CONSTRAINT fk_notification_id FOREIGN KEY (notification_id) REFERENCES notification(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS notification(
     id SERIAL PRIMARY KEY ,
     title VARCHAR(50),
     description TEXT,
-    user_subscribe_id INTEGER NOT NULL,
     link VARCHAR(80) NOT NULL,
-    date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_user_subscribe_id FOREIGN KEY (user_subscribe_id) REFERENCES user_subscribe(id) ON DELETE CASCADE
+    date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS event_comments(

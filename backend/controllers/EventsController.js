@@ -1,6 +1,7 @@
 const Events = require('../models/events');
 const EventComments = require('../models/event_comments');
 const Response = require("../models/response");
+const Notification = require('../models/notification');
 const UserNotification = require('../models/user_notification');
 const path = require("path");
 const fs = require("fs");
@@ -20,14 +21,14 @@ async function createEvent(req,res){
             return res.json(new Response(false,"Not enough permission"));
         }
         const result = await event.create(name, notification, description, location, latitude, longitude ,date, format, theme ,company_id);
-        let userNotification = new UserNotification();
-        const newsSubscription = await userNotification.isNewEvents(company_id);
-        if (newsSubscription) {
-            for (const newsSubscriptionElement of newsSubscription) {
-                await notification.notification("The " + newsSubscriptionElement.name + " has some new events",
-                    "The " + newsSubscriptionElement.name + " has created a new event: " + name + ".",
-                    "/api/events/" + company_id + "/byId/" + result,
-                    newsSubscriptionElement.id)
+        let userNotification = new Notification();
+        const eventsSubscription = await userNotification.isNewEvents(company_id);
+        if (eventsSubscription) {
+            const newNotification = await userNotification.notification("The " + eventsSubscription.name + " has some new events",
+                "The " + eventsSubscription.name + " has created a new event: " + name + ".",
+                "/api/events/" + company_id + "/byId/" + result)
+            for (const eventsSubscriptionElement of eventsSubscription) {
+                await new UserNotification().notification(eventsSubscriptionElement.id, newNotification)
             }
         }
         res.json(new Response(true,"Event create" , result));
@@ -56,14 +57,15 @@ async function editEvent(req,res){
 
         let updatedFields = { name, notification, description, location, latitude, longitude ,date, format, theme };
         await event.updateById( { id: foundEvent[0].id, ...updatedFields });
-        let userNotification = new UserNotification();
-        const newsSubscription = await userNotification.isUpdateEvents(foundEvent[0].company_id);
-        if (newsSubscription) {
-            for (const newsSubscriptionElement of newsSubscription) {
-                await notification.notification("The " + newsSubscriptionElement.name + " complemented the event.",
-                    "The " + newsSubscriptionElement.name + " has complemented the event: " + name + ".",
-                    "/api/events/" + foundEvent[0].company_id + "/byId/" + foundEvent[0].id,
-                    newsSubscriptionElement.id)
+        let userNotification = new Notification();
+        const editSubscription = await userNotification.isUpdateEvents(foundEvent[0].company_id);
+        if (editSubscription) {
+            const newNotification = await userNotification.notification(
+                "The " + editSubscription.name + " complemented the event.",
+                "The " + editSubscription.name + " has complemented the event: " + name + ".",
+                "/api/events/" + foundEvent[0].company_id + "/byId/" + foundEvent[0].id)
+            for (const editSubscriptionElement of editSubscription) {
+                await new UserNotification().notification(editSubscriptionElement.id, newNotification)
             }
         }
         res.json(new Response(true,"Successfully update"),foundEvent[0].id);

@@ -1,11 +1,12 @@
 const User = require('../models/users');
 const Response = require("../models/response");
-const UserNotification = require('../models/user_notification');
+const UserNotification = require('../models/notification');
 const UserTickets = require('../models/tickets_users');
 const fs = require('fs');
 const path = require("path");
 const bcrypt = require("bcrypt");
 const {NOT_FOUND_ERROR} = require("./Errors");
+const client = require("../db");
 
 async function getAllUser(req, res){
     try {
@@ -142,19 +143,25 @@ async function avatarUpload(req, res) {
     }
 }
 
-async function getNotification(req,res){
+async function getNotification(req, res) {
     try {
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"Unauthorized. Please log in."))
         }
-        const result = await new UserNotification().getNotification(req.senderData.id);
-        if(result.length === 0) {
+        const userNotifications = await new UserNotification().getNotification(req.senderData.id);
+        if (!userNotifications || userNotifications.length === 0) {
             return res.json(new Response(true, "You don't have any notifications."));
         }
-        res.json(new Response(true,"Notifications retrieved successfully.", result));
-    }catch (error) {
-        console.log(error);
-        res.json(new Response(false, error.toString()));
+        const lastReadNotificationId = userNotifications[0].id;
+        await client.query(
+            'UPDATE users SET last_read_notification = $1 WHERE id = $2',
+            [lastReadNotificationId, req.senderData.id]
+        );
+        res.json(new Response(true,"Notifications retrieved and last read notification updated successfully.", userNotifications));
+
+    } catch (error) {
+        console.error("Error in getNotification:", error);
+        res.json(new Response(false, "An error occurred while retrieving notifications."));
     }
 }
 
