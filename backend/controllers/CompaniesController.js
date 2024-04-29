@@ -586,7 +586,7 @@ async function allNews(req, res) {
 }
 /** /=======================/company notification function /=======================/ */
 
-async function getCompanyNotification(req, res) {
+async function getNotification(req, res) {
     try {
         const { company_id } = req.params;
         const { page = 1, limit = 20, field = 'date', order = 'DESC' } = req.query;

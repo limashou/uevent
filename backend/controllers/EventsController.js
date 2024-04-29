@@ -21,10 +21,10 @@ async function createEvent(req,res){
             return res.json(new Response(false,"Not enough permission"));
         }
         const result = await event.create(name, notification, description, location, latitude, longitude ,date, format, theme ,company_id);
-        let userNotification = new Notification();
-        const eventsSubscription = await userNotification.isNewEvents(company_id);
+        let bdNotification = new Notification();
+        const eventsSubscription = await bdNotification.isNewEvents(company_id);
         if (eventsSubscription) {
-            const newNotification = await userNotification.notification("The " + eventsSubscription.name + " has some new events",
+            const newNotification = await bdNotification.notification("The " + eventsSubscription.name + " has some new events",
                 "The " + eventsSubscription.name + " has created a new event: " + name + ".",
                 "/api/events/" + company_id + "/byId/" + result)
             for (const eventsSubscriptionElement of eventsSubscription) {
@@ -57,10 +57,10 @@ async function editEvent(req,res){
 
         let updatedFields = { name, notification, description, location, latitude, longitude ,date, format, theme };
         await event.updateById( { id: foundEvent[0].id, ...updatedFields });
-        let userNotification = new Notification();
-        const editSubscription = await userNotification.isUpdateEvents(foundEvent[0].company_id);
+        let bdNotification = new Notification();
+        const editSubscription = await bdNotification.isUpdateEvents(foundEvent[0].company_id);
         if (editSubscription) {
-            const newNotification = await userNotification.notification(
+            const newNotification = await bdNotification.notification(
                 "The " + editSubscription.name + " complemented the event.",
                 "The " + editSubscription.name + " has complemented the event: " + name + ".",
                 "/api/events/" + foundEvent[0].company_id + "/byId/" + foundEvent[0].id)
