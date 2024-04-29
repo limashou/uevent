@@ -393,7 +393,7 @@ async function createNews(req,res){
                 "There is a new news item on the company page titled: " + title + ".",
                 "/api/companies/" + company_id + "/news/" + result)
             for (const newsSubscriptionElement of newsSubscription) {
-                await new UserNotification().notification(newsSubscriptionElement.id,newNotification);
+                await new UserNotification().notification(newsSubscriptionElement.user_subscribe_id,newNotification);
             }
         }
         res.json(new Response(true, "successfully create", result));

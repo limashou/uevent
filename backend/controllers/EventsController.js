@@ -28,7 +28,7 @@ async function createEvent(req,res){
                 "The " + eventsSubscription.name + " has created a new event: " + name + ".",
                 "/api/events/" + company_id + "/byId/" + result)
             for (const eventsSubscriptionElement of eventsSubscription) {
-                await new UserNotification().notification(eventsSubscriptionElement.id, newNotification)
+                await new UserNotification().notification(eventsSubscriptionElement.user_subscribe_id, newNotification)
             }
         }
         res.json(new Response(true,"Event create" , result));
@@ -65,7 +65,7 @@ async function editEvent(req,res){
                 "The " + editSubscription.name + " has complemented the event: " + name + ".",
                 "/api/events/" + foundEvent[0].company_id + "/byId/" + foundEvent[0].id)
             for (const editSubscriptionElement of editSubscription) {
-                await new UserNotification().notification(editSubscriptionElement.id, newNotification)
+                await new UserNotification().notification(editSubscriptionElement.user_subscribe_id, newNotification)
             }
         }
         res.json(new Response(true,"Successfully update"),foundEvent[0].id);
