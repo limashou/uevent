@@ -127,20 +127,20 @@ CREATE TABLE IF NOT EXISTS user_subscribe(
 
 );
 
+CREATE TABLE IF NOT EXISTS notification(
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(50),
+    description TEXT,
+    link VARCHAR(80) NOT NULL,
+    date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS user_notification(
     id SERIAL PRIMARY KEY,
     user_subscribe_id INTEGER NOT NULL,
     notification_id INTEGER NOT NULL,
     CONSTRAINT fk_user_subscribe_id FOREIGN KEY (user_subscribe_id) REFERENCES user_subscribe(id) ON DELETE CASCADE,
     CONSTRAINT fk_notification_id FOREIGN KEY (notification_id) REFERENCES notification(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS notification(
-    id SERIAL PRIMARY KEY ,
-    title VARCHAR(50),
-    description TEXT,
-    link VARCHAR(80) NOT NULL,
-    date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS event_comments(
