@@ -9,7 +9,7 @@ import CompanyMini from "../../components/CompanyMini";
 
 function Profile() {
     const { user_id} = useParams();
-    const [ userData ] = useContext(UserContext);
+    const [userData] = useContext(UserContext);
     const [profileData, setProfileData] = useState(undefined);
     const [userCompanies, setUserCompanies] = useState([]);
 

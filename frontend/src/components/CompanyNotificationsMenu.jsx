@@ -5,7 +5,7 @@ import {Notification} from "./Notification";
 import Requests from "../api/Requests";
 import IconButton from "@mui/material/IconButton";
 
-function NotificationMenu({ company_id }) {
+function CompanyNotificationsMenu({ company_id }) {
 
     const [notifications, setNotifications] = useState([]);
     useEffect(() => {
@@ -68,4 +68,4 @@ function NotificationMenu({ company_id }) {
     );
 }
 
-export default NotificationMenu;
+export default CompanyNotificationsMenu;

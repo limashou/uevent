@@ -1,4 +1,5 @@
 import Requests from "../api/Requests";
+import {enqueueSnackbar} from "notistack";
 
 export function hexToRgba(hex, alpha = 1) {
     const hexColor = hex.replace(/^#/, '');
@@ -17,4 +18,38 @@ export async function logout(){
     }
     else
         alert(`logout error ${JSON.stringify(resp)}`)
+}
+
+export function customAlert(text, variant = 'info') {
+    if (typeof text !== 'string')
+        text = text.toString();
+    enqueueSnackbar(text, { variant, anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+}
+
+export function formatDate(date) {
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000); // разница в секундах
+
+    let options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+    };
+
+    if (diff < 60 * 60) {
+        const minutes = Math.floor(diff / 60);
+        return `${minutes} min. ago`;
+    } else if (
+        date.getDate() === now.getDate() &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear()
+    ) {
+        options = {
+            hour: 'numeric',
+            minute: 'numeric',
+        };
+    }
+    return date.toLocaleString(undefined, options);
 }

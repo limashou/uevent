@@ -192,7 +192,7 @@ class Tickets_users extends Model {
 
     async check(user_id, event_id) {
         const query = `
-        SELECT ut.id
+        SELECT ut.id, ut.session_id, ut.ticket_status
         FROM user_tickets ut
         JOIN tickets t ON ut.ticket_id = t.id
         WHERE ut.user_id = $1
@@ -203,7 +203,12 @@ class Tickets_users extends Model {
         try {
             const { rows } = await client.query(query, values);
             if (rows.length > 0) {
-                return { exists: true, ticket_id: rows[0].id };
+                let data = { exists: true, ticket_id: rows[0].id };
+                if (rows[0].ticket_status === 'reserved'){
+                    data.ticket_status = 'reserved'
+                    data.session_id = rows[0].session_id;
+                }
+                return data;
             } else {
                 return { exists: false };
             }

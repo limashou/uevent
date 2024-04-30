@@ -350,9 +350,9 @@ export default class Requests {
         return resp.data;
     }
 
-    static async informationTicket(ticket_id){
+    static async informationTicket(user_ticket_id){
         const resp = await axiosInstance
-            .get(`/tickets/information/${ticket_id}`);
+            .get(`/tickets/information/${user_ticket_id}`);
         return resp.data;
     }
 }

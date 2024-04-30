@@ -2,8 +2,9 @@ import React, {useState} from 'react';
 import {Card, CardContent, Typography} from '@mui/material';
 import Requests from "../api/Requests";
 import Button from "@mui/material/Button";
+import {loadStripe} from "@stripe/stripe-js";
 
-function TicketElement({ ticketData }) {
+function TicketElement({ ticketData, buyDisabled = true }) {
     const { id, ticket_type, price, available_tickets, status, event_id } = ticketData;
     const [processing, setProcessing] = useState(false);
 
@@ -20,10 +21,10 @@ function TicketElement({ ticketData }) {
                 setProcessing(false);
                 return;
             }
-            // const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-            // await stripe.redirectToCheckout({
-            //     sessionId: resp.data.sessionId
-            // });
+            const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+            await stripe.redirectToCheckout({
+                sessionId: resp.data.sessionId
+            });
             setProcessing(false);
         } catch (e) {
             console.error(e);
@@ -42,11 +43,9 @@ function TicketElement({ ticketData }) {
                     Available Tickets: {available_tickets}
                     <br />
                     Status: {status}
-                    <br />
-                    Event ID: {event_id}
                 </Typography>
                 <Button
-                    disabled={processing || available_tickets === 0}
+                    disabled={processing || available_tickets === 0 || buyDisabled}
                     onClick={onBuy}
                     variant="contained"
                 >

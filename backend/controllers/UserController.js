@@ -150,7 +150,7 @@ async function getNotification(req, res) {
         }
         const userNotifications = await new UserNotification().getNotification(req.senderData.id);
         if (!userNotifications || userNotifications.length === 0) {
-            return res.json(new Response(true, "You don't have any notifications."));
+            return res.json(new Response(true, "You don't have any notifications.", []));
         }
         const lastReadNotificationId = userNotifications[0].id;
         await client.query(

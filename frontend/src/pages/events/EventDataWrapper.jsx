@@ -1,4 +1,4 @@
-import {createContext, useContext, useEffect, useState} from "react";
+import {createContext, useEffect, useState} from "react";
 import {Outlet, useParams} from "react-router-dom";
 import Requests from "../../api/Requests";
 
@@ -6,6 +6,7 @@ export const EventDataContext = createContext();
 function EventDataWrapper({ children }) {
     const { event_id } = useParams();
     const [eventData, setEventData] = useState(null);
+    const [ticketsInfo, setTicketsInfo] = useState(undefined);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -29,9 +30,39 @@ function EventDataWrapper({ children }) {
         fetchData();
     }, [event_id]);
 
+    const [visitorsWithName, setVisitorsWithName] = useState([]);
+    const [anonVisitors, setAnonVisitors] = useState(undefined);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const resp = await Requests.eventTickets(event_id);
+                if (resp.state === true) {
+                    setTicketsInfo(resp.data);
+                }
+
+                const respUsers = await Requests.eventUsers(event_id);
+                if (respUsers.state === true){
+                    setVisitorsWithName(respUsers.data.users);
+                    setAnonVisitors(respUsers.data.visitorCounts);
+                }
+                // alert(JSON.stringify(respUsers));
+            } catch (error) {
+                console.error("Error fetching event data:", error);
+            }
+        };
+        fetchData();
+    }, [event_id]);
+
     const contextValue = {
         eventData,
         setEventData,
+        ticketsInfo,
+        setTicketsInfo,
+        visitorsWithName,
+        setVisitorsWithName,
+        anonVisitors,
+        setAnonVisitors,
         loading
     };
 

@@ -13,7 +13,7 @@ const cron = require('node-cron');
 
 /** /=======================/remove reserved tickets /=======================/ */
 
-cron.schedule('*/10 * * * *', removeOldReservedTickets);
+cron.schedule('*/1 * * * *', removeOldReservedTickets);
 
 /** /=======================/tickets function /=======================/ */
 
@@ -41,7 +41,7 @@ async function createTickets(req, res){
 
     } catch (error) {
         console.error(error);
-        res.json(new Response(false, error.toString()));
+        res.json(new Response(false, error.message));
     }
 }
 
@@ -114,7 +114,7 @@ async function getTicketsByEvent(req,res) {
              buyStatus = {
                  exists: true,
                  message: "You've already bought a ticket to this event",
-                 user_ticket_id: check.ticket_id
+                 data: check
             };
         }
         const tickets = new Tickets();
@@ -252,8 +252,8 @@ async function reservedTicket(req,res){
         const sessionId =
             // "dfdfdfdf";
             await createPaymentIntent(
-                '${ inf[0].ticket_type } ticket',
-                'For event ${ inf[0].name }',
+                `${inf[0].ticket_type} ticket`,
+                `For event ${inf[0].name}`,
                 inf[0].price,
                 successUrl,
                 cancelUrl

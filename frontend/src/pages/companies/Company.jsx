@@ -2,20 +2,20 @@ import {Link, useParams} from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import DescriptionIcon from "@mui/icons-material/Description";
 import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import Stack from "@mui/material/Stack";
 import Requests from "../../api/Requests";
-import {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {CompanyDataContext} from "./CompanyDataWrapper";
 import UsersLine from "../../components/UsersLine";
 import Box from "@mui/material/Box";
 import CompanyNewsElement from "../../components/CompanyNewsElement";
 import EventMini from "../../components/EventMini";
 import {Tab, Tabs} from "@mui/material";
-import NotificationMenu from "../../components/NotificationMenu";
-import Button from "@mui/material/Button";
+import CompanyNotificationsMenu from "../../components/CompanyNotificationsMenu";
+import CompanySubscribeDialog from "../../components/dialogs/CompanySubscribeDialog";
+import MenuOptions from "../../components/MenuOptions";
 
 function Company() {
     const { company_id } = useParams();
@@ -42,6 +42,16 @@ function Company() {
         setTabsValue(newValue);
     };
 
+    const menuOptions = [
+        <CompanySubscribeDialog company_id={company_id} />,
+    ];
+    if (permissions.company_edit)
+        menuOptions.push(<Link to={`/companies/${company_id}/settings`}>Settings</Link>)
+    if (permissions.news_creation)
+        menuOptions.push(<Link to={`/companies/${company_id}/newsCreation`}>Create news</Link>)
+    if (permissions.event_creation)
+        menuOptions.push(<Link to={`/companies/${company_id}/eventCreation`}>Create event</Link>)
+
     // Проверяем, есть ли данные и они загружены
     if (!companyData || loading) {
         return <div>Loading...</div>;
@@ -49,34 +59,30 @@ function Company() {
 
     return (
         <Container maxWidth="md" className={'center-block'}>
-            <Stack spacing={4}>
-                <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack spacing={2}>
+                <Container sx={{display: 'flex', justifyContent: 'space-between'}}>
                     <Avatar
                         variant="rounded"
                         src={Requests.get_company_logo_link(companyData.id)}
                         sx={{ width: 150, height: 150 }}
-                    >{companyData.name}</Avatar>
-                    <Box display="flex" gap={2}>
+                    >
+                        {companyData.name}
+                    </Avatar>
+                    <Stack justifyContent="center">
                         <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
                             {companyData.name}
                         </Typography>
-                        {permissions.company_edit &&
-                            <Link to={`/companies/${company_id}/settings`}>Settings</Link>
-                        }
-                        {permissions.news_creation &&
-                            <Link to={`/companies/${company_id}/newsCreation`}>Create news</Link>
-                        }
-                        {permissions.event_creation &&
-                            <Link to={`/companies/${company_id}/eventCreation`}>Create event</Link>
-                        }
+                        <Typography variant="h5" component="div" sx={{ fontWeight: 'lighter' }}>
+                            {companyData.description}
+                        </Typography>
+                    </Stack>
+                    <Stack direction="row" justifyContent="start">
                         {notificationsEnable &&
-                            <NotificationMenu company_id={company_id} />
+                            <CompanyNotificationsMenu company_id={company_id} />
                         }
-                        <Button onClick={() => {
-                            Requests.companySubscribe(company_id)
-                        }}>Subscribe</Button>
-                    </Box>
-                </Stack>
+                        <MenuOptions options={menuOptions} />
+                    </Stack>
+                </Container>
                 <Box sx={{ width: '100%', }}>
                     <Tabs value={tabsValue} onChange={handleChange} centered>
                         <Tab label="Events" />
@@ -97,7 +103,6 @@ function Company() {
                     }
                     {tabsValue === 3 &&
                         <>
-                            <DescriptionInfo icon={<DescriptionIcon />} text={companyData.description} />
                             <DescriptionInfo icon={<EmailIcon />} text={companyData.email} />
                             <DescriptionInfo icon={<LocationOnIcon />} text={companyData.location} />
                         </>

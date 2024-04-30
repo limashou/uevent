@@ -36,13 +36,15 @@ function Comments({ event_id }) {
     };
     return (
         <>
-            <Pagination
-                size="small"
-                count={totalPages}
-                page={page}
-                onChange={handlePageChange}
-                color="primary"
-            />
+            {totalPages !== 0 &&
+                <Pagination
+                    size="small"
+                    count={totalPages}
+                    page={page}
+                    onChange={handlePageChange}
+                    color="primary"
+                />
+            }
             {comments.map((commentData) => (
                 <Comment commentData={commentData} />
             ))}

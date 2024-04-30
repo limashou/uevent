@@ -7,7 +7,7 @@ export const CompanyDataContext = createContext();
 
 function CompanyDataWrapper({ children }) {
     const { company_id } = useParams();
-    const [ userData ] = useContext(UserContext);
+    const [userData] = useContext(UserContext);
     const [companyData, setCompanyData] = useState(null);
 
     const [permissions, setPermissions] = useState({

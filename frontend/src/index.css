@@ -72,12 +72,11 @@ a {
   --text-color-disabled: #F2ECFF;
   --background-color-objects: #1F2833;
 
-  --body-color: #242e3d;
+  --body-color: #1a1c1f;
   --background-color-main: #OB0C10;
   --calendar-cells-background: #657B81;
   --checkbox-on-color: #66FCF1;
   --checkbox-off-color: #45A29E;
-  /*--accent-color: #e74c3c; !* Акцентный цвет *!*/
   --border-color: #C5C6C7; /* Цвет границ */
   --day-view-hourline-color: #45A29E;
 }

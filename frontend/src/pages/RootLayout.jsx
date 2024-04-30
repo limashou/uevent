@@ -10,23 +10,14 @@ function RootLayout() {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    async function updateNotifications() {
-        const resp = await Requests.notifications();
-        if (resp.state === true){
-            // alert(JSON.stringify(resp));
-            setNotifications(resp.data);
-        }
-    }
-
     useEffect(() => {
         const fetchData = async () => {
             const resp = await Requests.user_by_id('me');
             if (resp.state === true){
                 resp.data.photo = Requests.get_avatar_link(resp.data.id);
                 setUserData(resp.data);
-                setLoading(false);
-                updateNotifications();
             }
+            setLoading(false);
         };
         fetchData();
     }, []);

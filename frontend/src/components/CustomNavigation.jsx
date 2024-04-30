@@ -13,19 +13,24 @@ import {Link} from "react-router-dom";
 import {useContext, useState} from "react";
 import {logout} from "../Utils/Utils";
 import {UserContext} from "../pages/RootLayout";
+import UserNotificationsMenu from "./UserNotificationsMenu";
+import {ExitToApp, Person, Settings} from "@mui/icons-material";
+import {ListItemIcon} from "@mui/material";
 
 const pages = [
     {to: '/events', text: 'Events'},
     {to: '/companies', text: 'Companies'},
 ];
-const settings = [
-    {to: '/users/me', text: 'Profile'},
-    {to: '/users/me/settings', text: 'Settings'},
+
+const profileMenuItems = [
+    { label: 'Profile', icon: <Person />, link: '/users/me' },
+    { label: 'Settings', icon: <Settings />, link: '/users/me/settings' },
+    { label: 'Logout', icon: <ExitToApp />, onClick: logout }
 ];
 
 function CustomNavigation() {
     const [anchorElUser, setAnchorElUser] = useState(null);
-    const [userData] = useContext(UserContext);
+    const [ userData ] = useContext(UserContext);
 
     const handleOpenUserMenu = (event) => {
         setAnchorElUser(event.currentTarget);
@@ -50,19 +55,16 @@ function CustomNavigation() {
                             fontFamily: 'monospace',
                             fontWeight: 700,
                             letterSpacing: '.3rem',
-                            // color: 'inherit',
                             textDecoration: 'none',
                         }}
                     >
                         uEvent
                     </Typography>
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'compact', md: 'flex' } }}>
                         {pages.map((page) => (
                             <Link key={page.text} to={page.to}>
-                                <Button
-                                        // sx={{ my: 2, color: 'white', display: 'block' }}
-                                >
+                                <Button>
                                     {page.text}
                                 </Button>
                             </Link>
@@ -70,7 +72,10 @@ function CustomNavigation() {
                     </Box>
                     { userData ?
                         (
-                            <div>
+                            <>
+                                <Box sx={{mr: 2}}>
+                                    <UserNotificationsMenu />
+                                </Box>
                                 <Box sx={{ flexGrow: 0 }}>
                                     <Tooltip title="Open settings">
                                         <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -93,27 +98,28 @@ function CustomNavigation() {
                                         open={Boolean(anchorElUser)}
                                         onClose={handleCloseUserMenu}
                                     >
-                                        {settings.map((setting) => (
-                                            <Link
-                                                key={setting.to}
-                                                to={setting.to}>
-                                                <MenuItem
-                                                    onClick={handleCloseUserMenu}>
-                                                    {setting.text}
-                                                </MenuItem>
-                                            </Link>
+                                        {profileMenuItems.map((item, index) => (
+                                            <MenuItem
+                                                key={index}
+                                                onClick={item.onClick ? handleCloseUserMenu : null}
+                                            >
+                                                <ListItemIcon>
+                                                    {item.icon}
+                                                </ListItemIcon>
+                                                {item.link ? (
+                                                    <Link to={item.link} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                        {item.label}
+                                                    </Link>
+                                                ) : (
+                                                    <Typography onClick={item.onClick}>
+                                                        {item.label}
+                                                    </Typography>
+                                                )}
+                                            </MenuItem>
                                         ))}
-                                        <MenuItem
-                                            key={'logout'}
-                                            onClick={() => {
-                                                logout();
-                                                handleCloseUserMenu();
-                                            }}>
-                                            <Typography textAlign="center">Logout</Typography>
-                                        </MenuItem>
                                     </Menu>
                                 </Box>
-                            </div>
+                            </>
                         ) : (
                             <Link to="/auth/login">sign in</Link>
                         )
