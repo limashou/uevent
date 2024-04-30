@@ -75,16 +75,18 @@ class Notification extends Model{
         }
     }
 
-    async getNotification(user_id){
+    async getNotification(user_id, from_notification_id = 0){
         const query = `
         SELECT notification.id, notification.title, notification.description, notification.link, notification.date
         FROM notification
         JOIN user_notification ON notification.id = user_notification.notification_id
         JOIN user_subscribe ON user_notification.user_subscribe_id = user_subscribe.id
         WHERE user_subscribe.user_id = $1
+        AND notification.id > $2
         ORDER BY notification.date DESC
+        LIMIT 100
         `;
-        const values = [user_id];
+        const values = [user_id, from_notification_id];
         try {
             const { rows } = await client.query(query, values);
             return rows;

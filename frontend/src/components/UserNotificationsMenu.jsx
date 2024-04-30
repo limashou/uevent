@@ -5,26 +5,44 @@ import {Notification} from "./Notification";
 import IconButton from "@mui/material/IconButton";
 import {UserContext} from "../pages/RootLayout";
 import Requests from "../api/Requests";
+import Typography from "@mui/material/Typography";
 
 function UserNotificationsMenu() {
     const [ userData ] = useContext(UserContext);
     const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [lastReadNotificationId, setLastReadNotificationId] = useState(undefined);
 
     useEffect(() => {
         async function updateNotifications() {
-            const resp = await Requests.notifications();
+            const resp = await Requests.notifications(lastReadNotificationId);
             if (resp.state === true) {
-                // alert(JSON.stringify(resp));
-                setNotifications(resp.data);
+                setUnreadCount(resp.data.length);
+                setNotifications(prevNotifications => {
+                    // Создаем новый массив, объединяя предыдущие уведомления и новые
+                    const updatedNotifications = [...prevNotifications, ...resp.data];
+                    // Затем удаляем дубликаты, оставляя только уникальные уведомления по их идентификаторам
+                    return updatedNotifications.filter((notification, index, self) =>
+                        index === self.findIndex(n => n.id === notification.id)
+                    );
+                });
             }
         }
+
         updateNotifications();
-    }, []);
+
+        const intervalId = setInterval(updateNotifications, 10000);
+
+        return () => clearInterval(intervalId);
+    }, [lastReadNotificationId]);
+
 
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
+        if (notifications.length > 0)
+            setLastReadNotificationId(Math.max(...notifications.map(({ id }) => id)))
     };
 
     const handleClose = () => {
@@ -39,7 +57,7 @@ function UserNotificationsMenu() {
             <IconButton
                 onClick={handleClick}
             >
-                <Badge color="secondary" badgeContent={notifications.length}>
+                <Badge color="secondary" badgeContent={unreadCount}>
                     <NotificationsIcon />
                 </Badge>
             </IconButton>
@@ -57,10 +75,13 @@ function UserNotificationsMenu() {
                     horizontal: 'right',
                 }}
                 PaperProps={{
-                    style: { marginTop: "8px", width: "300px" } // Добавляем отступ от верхней границы и ширину
+                    style: { marginTop: "8px", width: "300px" }
                 }}
             >
                 <List>
+                    {notifications.length === 0 &&
+                        <Typography>Nothing here</Typography>
+                    }
                     {notifications.map((notification) => (
                         <Notification notificationData={notification} handleClose={handleClose} />
                     ))}

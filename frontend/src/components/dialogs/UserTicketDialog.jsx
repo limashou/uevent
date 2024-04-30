@@ -1,8 +1,6 @@
-import Typography from "@mui/material/Typography";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import * as React from "react";
@@ -39,21 +37,15 @@ function UserTicketDialog({user_ticket_id}) {
 
     return (
         <React.Fragment>
-            <Typography onClick={handleClickOpen}>
-                Ticket Data
-            </Typography>
-            {ticketData &&
-                <UserTicketCard ticket={ticketData}/>
-            }
+            <Button onClick={handleClickOpen}>
+                Your ticket
+            </Button>
             <Dialog
                 open={open}
                 onClose={handleClose}
             >
                 <DialogTitle>Your ticket</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        Ticket:
-                    </DialogContentText>
                     {ticketData &&
                         <UserTicketCard ticket={ticketData}/>
                     }

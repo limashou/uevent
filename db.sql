@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS companies(
     photo VARCHAR(256),
     founder_id INTEGER NOT NULL,
     creation_day TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    last_read_notification INTEGER DEFAULT NULL ,
+    last_read_notification INTEGER DEFAULT 0,
     CONSTRAINT fk_user_id FOREIGN KEY (founder_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

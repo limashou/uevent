@@ -148,15 +148,24 @@ async function getNotification(req, res) {
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"Unauthorized. Please log in."))
         }
-        const userNotifications = await new UserNotification().getNotification(req.senderData.id);
+        //TODO: валидация как число и больше 0 (или параметра может не быть)
+        const { from_id } = req.query;
+        let from_notification_id = Number.parseInt(from_id);
+        if (!from_notification_id){
+            const userData = await new User().find({id: req.senderData.id});
+            from_notification_id = userData[0].last_read_notification;
+        }
+        const userNotifications = await new UserNotification().getNotification(req.senderData.id, from_notification_id);
+        if (from_id){
+            const lastReadNotificationId = Math.max(Number.parseInt(from_id), from_notification_id);
+            await client.query(
+                'UPDATE users SET last_read_notification = $1 WHERE id = $2',
+                [lastReadNotificationId, req.senderData.id]
+            );
+        }
         if (!userNotifications || userNotifications.length === 0) {
             return res.json(new Response(true, "You don't have any notifications.", []));
         }
-        const lastReadNotificationId = userNotifications[0].id;
-        await client.query(
-            'UPDATE users SET last_read_notification = $1 WHERE id = $2',
-            [lastReadNotificationId, req.senderData.id]
-        );
         res.json(new Response(true,"Notifications retrieved and last read notification updated successfully.", userNotifications));
 
     } catch (error) {

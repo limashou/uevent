@@ -75,10 +75,12 @@ export default class Requests {
         return resp.data;
     }
 
-    static async notifications() {
-        const resp = await axiosInstance.get(`users/notifications`);
+    static async notifications(notification_id) {
+        const queryParams = notification_id ? `?from_id=${notification_id}` : '';
+        const resp = await axiosInstance.get(`users/notifications${queryParams}`);
         return resp.data;
     }
+
     static async avatarUpload(file){
         const data = new FormData();
         data.append('photo', file);
