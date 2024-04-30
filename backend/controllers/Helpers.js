@@ -77,7 +77,6 @@ async function removeOldReservedTickets() {
         const result = await client.query(
             "DELETE FROM user_tickets WHERE ticket_status = 'reserved' AND purchase_date <= NOW() - INTERVAL '10 minutes';"
         );
-        console.log(`Удалено записей: ${result.rowCount}`);
         if (result.rowCount > 0) {
             const ticketCountMap = ticketIds.reduce((acc, row) => {
                 acc[row.ticket_id] = (acc[row.ticket_id] || 0) + 1;
@@ -89,7 +88,6 @@ async function removeOldReservedTickets() {
                     [count, ticket_id]
                 );
             }
-            console.log(`Обновлено количество доступных билетов.`);
         }
     } catch (error) {
         console.error('Ошибка при удалении записей:', error);

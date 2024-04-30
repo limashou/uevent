@@ -158,6 +158,7 @@ CREATE TABLE IF NOT EXISTS event_comments(
 CREATE TABLE IF NOT EXISTS promo_codes(
     id SERIAL PRIMARY KEY,
     code VARCHAR(20),
+    sale INTEGER NOT NULL ,
     event_id INTEGER NOT NULL,
     CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
 );

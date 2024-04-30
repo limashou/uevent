@@ -189,13 +189,12 @@ async function eventByID(req,res){
     try {
         const { event_id } = req.params
         const event = new Events()
-
-        let foundEvent = await event.find({id: event_id});
-        if(foundEvent.length === 0){
-            return res.json(new Response(false,"Wrong id "));
-        }
-        const filteredEvent = foundEvent.map(({ id, name, description, location, latitude, longitude, date, format, theme}) => ({ id, name, description, location, latitude, longitude ,date, format, theme}));
-        res.json(new Response(true,"Event by id "+ event_id, filteredEvent[0]));
+        const senderDataId = req.senderData ? req.senderData.id : undefined;
+        let foundEvent = await event.getEvent(event_id,senderDataId);
+        // if(foundEvent.length === 0){
+        //     return res.json(new Response(false,"Wrong id "));
+        // }
+        res.json(new Response(true,"Event by id "+ event_id, foundEvent));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));

@@ -194,7 +194,7 @@ class Tickets_users extends Model {
 
     async check(user_id, event_id) {
         const query = `
-        SELECT ut.id, ut.session_id, ut.ticket_status
+        SELECT ut.id, ut.session_id, ut.ticket_status, t.id AS ticket_id
         FROM user_tickets ut
         JOIN tickets t ON ut.ticket_id = t.id
         WHERE ut.user_id = $1
@@ -205,10 +205,11 @@ class Tickets_users extends Model {
         try {
             const { rows } = await client.query(query, values);
             if (rows.length > 0) {
-                let data = { exists: true, ticket_id: rows[0].id };
+                let data = { exists: true, user_ticket_id: rows[0].id };
                 if (rows[0].ticket_status === 'reserved'){
                     data.ticket_status = 'reserved'
                     data.session_id = rows[0].session_id;
+                    data.ticket_id = rows[0].ticket_id
                 }
                 return data;
             } else {
@@ -224,7 +225,12 @@ class Tickets_users extends Model {
     async getAllTickets(user_id, page = 1, size = 10) {
         const offset = (page - 1) * size;
         const query = `
-            SELECT events.name, user_tickets.id AS user_ticket_id
+            SELECT events.id, events.name, user_tickets.id AS user_ticket_id, events.date, tickets.ticket_type, user_tickets.ticket_status, 
+                   user_tickets.purchase_date,
+                   CASE
+                       WHEN user_tickets.ticket_status = 'reserved' THEN user_tickets.session_id
+                       ELSE NULL
+                       END AS session_id
             FROM events
                      JOIN tickets ON events.id = tickets.event_id
                      JOIN user_tickets ON tickets.id = user_tickets.ticket_id
