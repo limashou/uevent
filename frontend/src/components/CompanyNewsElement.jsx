@@ -22,7 +22,10 @@ function CompanyNewsElement({ company_id }) {
 
     return (
         news.map((announcement) => (
-            <Announcement announcementData={announcement} />
+            <Announcement
+                key={`announcement-${announcement.id}`}
+                announcementData={announcement}
+            />
         ))
     )
 }

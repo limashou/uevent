@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
 import Requests from "../api/Requests";
-import CustomTextArea from "./inputs/CustomTextArea";
 import Button from "@mui/material/Button";
 import Comment from "./Comment";
 import Pagination from "@mui/material/Pagination";
+import CustomInputField from "./inputs/CustomInputField";
 
 function Comments({ event_id }) {
     const [comments, setComments] = useState([]);
@@ -48,11 +48,15 @@ function Comments({ event_id }) {
             {comments.map((commentData) => (
                 <Comment commentData={commentData} />
             ))}
-            <CustomTextArea
+            <CustomInputField
                 label="Message"
                 placeholder="Write smth..."
-                onChange={(value) => setOwnCommentText(value)}
             />
+            {/*<CustomTextArea*/}
+            {/*    label="Message"*/}
+            {/*    placeholder="Write smth..."*/}
+            {/*    onChange={(value) => setOwnCommentText(value)}*/}
+            {/*/>*/}
             <Button
                 variant="contained"
                 onClick={createMessage}

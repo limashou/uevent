@@ -16,7 +16,7 @@ function UserTicketCard({ ticket }) {
             {/*    "ticket_type":"common",*/}
             {/*    "price":"10.00",*/}
             {/*    "ticket_status":"bought",*/}
-            {/*    "user_name":"Ggg"}*!/*/}
+            {/*    "full_name":"Ggg"}*!/*/}
             {/*</Typography>*/}
             <Stack direction='row'>
                 <Container sx={{ display: 'flex', borderRight: "2px dashed #999", width: 200 }}>
@@ -25,7 +25,7 @@ function UserTicketCard({ ticket }) {
                         <Typography variant="h6" sx={{margin: 'auto', textTransform: 'uppercase' }}>{ticket.ticket_type}</Typography>
                         <Stack direction="row" sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                             <Person sx={{ mr: 1 }} />
-                            <Typography variant="body2">{ticket.user_name}</Typography>
+                            <Typography variant="body2">{ticket.full_name}</Typography>
                         </Stack>
                     </Stack>
 

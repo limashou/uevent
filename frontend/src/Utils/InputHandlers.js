@@ -108,3 +108,18 @@ export const TICKET_TYPES = [
     {value: 'common'},
     {value: 'VIP'},
 ];
+
+export function getRoleLabel(role_type) {
+    switch (role_type) {
+        case 'founder':
+            return 'Founder';
+        case 'editor':
+            return 'Editor';
+        case 'news_maker':
+            return 'News Maker';
+        case 'worker':
+            return 'Worker';
+        default:
+            return '';
+    }
+}

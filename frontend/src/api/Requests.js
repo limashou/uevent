@@ -1,7 +1,8 @@
 import axios from "axios";
 import {logout} from "../Utils/Utils";
 
-const ip = new URL(window.location.origin).hostname;
+// const ip = new URL(window.location.origin).hostname;
+const ip = '192.168.1.2';
 const domain = `http://${ip}:3001/api`;
 
 const axiosInstance = axios.create({
@@ -75,6 +76,10 @@ export default class Requests {
         return resp.data;
     }
 
+    static async userCompanies(user_id){
+        const resp = await axiosInstance.get(`users/${user_id}/companies`);
+        return resp.data;
+    }
     static async notifications(notification_id) {
         const queryParams = notification_id ? `?from_id=${notification_id}` : '';
         const resp = await axiosInstance.get(`users/notifications${queryParams}`);

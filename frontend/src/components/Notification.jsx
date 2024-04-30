@@ -1,7 +1,7 @@
 import {ListItem, ListItemAvatar, ListItemText, Typography} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import React from "react";
-import {formatDate} from "../Utils/Utils";
+import {formatDateRecent} from "../Utils/Utils";
 
 export function Notification({ notificationData, handleClose }) {
     return (
@@ -28,7 +28,7 @@ export function Notification({ notificationData, handleClose }) {
                             variant="body2"
                             color="text.secondary"
                         >
-                            {formatDate(new Date(notificationData.date))}
+                            {formatDateRecent(new Date(notificationData.date))}
                         </Typography>
                     </React.Fragment>
                 }

@@ -7,8 +7,9 @@ import Button from "@mui/material/Button";
 import CustomTextArea from "../../components/inputs/CustomTextArea";
 import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
 import {Stack} from "@mui/material";
-import Box from "@mui/material/Box";
 import {enqueueSnackbar} from "notistack";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
 
 function CompanyCreation() {
     //{ name, email, location, description }
@@ -50,40 +51,62 @@ function CompanyCreation() {
     }
 
     return (
-        <div className={'center-block'}>
-            <Stack direction="row" spacing={2}>
-                <CustomImageDropzone
-                    onFileSelected={(file) => setCompanyLogo(file)}
-                />
-                <Box>
-                    <CustomInputField
-                        handleInput={companyNameValidation}
-                        onChangeChecked={(key, value) => setName(value)}
-                        id="name"
-                        label="Company name"
-                        type="text"
-                    />
-                    <CustomInputField
-                        handleInput={emailValidation}
-                        onChangeChecked={(ket, value) => setEmail(value)}
-                        id="email"
-                        label="Email"
-                        type="email"
-                    />
-                    {/*<div>{JSON.stringify(locationObj)}</div>*/}
-                    <GoogleMapsInput onChange={handleLocationSelect} />
-                    <CustomTextArea
-                        onChange={(value) => setDescription(value)}
-                    />
-                </Box>
-            </Stack>
-            <Button
-                variant="contained"
-                onClick={createCompany}
-            >
-                Create Company
-            </Button>
-        </div>
+        <Container maxWidth="md">
+            <Grid container spacing={2}>
+                <Grid item xs={12} sm={3}>
+                    <Stack spacing={5}>
+                        <Grid item xs={12}>
+                            <CustomImageDropzone
+                                onFileSelected={(file) => setCompanyLogo(file)}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button
+                                sx={{
+                                    display: { xs: 'none', sm: 'flex' },
+                                }}
+                                variant="contained"
+                                onClick={createCompany}
+                            >
+                                Create Company
+                            </Button>
+                        </Grid>
+                    </Stack>
+                </Grid>
+                <Grid item xs={12} sm={9}>
+                    <Stack direction="column" spacing={2}>
+                        <CustomInputField
+                            handleInput={companyNameValidation}
+                            onChangeChecked={(key, value) => setName(value)}
+                            id="name"
+                            label="Company name"
+                            type="text"
+                        />
+                        <CustomInputField
+                            handleInput={emailValidation}
+                            onChangeChecked={(key, value) => setEmail(value)}
+                            id="email"
+                            label="Email"
+                            type="email"
+                        />
+                        {/*<div>{JSON.stringify(locationObj)}</div>*/}
+                        <GoogleMapsInput onChange={handleLocationSelect} />
+                        <CustomTextArea
+                            onChange={(value) => setDescription(value)}
+                        />
+                        <Button
+                            sx={{
+                                display: { xs: 'flex', sm: 'none' },
+                            }}
+                            variant="contained"
+                            onClick={createCompany}
+                        >
+                            Create Company
+                        </Button>
+                    </Stack>
+                </Grid>
+            </Grid>
+        </Container>
     )
 }
 

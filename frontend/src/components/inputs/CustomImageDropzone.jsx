@@ -1,9 +1,9 @@
-import { useDropzone } from "react-dropzone";
+import {useDropzone} from "react-dropzone";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
-import { useState } from "react";
+import {useState} from "react";
 
-function CustomImageDropzone({ imageLink = '', onFileSelected }) {
+function CustomImageDropzone({ imageLink = '', onFileSelected, alt= 'Drop logo here' }) {
     const [imageSrc, setImageSrc] = useState(imageLink);
 
     const { getRootProps, getInputProps } = useDropzone({
@@ -36,7 +36,7 @@ function CustomImageDropzone({ imageLink = '', onFileSelected }) {
                 src={imageSrc}
                 sx={{ width: 150, height: 150 }}
             >
-                {!imageSrc && 'Drop logo here'}
+                {imageSrc || alt}
             </Avatar>
         </Box>
     );

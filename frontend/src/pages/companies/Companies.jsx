@@ -7,10 +7,11 @@ import Button from "@mui/material/Button";
 import CompanyMini from "../../components/CompanyMini";
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
-import Skeleton from '@mui/material/Skeleton';
 
 import {debounce} from 'lodash';
 import {FounderSearch} from "../../components/inputs/FounderSearch";
+import Grid from "@mui/material/Grid";
+import CompanyMiniSkeleton from "../../components/skeletons/CompanyMiniSkeleton";
 
 function Companies() {
     const [companies, setCompanies] = useState([]);
@@ -41,13 +42,13 @@ function Companies() {
             if (page > totalPages)
                 setPage(1);
         }
-        setLoading(false); // Установка состояния загрузки после получения данных
-    }, 1000); // Задержка в 2000 миллисекунд (2 секунды)
+        setLoading(false);
+    }, 1000);
 
     useEffect(() => {
         setLoading(true);
         debouncedFetchData();
-        return debouncedFetchData.cancel; // Отмена предыдущего вызова debouncedFetchData при изменении page или searchValue
+        return debouncedFetchData.cancel;
     }, [page, searchValue, founderIdFilter]);
 
     const handlePageChange = (event, value) => {
@@ -59,60 +60,52 @@ function Companies() {
     };
 
     return (
-        <div className="few-blocks">
-            <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Link to="/companies/creation">
-                    <Button variant="outlined">
-                        Create company
-                    </Button>
-                </Link>
-                {/*<CustomSelector label="Founder" options={founders} onChange={(value) => {*/}
-                {/*    setFounderIdFilter(value);*/}
-                {/*}} />*/}
-                <FounderSearch handleIdSelect={setFounderIdFilter} />
-            </Container>
-            <Container>
-                <Container sx={{ display: 'flex' }}>
-                    <CustomSearch value={searchValue} options={searchOptions} handleSearchChange={handleSearchChange} />
-                </Container>
-                <Container maxWidth="xl">
-                    {loading ? ( // Отображение скелетона во время загрузки
-                        Array.from({ length: ONE_PAGE_LIMIT }).map((_, index) => (
-                            <Container key={index}
-                                       sx={{ height: '175px', display: 'flex',
-                                           alignItems: 'center', gap: 2, p: 2,
-                                           boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.2)",
-                                       }}
-                            >
-                                <Skeleton variant="circular" width={100} height={100} />
-                                <Container sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                                    <Skeleton variant="text" width="40%" height={40} />
-                                    <Skeleton variant="text" width="80%" height={20} />
-                                    <Skeleton variant="text" width="70%" height={20} />
-                                    <Skeleton variant="text" width="90%" height={20} />
-                                    <Skeleton variant="text" width="50%" height={20} />
-                                </Container>
-                            </Container>
-                        ))
-                    ) : (
-                        companies.map(company => (
-                            <CompanyMini companyData={company} key={company.id} />
-                        ))
-                    )}
-                </Container>
-            </Container>
-            <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Stack direction="row" spacing={2} justifyContent="center">
-                    <Pagination
-                        size="small"
-                        count={totalPages}
-                        page={page}
-                        onChange={handlePageChange}
-                        color="primary"
-                    />
+        <Grid container spacing={1}>
+            <Grid item xs={12} md={2}>
+                <Stack direction="column" gap={2}>
+                    <Link to="/companies/creation">
+                        <Button sx={{width: '100%'}} variant="outlined">
+                            Create company
+                        </Button>
+                    </Link>
+                    <FounderSearch handleIdSelect={setFounderIdFilter} />
                 </Stack>
-            </Container>
-        </div>
+            </Grid>
+            <Grid item xs={12} md={8}>
+                <Container>
+                    <Container sx={{ display: 'flex' }}>
+                        <CustomSearch value={searchValue} options={searchOptions} handleSearchChange={handleSearchChange} />
+                    </Container>
+                    <Container maxWidth="xl">
+                        {loading ? (
+                            Array.from({ length: ONE_PAGE_LIMIT }).map((_, index) => (
+                                <CompanyMiniSkeleton key={index} />
+                            ))
+                        ) : (
+                            companies.map(company => (
+                                <CompanyMini
+                                    companyData={company}
+                                    key={company.id}
+                                />
+                            ))
+                        )}
+                    </Container>
+                </Container>
+            </Grid>
+            <Grid item xs={12} md={2}>
+                <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Stack direction="row" spacing={2} justifyContent="center">
+                        <Pagination
+                            size="small"
+                            count={totalPages}
+                            page={page}
+                            onChange={handlePageChange}
+                            color="primary"
+                        />
+                    </Stack>
+                </Container>
+            </Grid>
+        </Grid>
     )
 }
 

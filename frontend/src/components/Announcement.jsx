@@ -1,4 +1,3 @@
-import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
@@ -19,7 +18,6 @@ export function Announcement({ announcementData }) {
 
     return (
         <Container maxWidth="md"
-                   key={`announcement-${announcementData.id}`}
                    sx={{
                        padding: "20px",
                        borderRadius: "10px",

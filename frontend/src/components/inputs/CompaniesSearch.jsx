@@ -63,7 +63,7 @@ export function CompaniesSearch({handleIdSelect = (company_id) => {}}) {
                 value={companiesSearch}
                 options={companiesSearchOptions.map(({name}) => name)}
                 handleSearchChange={handleCompaniesSearchChange}
-                label="company search"
+                label="Search for company"
             />
         </>
     )

@@ -1,16 +1,17 @@
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import DescriptionIcon from '@mui/icons-material/Description';
+import PinDropIcon from '@mui/icons-material/PinDrop';
+import GroupIcon from '@mui/icons-material/Group';
 import Requests from "../api/Requests";
 import {Link} from "react-router-dom";
 import {Stack} from "@mui/material";
+import Divider from "@mui/material/Divider";
+import {formatDate} from "../Utils/Utils";
 
 function CompanyMini({ companyData }) {
     return (
         <Container
-            key={companyData.id}
             maxWidth="md"
             sx={{
                 padding: "20px",
@@ -24,38 +25,44 @@ function CompanyMini({ companyData }) {
                     src={Requests.get_company_logo_link(companyData.id)}
                     sx={{ width: 100, height: 100 }}
                 />
-                <Container sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <Link to={`/companies/${companyData.id}`}>
-                        <Typography variant="h4" component="div" sx={{ textAlign: 'left',
-                            fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 'bold' }}>
+                <Stack direction="column" sx={{display: 'flex', width: '100%', textAlign: 'center'}}>
+                    <Link to={`/companies/${companyData.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Typography variant="h3" sx={{ fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 'bold' }}>
                             {companyData.name}
                         </Typography>
                     </Link>
-                    {companyData.description &&
-                        <Container sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <DescriptionIcon />
-                            <Typography variant="p" component="div">
-                                {companyData.description}
-                            </Typography>
-                        </Container>
-                    }
-                    <Container sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <LocationOnIcon />
-                        <Typography variant="p" component="div">
-                            {companyData.location}
-                        </Typography>
-                    </Container>
-                    <Container sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Divider/>
+                    <Typography variant="body1" sx={{mb: 1}}>
+                        {companyData.description}
+                    </Typography>
+                    <Container sx={{ display: 'flex', gap: 1 }}>
                         <Avatar
                             alt={companyData.founder_name}
                             src={Requests.get_avatar_link(companyData.founder_id)}
                             sx={{ width: 24, height: 24 }}
                         />
-                        <Typography variant="p" component="div">
-                            {companyData.founder_name}
+                        <Typography variant="body1" component="div">
+                            {`${companyData.founder_name}`}
                         </Typography>
                     </Container>
-                </Container>
+                    <Container sx={{ display: 'flex', gap: 1 }}>
+                        <GroupIcon />
+                        <Typography variant="body1" component="div">
+                            {companyData.members ? companyData.members.length + 1 : 1}
+                        </Typography>
+                    </Container>
+                    <Container sx={{ display: 'flex', gap: 1 }}>
+                        <PinDropIcon />
+                        <Typography variant="body1" component="div">
+                            {companyData.location}
+                        </Typography>
+                    </Container>
+                    <Container sx={{ display: 'flex', gap: 1, justifyContent: 'right' }}>
+                        <Typography variant="body1" sx={{ opacity: 0.8 }}>
+                            {`${formatDate(companyData.creation_day)}`}
+                        </Typography>
+                    </Container>
+                </Stack>
             </Stack>
         </Container>
     )

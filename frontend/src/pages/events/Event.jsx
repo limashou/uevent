@@ -14,6 +14,8 @@ import TicketCreationDialog from "../../components/dialogs/TicketCreationDialog"
 import TicketElement from "../../components/TicketElement";
 import Grid from "@mui/material/Grid";
 import UserTicketDialog from "../../components/dialogs/UserTicketDialog";
+import Button from "@mui/material/Button";
+import {continueBuyTicket} from "../../Utils/Utils";
 
 function Event() {
     const { event_id} = useParams();
@@ -35,7 +37,7 @@ function Event() {
 
     return (
         <>
-            <Container maxWidth="md" className={'center-block'}>
+            <Container maxWidth="md">
                 <Stack spacing={2} alignItems="center">
                     <Container sx={{display: 'flex', justifyContent: 'space-between'}}>
                         <Avatar
@@ -43,7 +45,7 @@ function Event() {
                             src={Requests.get_event_poster_link(eventData.id)}
                             sx={{ width: 150, height: 150 }}
                         >{eventData.name}</Avatar>
-                        <Stack justifyContent="center">
+                        <Stack justifyContent="center" textAlign="center">
                             <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
                                 {eventData.name}
                             </Typography>
@@ -79,8 +81,13 @@ function Event() {
                                 <div>
                                     {ticketsInfo?.buyStatus?.exists === true &&
                                         <>
-                                            <div>{ticketsInfo.buyStatus.message}</div>
-                                            <UserTicketDialog user_ticket_id={ticketsInfo.buyStatus.data.ticket_id} />
+                                            {ticketsInfo.buyStatus.data.ticket_status === 'reserved' ? (
+                                                <Button onClick={() => {
+                                                    continueBuyTicket(ticketsInfo.buyStatus.data.session_id);
+                                                }}>Continue payment</Button>
+                                            ) : (
+                                                <UserTicketDialog user_ticket_id={ticketsInfo.buyStatus.data.ticket_id} />
+                                            )}
                                         </>
                                     }
                                     {ticketsInfo?.tickets && (

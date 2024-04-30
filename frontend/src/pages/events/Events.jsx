@@ -11,6 +11,7 @@ import CustomInputField from "../../components/inputs/CustomInputField";
 import CustomMultiSelect from "../../components/inputs/CustomMultiSelect";
 import {FORMATS, THEMES} from "../../Utils/InputHandlers";
 import {CompaniesSearch} from "../../components/inputs/CompaniesSearch";
+import Grid from "@mui/material/Grid";
 
 function Events() {
     const [events, setEvents] = useState([]);
@@ -78,72 +79,78 @@ function Events() {
     };
 
     return (
-        <div className="few-blocks">
-            <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <CustomInputField
-                    onChangeChecked={(key, value) => setDateFrom(value)}
-                    id="eventDateFrom"
-                    label="Date from"
-                    type="datetime-local"
-                    InputLabelProps={{ shrink: true }}
-                />
-                <CustomInputField
-                    onChangeChecked={(key, value) => setDateTo(value)}
-                    id="eventDateTo"
-                    label="Date to"
-                    type="datetime-local"
-                    InputLabelProps={{ shrink: true }}
-                />
-                <CustomMultiSelect options={FORMATS} label="Formats" onChange={(values) => {
-                    setFormatsFilter(values.map(({value}) => value));
-                }} />
-                <CustomMultiSelect options={THEMES} label="Themes" onChange={(values) => {
-                    setThemesFilter(values.map(({value}) => value));
-                }} />
-                <CompaniesSearch handleIdSelect={setCompanyIdFilter} />
-            </Container>
-            <Container>
-                <Container sx={{ display: 'flex' }}>
-                    <CustomSearch value={searchValue} options={searchOptions} handleSearchChange={handleSearchChange} />
-                </Container>
-                <Container maxWidth="xl">
-                    {loading ? ( // Отображение скелетона во время загрузки
-                        Array.from({ length: ONE_PAGE_LIMIT }).map((_, index) => (
-                            <Container key={index}
-                                       sx={{ height: '175px', display: 'flex',
-                                           alignItems: 'center',
-                                           boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.2)",
-                                       }}
-                            >
-                                <Skeleton variant="circular" width={100} height={100} />
-                                <Container sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                                    <Skeleton variant="text" width="40%" height={40} />
-                                    <Skeleton variant="text" width="80%" height={20} />
-                                    <Skeleton variant="text" width="70%" height={20} />
-                                    <Skeleton variant="text" width="90%" height={20} />
-                                    <Skeleton variant="text" width="50%" height={20} />
-                                </Container>
-                            </Container>
-                        ))
-                    ) : (
-                        events.map(event => (
-                            <EventMini eventData={event} />
-                        ))
-                    )}
-                </Container>
-            </Container>
-            <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Stack direction="row" spacing={2} justifyContent="center">
-                    <Pagination
-                        size="small"
-                        count={totalPages}
-                        page={page}
-                        onChange={handlePageChange}
-                        color="primary"
+        <Grid container spacing={1}>
+            <Grid item xs={12} md={2}>
+                <Stack direction="column" gap={2}>
+                    <CompaniesSearch handleIdSelect={setCompanyIdFilter} />
+                    <CustomMultiSelect options={FORMATS} label="Formats" onChange={(values) => {
+                        setFormatsFilter(values.map(({value}) => value));
+                    }} />
+                    <CustomMultiSelect options={THEMES} label="Themes" onChange={(values) => {
+                        setThemesFilter(values.map(({value}) => value));
+                    }} />
+                    <CustomInputField
+                        onChangeChecked={(key, value) => setDateFrom(value)}
+                        id="eventDateFrom"
+                        label="Date from"
+                        type="datetime-local"
+                        InputLabelProps={{ shrink: true }}
+                    />
+                    <CustomInputField
+                        onChangeChecked={(key, value) => setDateTo(value)}
+                        id="eventDateTo"
+                        label="Date to"
+                        type="datetime-local"
+                        InputLabelProps={{ shrink: true }}
                     />
                 </Stack>
-            </Container>
-        </div>
+            </Grid>
+            <Grid item xs={12} md={8}>
+                <Container>
+                    <Container sx={{ display: 'flex' }}>
+                        <CustomSearch value={searchValue} options={searchOptions} handleSearchChange={handleSearchChange} />
+                    </Container>
+                    <Container maxWidth="xl">
+                        {loading ? ( // Отображение скелетона во время загрузки
+                            Array.from({ length: ONE_PAGE_LIMIT }).map((_, index) => (
+                                <Container key={index}
+                                           sx={{ height: '175px', display: 'flex',
+                                               alignItems: 'center',
+                                               boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.2)",
+                                           }}
+                                >
+                                    <Skeleton variant="circular" width={100} height={100} />
+                                    <Container sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                        <Skeleton variant="text" width="40%" height={40} />
+                                        <Skeleton variant="text" width="80%" height={20} />
+                                        <Skeleton variant="text" width="70%" height={20} />
+                                        <Skeleton variant="text" width="90%" height={20} />
+                                        <Skeleton variant="text" width="50%" height={20} />
+                                    </Container>
+                                </Container>
+                            ))
+                        ) : (
+                            events.map(event => (
+                                <EventMini eventData={event} />
+                            ))
+                        )}
+                    </Container>
+                </Container>
+            </Grid>
+            <Grid item xs={12} md={2}>
+                <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Stack direction="row" spacing={2} justifyContent="center">
+                        <Pagination
+                            size="small"
+                            count={totalPages}
+                            page={page}
+                            onChange={handlePageChange}
+                            color="primary"
+                        />
+                    </Stack>
+                </Container>
+            </Grid>
+        </Grid>
     )
 }
 

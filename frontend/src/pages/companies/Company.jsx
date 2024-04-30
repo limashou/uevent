@@ -52,13 +52,12 @@ function Company() {
     if (permissions.event_creation)
         menuOptions.push(<Link to={`/companies/${company_id}/eventCreation`}>Create event</Link>)
 
-    // Проверяем, есть ли данные и они загружены
     if (!companyData || loading) {
         return <div>Loading...</div>;
     }
 
     return (
-        <Container maxWidth="md" className={'center-block'}>
+        <Container maxWidth="md">
             <Stack spacing={2}>
                 <Container sx={{display: 'flex', justifyContent: 'space-between'}}>
                     <Avatar

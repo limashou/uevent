@@ -75,7 +75,7 @@ async function getById(req,res){
     }
 }
 
-async function getPlace(req,res){
+async function getUserCompanies(req, res){
     try {
         const { user_id } = req.params;
         const cId = user_id === 'me' ? req.senderData?.id : Number.parseInt(user_id);
@@ -218,5 +218,5 @@ module.exports = {
     findByFullName,
     getNotification,
     getTickets,
-    getPlace
+    getUserCompanies
 }

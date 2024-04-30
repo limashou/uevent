@@ -1,5 +1,6 @@
 import Requests from "../api/Requests";
 import {enqueueSnackbar} from "notistack";
+import {loadStripe} from "@stripe/stripe-js";
 
 export function hexToRgba(hex, alpha = 1) {
     const hexColor = hex.replace(/^#/, '');
@@ -26,7 +27,7 @@ export function customAlert(text, variant = 'info') {
     enqueueSnackbar(text, { variant, anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
 }
 
-export function formatDate(date) {
+export function formatDateRecent(date) {
     const now = new Date();
     const diff = Math.floor((now - date) / 1000); // разница в секундах
 
@@ -53,3 +54,23 @@ export function formatDate(date) {
     }
     return date.toLocaleString(undefined, options);
 }
+
+export function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString('en-GB', { month: 'short' });
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+}
+
+export async function continueBuyTicket(sessionId) {
+    try {
+        const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+        await stripe.redirectToCheckout({
+            sessionId: sessionId
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+

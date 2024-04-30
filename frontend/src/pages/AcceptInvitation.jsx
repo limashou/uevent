@@ -8,7 +8,7 @@ import {enqueueSnackbar} from "notistack";
 
 function AcceptInvitation() {
     const { invitationCode } = useParams();
-    const [loading, setLoading] = useState(true); // Добавлено состояние для индикатора загрузки
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const acceptInvite = async () => {

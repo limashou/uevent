@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {Card, CardContent, Typography} from '@mui/material';
 import Requests from "../api/Requests";
 import Button from "@mui/material/Button";
-import {loadStripe} from "@stripe/stripe-js";
 
 function TicketElement({ ticketData, buyDisabled = true }) {
     const { id, ticket_type, price, available_tickets, status, event_id } = ticketData;
@@ -21,10 +20,11 @@ function TicketElement({ ticketData, buyDisabled = true }) {
                 setProcessing(false);
                 return;
             }
-            const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-            await stripe.redirectToCheckout({
-                sessionId: resp.data.sessionId
-            });
+            // TODO: включи
+            // const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+            // await stripe.redirectToCheckout({
+            //     sessionId: resp.data.sessionId
+            // });
             setProcessing(false);
         } catch (e) {
             console.error(e);
