@@ -75,6 +75,25 @@ async function getById(req,res){
     }
 }
 
+async function getPlace(req,res){
+    try {
+        const { user_id } = req.params;
+        const cId = user_id === 'me' ? req.senderData?.id : Number.parseInt(user_id);
+        const foundUser = await new User().find({ id: cId });
+        if (foundUser.length === 0) {
+            return NOT_FOUND_ERROR(res, 'User');
+        }
+        const place = await new User().userCompanies(foundUser[0].id);
+        if(place.length === 0) {
+            return res.json(new Response(true,"not work anywhere"));
+        }
+        res.json(new Response(true,"place",place));
+    } catch (error) {
+        console.log(error);
+        res.status(500).json(new Response(false, "Internal server error"));
+    }
+}
+
 async function userAvatar(req, res) {
     const user_id = req.params.user_id;
     let user = new User();
@@ -107,6 +126,7 @@ async function findByFullName(req,res) {
         res.json(new Response(false,error.toString()));
     }
 }
+
 async function avatarUpload(req, res) {
     if (!req.file) {
         return res.json(new Response(false, 'Ошибка загрузки файла!'));
@@ -148,7 +168,6 @@ async function getNotification(req, res) {
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"Unauthorized. Please log in."))
         }
-        //TODO: валидация как число и больше 0 (или параметра может не быть)
         const { from_id } = req.query;
         let from_notification_id = Number.parseInt(from_id);
         if (!from_notification_id){
@@ -198,5 +217,6 @@ module.exports = {
     updateUser,
     findByFullName,
     getNotification,
-    getTickets
+    getTickets,
+    getPlace
 }

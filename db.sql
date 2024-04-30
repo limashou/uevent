@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(70) NOT NULL,
     photo VARCHAR(256) NOT NULL DEFAULT 'default.png',
     email VARCHAR(256) NOT NULL UNIQUE,
+    show_email BOOLEAN DEFAULT FALSE,
     full_name VARCHAR(60) NOT NULL,
     last_read_notification INTEGER DEFAULT NULL
 
@@ -28,7 +29,7 @@ CREATE TABLE IF NOT EXISTS companies(
     longitude DECIMAL(10, 6),
     description TEXT,
     photo VARCHAR(256),
-    founder_id INTEGER NOT NULL,
+    founder_id INTEGER UNIQUE NOT NULL,
     creation_day TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     last_read_notification INTEGER DEFAULT 0,
     CONSTRAINT fk_user_id FOREIGN KEY (founder_id) REFERENCES users(id) ON DELETE CASCADE
@@ -46,8 +47,9 @@ CREATE TABLE IF NOT EXISTS company_roles(
 CREATE TABLE IF NOT EXISTS company_members(
     id SERIAL PRIMARY KEY,
     company_id INTEGER NOT NULL,
-    member_id INTEGER NOT NULL,
+    member_id INTEGER UNIQUE NOT NULL,
     role_id INTEGER NOT NULL ,
+    worked_from TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_company_id FOREIGN KEY (company_id) REFERENCES  companies(id) ON DELETE CASCADE,
     CONSTRAINT fk_user_id FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_role_id FOREIGN KEY (role_id) REFERENCES company_roles(id) ON DELETE CASCADE
@@ -151,6 +153,13 @@ CREATE TABLE IF NOT EXISTS event_comments(
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS promo_codes(
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(20),
+    event_id INTEGER NOT NULL,
+    CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
 );
 
 DO $$

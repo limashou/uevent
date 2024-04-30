@@ -33,7 +33,7 @@ async function getLocationData(address) {
                 input: address,
                 inputtype: 'textquery',
                 fields: 'formatted_address,name,geometry',
-                key: 'AIzaSyBiLO8sTBOT-joj93cqKKMXdfP8ZM5BeUM'
+                key: '-'
             }
         });
 

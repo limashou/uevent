@@ -42,6 +42,33 @@ class Users extends Model{
             throw error;
         }
     }
+
+    async userCompanies(user_id) {
+        const query = `
+        SELECT
+            companies.id AS company_id,
+            companies.name,
+            CASE 
+                WHEN companies.founder_id = $1 THEN 'founder'
+                ELSE company_roles.role_name 
+            END AS role,
+            company_members.worked_from
+        FROM companies
+        LEFT JOIN company_members ON companies.id = company_members.company_id
+        LEFT JOIN company_roles ON company_members.role_id = company_roles.id
+        WHERE companies.founder_id = $1 OR company_members.member_id = $1
+    `;
+
+        const values = [user_id];
+
+        try {
+            const { rows } = await client.query(query, values);
+            return rows;
+        } catch (error) {
+            console.error("Error in userCompanies:", error);
+            throw error;
+        }
+    }
 }
 
 module.exports = Users;

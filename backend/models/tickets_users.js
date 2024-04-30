@@ -82,12 +82,14 @@ class Tickets_users extends Model {
             'events.id AS event_id',
             'events.name',
             'events.date',
+            'events.location',
             'events.format',
             'events.theme',
             'tickets.ticket_type',
             'tickets.price',
             'user_tickets.ticket_status',
-            'CASE WHEN user_tickets.show_username THEN users.full_name ELSE \'visitor\' END AS user_name'
+            'users.full_name'
+            // 'CASE WHEN user_tickets.show_username THEN users.full_name ELSE \'visitor\' END AS user_name'
         ];
         const query = `
             SELECT ${selectColumns.join(', ')}

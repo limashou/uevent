@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body, query } = require('express-validator');
 const Users = require('../models/users');
 
 const registrationValidationChain = [
@@ -78,8 +78,16 @@ const editProfileValidationChain = [
         .withMessage('Full name must be a string')
 ];
 
+const queryValidationChain = [
+    query('from_id')
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage('from_id must be a positive integer')
+];
+
 module.exports = {
     editProfileValidationChain,
     loginValidationChain,
-    registrationValidationChain
+    registrationValidationChain,
+    queryValidationChain
 }
