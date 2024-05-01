@@ -59,6 +59,7 @@ class Events extends Model {
                 SELECT events.id,
                        events.name,
                        companies.name AS company_name,
+                       events.company_id,
                        events.description,
                        events.location,
                        events.latitude,
@@ -67,7 +68,7 @@ class Events extends Model {
                        events.format,
                        events.theme
                 FROM events
-                JOIN companies on companies.id = events.company_id
+                         JOIN companies on companies.id = events.company_id
                 WHERE events.id = $1;
             `;
             const eventsValues = [event_id];
@@ -92,29 +93,46 @@ class Events extends Model {
                            jsonb_build_object(
                                    'permissions', jsonb_build_object(
                                    'event_creation', CASE
-                                                         WHEN u.id = (SELECT founder_id FROM companies WHERE id = $2)
+                                                         WHEN u.id = (SELECT founder_id
+                                                                      FROM companies
+                                                                      WHERE id = (SELECT company_id
+                                                                                  FROM events
+                                                                                  WHERE id = $2))
                                                              THEN true
                                                          ELSE COALESCE(cr.event_creation, false)
                                        END,
                                    'company_edit', CASE
-                                                       WHEN u.id = (SELECT founder_id FROM companies WHERE id = $2)
+                                                       WHEN u.id = (SELECT founder_id
+                                                                    FROM companies
+                                                                    WHERE id = (SELECT company_id
+                                                                                FROM events
+                                                                                WHERE id = $2))
                                                            THEN true
                                                        ELSE COALESCE(cr.company_edit, false)
                                        END,
                                    'news_creation', CASE
-                                                        WHEN u.id = (SELECT founder_id FROM companies WHERE id = $2)
+                                                        WHEN u.id = (SELECT founder_id
+                                                                     FROM companies
+                                                                     WHERE id = (SELECT company_id
+                                                                                 FROM events
+                                                                                 WHERE id = $2))
                                                             THEN true
                                                         ELSE COALESCE(cr.news_creation, false)
                                        END,
                                    'eject_members', CASE
-                                                        WHEN u.id = (SELECT founder_id FROM companies WHERE id = $2)
+                                                        WHEN u.id = (SELECT founder_id
+                                                                     FROM companies
+                                                                     WHERE id = (SELECT company_id
+                                                                                 FROM events
+                                                                                 WHERE id = $2))
                                                             THEN true
                                                         ELSE COALESCE(cr.eject_members, false)
                                        END
                                ),
                                    'data', (SELECT jsonb_build_object(
-                                                          'id', events.id,
+                                                           'id', events.id,
                                                            'company_name', c.name,
+                                                            'company_id', c.id,
                                                            'name', events.name,
                                                            'description', events.description,
                                                            'location', events.location,
@@ -125,12 +143,14 @@ class Events extends Model {
                                                            'theme', events.theme
                                                        )
                                             FROM events
-                                            JOIN companies c on c.id = events.company_id
+                                                     JOIN companies c on c.id = events.company_id
                                             WHERE events.id = $2)
                                )
                        ) AS response
             FROM users u
-                     LEFT JOIN company_members cm ON u.id = cm.member_id AND cm.company_id = $2
+                     LEFT JOIN company_members cm ON u.id = cm.member_id AND cm.company_id = (SELECT company_id
+                                                                                              FROM events
+                                                                                              WHERE id = $2)
                      LEFT JOIN company_roles cr ON cm.role_id = cr.id
             WHERE u.id = $1;
         `;

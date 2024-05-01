@@ -360,8 +360,14 @@ async function allComments(req,res){
 async function generatePromoCode(req,res){
     try {
         const { event_id } = req.params;
+        if(req.senderData.id === undefined){
+            return res.json(new Response(false, "You need authorize for this action"));
+        }
+        if(!(await new Events().havePermission((await new Events().find({id: event_id}))[0].company_id, req.senderData.id))) {
+            return res.json(new Response(false,"Not enough permission"));
+        }
         const { discount, discount_type, valid_to } = req.body;
-        const newPromoCode = await new Promo_code().code(generateCode(),discount, discount_type,event_id,valid_to);
+        const newPromoCode = await new Promo_code().code(generateCode(),discount, discount_type, event_id, valid_to);
         res.json(new Response(true,"New promo code",newPromoCode));
     } catch (error) {
         console.error(error);
@@ -385,4 +391,5 @@ module.exports = {
     deleteComment,
     allComments,
     //promo code
+    generatePromoCode
 }
