@@ -9,7 +9,7 @@ const {eventValidationChain} = require("../validators/events");
 const {ticketValidationChain} = require("../validators/tickets");
 
 //event
-router.patch('/:event_id/edit',eventValidationChain, validateRequest, events_controller.editEvent);
+router.patch('/:event_id/edit',eventEditValidationChain, validateRequest, events_controller.editEvent);
 router.delete('/:event_id/delete', events_controller.deleteEvent);
 router.get('/:event_id/poster',events_controller.eventPoster);
 router.patch('/:event_id/upload', uploadEvent.single('photo'), events_controller.eventPosterUpload);
