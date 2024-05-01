@@ -3,6 +3,7 @@ const Model = require("../models/model");
 
 const eventValidationChain = [
     body('name')
+        .optional()
         .trim()
         .isString()
         .isLength({min: 3, max: 70})
