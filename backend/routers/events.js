@@ -28,5 +28,6 @@ router.get('/:event_id/visitors', ticket.getUsers);
 
 //promo code
 router.post('/:event_id/promo_code', events_controller.generatePromoCode);
+router.post('/:event_id/promocodes/:promoCode',ticket.promoCode);
 
 module.exports = router;

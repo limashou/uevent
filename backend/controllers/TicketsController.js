@@ -236,12 +236,27 @@ async function buyTicket(req, res){
     }
 }
 
+function isPromoCodeValid(valid_from,valid_to) {
+    const now = new Date();
+    const validFrom = new Date(valid_from);
+    const validTo = new Date(valid_to);
+
+    return now >= validFrom && now <= validTo;
+}
+
 async function promoCode(req,res){
     try {
-        const { event_id, promoCode } = req.params;
+        const { event_id ,promoCode } = req.params;
         const promo = await new Promo_code().find({ code: promoCode });
-        if(promo.length === 0 || promoCode !== promo[0].code){
+        if( promo.length === 0 || promoCode !== promo[0].code){
             return res.json(new Response(false,"Wrong promo code"));
+        }
+        if(promo[0].event_id !== Number.parseInt(event_id)) {
+            return res.json(new Response(false,"Not for this event promo code"));
+        }
+        const isAvailable = isPromoCodeValid(promo[0].valid_from, promo[0].valid_to);
+        if (!isAvailable) {
+            return res.json(new Response(false,"Promo code is not currently valid."));
         }
         res.json(new Response(true,null, { discount_type: promo[0].discount_type, discount: promo[0].discount }));
     } catch (error) {
@@ -358,5 +373,6 @@ module.exports = {
     cancelTicket,
     informationByTicket,
     getUsers,
-    reservedTicket
+    reservedTicket,
+    promoCode
 }
