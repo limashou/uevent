@@ -389,7 +389,7 @@ async function createNews(req,res){
         const newsSubscription = await notification.isNews(company_id);
         const result = await company_news.crate(company_id, title, content);
         if (newsSubscription) {
-            const newNotification = await notification.notification("The " + newsSubscription.name + " has some new news",
+            const newNotification = await notification.notification("The " + newsSubscription[0].name + " has some new news",
                 "There is a new news item on the company page titled: " + title + ".",
                 "/api/companies/" + company_id + "/news/" + result)
             for (const newsSubscriptionElement of newsSubscription) {

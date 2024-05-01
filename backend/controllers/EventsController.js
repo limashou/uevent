@@ -26,8 +26,8 @@ async function createEvent(req,res){
         let bdNotification = new Notification();
         const eventsSubscription = await bdNotification.isNewEvents(company_id);
         if (eventsSubscription) {
-            const newNotification = await bdNotification.notification("The " + eventsSubscription.name + " has some new events",
-                "The " + eventsSubscription.name + " has created a new event: " + name + ".",
+            const newNotification = await bdNotification.notification("The " + eventsSubscription[0].name + " has some new events",
+                "The " + eventsSubscription[0].name + " has created a new event: " + name + ".",
                 "/api/events/" + company_id + "/byId/" + result)
             for (const eventsSubscriptionElement of eventsSubscription) {
                 await new UserNotification().notification(eventsSubscriptionElement.user_subscribe_id, newNotification)
@@ -63,8 +63,8 @@ async function editEvent(req,res){
         const editSubscription = await bdNotification.isUpdateEvents(foundEvent[0].company_id);
         if (editSubscription) {
             const newNotification = await bdNotification.notification(
-                "The " + editSubscription.name + " complemented the event.",
-                "The " + editSubscription.name + " has complemented the event: " + name + ".",
+                "The " + editSubscription[0].name + " complemented the event.",
+                "The " + editSubscription[0].name + " has complemented the event: " + name + ".",
                 "/api/events/" + foundEvent[0].company_id + "/byId/" + foundEvent[0].id)
             for (const editSubscriptionElement of editSubscription) {
                 await new UserNotification().notification(editSubscriptionElement.user_subscribe_id, newNotification)
