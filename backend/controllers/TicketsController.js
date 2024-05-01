@@ -253,7 +253,10 @@ async function reservedTicket(req,res){
         if (promo_code !== undefined) {
             let discounted_price;
             const promo = await new Promo_code().find({ code: promo_code });
-            if (promo.length > 0 && promo[0].event_id === inf[0].event_id) {
+            if(promo.length === 0 || promo_code !== promo[0].code){
+                return res.json(new Response(false,"Wrong promo code"));
+            }
+            if (promo[0].event_id === inf[0].event_id) {
                 if (promo[0].discount_type === 'fixed_amount') {
                     const discount_amount = promo[0].discount;
                     discounted_price = inf[0].price - discount_amount;
@@ -262,7 +265,7 @@ async function reservedTicket(req,res){
                     const discount_amount = (discount_percent / 100) * inf[0].price;
                     discounted_price = inf[0].price - discount_amount;
                 }
-                inf[0].price = Math.max(0, discounted_price);
+                inf[0].price = Math.max(0.01, discounted_price);
             }
         }
         console.log(inf[0].price);
