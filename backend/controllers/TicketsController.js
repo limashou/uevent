@@ -270,14 +270,14 @@ async function reservedTicket(req,res){
         }
         console.log(inf[0].price);
         const sessionId =
-            "dfdfdfdf";
-        //     await createPaymentIntent(
-        //         `${inf[0].ticket_type} ticket`,
-        //         `For event ${inf[0].name}`,
-        //         inf[0].price,
-        //         successUrl,
-        //         cancelUrl
-        // );
+            // "dfdfdfdf";
+            await createPaymentIntent(
+                `${inf[0].ticket_type} ticket`,
+                `For event ${inf[0].name}`,
+                inf[0].price,
+                successUrl,
+                cancelUrl
+        );
         if (sessionId === undefined){
             return res.json(new Response(false, 'Error creating checkout session'));
         }
