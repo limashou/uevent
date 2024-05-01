@@ -201,7 +201,6 @@ async function buyTicket(req, res){
             return res.json(new Response(false, "Empty body"));
         }
         const { ticket_id } = req.params;
-        const {show_username } = req.body;
         const ticketUser = new TicketsUsers();
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"You need to authorize for buy or reserved ticket"))
@@ -219,7 +218,6 @@ async function buyTicket(req, res){
         await ticketUser.updateById({
             id: result[0].id,
             ticket_status: 'bought',
-            show_username: show_username,
             purchase_date: new Date().toISOString(),
         })
         if(await ticketUser.isNotificationEnabled(ticket_id)) {
@@ -238,10 +236,24 @@ async function buyTicket(req, res){
     }
 }
 
+async function promoCode(req,res){
+    try {
+        const { event_id, promoCode } = req.params;
+        const promo = await new Promo_code().find({ code: promoCode });
+        if(promo.length === 0 || promoCode !== promo[0].code){
+            return res.json(new Response(false,"Wrong promo code"));
+        }
+        res.json(new Response(true,null, { discount_type: promo[0].discount_type, discount: promo[0].discount }));
+    } catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
+
 async function reservedTicket(req,res){
     try {
         const { ticket_id } = req.params;
-        const { successUrl, cancelUrl , promo_code} = req.body;
+        const { successUrl, cancelUrl , promo_code, show_username} = req.body;
         const ticketUser = new TicketsUsers();
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"You need to authorize for buy or reserved ticket"))
@@ -281,7 +293,7 @@ async function reservedTicket(req,res){
         if (sessionId === undefined){
             return res.json(new Response(false, 'Error creating checkout session'));
         }
-        const userTicketId = await ticketUser.buy('reserved', req.senderData.id, ticket_id, false, sessionId);
+        const userTicketId = await ticketUser.buy('reserved', req.senderData.id, ticket_id, show_username, sessionId);
         res.json(new Response(true, "Ticket reserved successfully", {id: userTicketId, sessionId: sessionId}));
     } catch (error) {
         console.error(error);
