@@ -56,17 +56,19 @@ class Events extends Model {
 
         if (!user_id) {
             const companyQuery = `
-                SELECT id,
-                       name,
-                       description,
-                       location,
-                       latitude,
-                       longitude,
-                       date,
-                       format,
-                       theme
+                SELECT events.id,
+                       events.name,
+                       companies.name AS company_name,
+                       events.description,
+                       events.location,
+                       events.latitude,
+                       events.longitude,
+                       events.date,
+                       events.format,
+                       events.theme
                 FROM events
-                WHERE id = $1;
+                JOIN companies on companies.id = events.company_id
+                WHERE events.id = $1;
             `;
             const eventsValues = [event_id];
             try {
@@ -111,7 +113,8 @@ class Events extends Model {
                                        END
                                ),
                                    'data', (SELECT jsonb_build_object(
-                                                           'id', events.id,
+                                                          'id', events.id,
+                                                           'company_name', c.name,
                                                            'name', events.name,
                                                            'description', events.description,
                                                            'location', events.location,
@@ -122,6 +125,7 @@ class Events extends Model {
                                                            'theme', events.theme
                                                        )
                                             FROM events
+                                            JOIN companies c on c.id = events.company_id
                                             WHERE events.id = $2)
                                )
                        ) AS response

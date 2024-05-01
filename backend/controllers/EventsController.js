@@ -3,8 +3,10 @@ const EventComments = require('../models/event_comments');
 const Response = require("../models/response");
 const Notification = require('../models/notification');
 const UserNotification = require('../models/user_notification');
+const Promo_code = require('../models/promo_codes');
 const path = require("path");
 const fs = require("fs");
+const {generateCode} = require("./Helpers");
 
 
 /** /=======================/events function /=======================/ */
@@ -194,7 +196,7 @@ async function eventByID(req,res){
         // if(foundEvent.length === 0){
         //     return res.json(new Response(false,"Wrong id "));
         // }
-        res.json(new Response(true,"Event by id "+ event_id, foundEvent));
+        res.json(new Response(true,"Event by id " + event_id + " user_id "+ senderDataId, foundEvent));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -353,6 +355,20 @@ async function allComments(req,res){
     }
 }
 
+/** /=======================/events comments function /=======================/ */
+
+async function generatePromoCode(req,res){
+    try {
+        const { event_id } = req.params;
+        const { discount, discount_type, valid_to } = req.body;
+        const newPromoCode = await new Promo_code().code(generateCode(),discount, discount_type,event_id,valid_to);
+        res.json(new Response(true,"New promo code",newPromoCode));
+    } catch (error) {
+        console.error(error);
+        res.json(new Response(false, error.toString()));
+    }
+}
+
 module.exports = {
     // event
     createEvent,
@@ -368,4 +384,5 @@ module.exports = {
     editComment,
     deleteComment,
     allComments,
+    //promo code
 }

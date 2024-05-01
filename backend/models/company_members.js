@@ -15,7 +15,7 @@ class Company_members extends Model {
 
     async  getAllCompanyUsers(company_id) {
         const query = `
-        SELECT u.id, u.full_name, u.email, 'founder' AS role
+        SELECT u.id, u.full_name, 'founder' AS role, u.worked_from
         FROM users u
         JOIN companies c ON u.id = c.founder_id
         WHERE c.id = $1

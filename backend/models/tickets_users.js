@@ -205,11 +205,10 @@ class Tickets_users extends Model {
         try {
             const { rows } = await client.query(query, values);
             if (rows.length > 0) {
-                let data = { exists: true, user_ticket_id: rows[0].id };
+                let data = { exists: true,  ticket_id: rows[0].ticket_id, user_ticket_id: rows[0].id };
                 if (rows[0].ticket_status === 'reserved'){
                     data.ticket_status = 'reserved'
                     data.session_id = rows[0].session_id;
-                    data.ticket_id = rows[0].ticket_id
                 }
                 return data;
             } else {

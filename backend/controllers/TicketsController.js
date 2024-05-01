@@ -250,17 +250,17 @@ async function reservedTicket(req,res){
         }
         const inf = await new Tickets().get(ticket_id);
         const sessionId =
-            // "dfdfdfdf";
-            await createPaymentIntent(
-                `${inf[0].ticket_type} ticket`,
-                `For event ${inf[0].name}`,
-                inf[0].price,
-                successUrl,
-                cancelUrl
-        );
-        if (sessionId === undefined){
-            return res.json(new Response(false, 'Error creating checkout session'));
-        }
+            "dfdfdfdf";
+        //     await createPaymentIntent(
+        //         `${inf[0].ticket_type} ticket`,
+        //         `For event ${inf[0].name}`,
+        //         inf[0].price,
+        //         successUrl,
+        //         cancelUrl
+        // );
+        // if (sessionId === undefined){
+        //     return res.json(new Response(false, 'Error creating checkout session'));
+        // }
         const userTicketId = await ticketUser.buy('reserved', req.senderData.id, ticket_id, false, sessionId);
         res.json(new Response(true, "Ticket reserved successfully", {id: userTicketId, sessionId: sessionId}));
     } catch (error) {

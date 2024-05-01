@@ -7,6 +7,7 @@ CREATE TYPE formats AS ENUM('conferences','lectures','workshops','fests');
 CREATE TYPE themes AS ENUM('business','politics','psychology');
 CREATE TYPE statuses AS ENUM('available', 'sold out');
 CREATE TYPE ticket_types AS ENUM('common','VIP');
+CREATE TYPE discount_types AS ENUM('percentage','fixed_amount');
 
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -158,8 +159,11 @@ CREATE TABLE IF NOT EXISTS event_comments(
 CREATE TABLE IF NOT EXISTS promo_codes(
     id SERIAL PRIMARY KEY,
     code VARCHAR(20),
-    sale INTEGER NOT NULL ,
+    discount INTEGER NOT NULL ,
+    discount_type discount_types,
     event_id INTEGER NOT NULL,
+    valid_to TIMESTAMP WITH TIME ZONE,
+    valid_from TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_event_id FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
 );
 
