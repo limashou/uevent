@@ -252,7 +252,7 @@ async function promoCode(req,res){
             return res.json(new Response(false,"Wrong promo code"));
         }
         if(promo[0].event_id !== Number.parseInt(event_id)) {
-            return res.json(new Response(false,"Not for this event promo code"));
+            return res.json(new Response(false,"Wrong promo code"));
         }
         const isAvailable = isPromoCodeValid(promo[0].valid_from, promo[0].valid_to);
         if (!isAvailable) {
