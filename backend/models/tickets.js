@@ -17,7 +17,7 @@ class Tickets extends Model {
 
     async get(ticket_id){
         const query = `
-        SELECT tickets.ticket_type, events.name, tickets.price
+        SELECT tickets.ticket_type, events.name, tickets.price, tickets.event_id
         FROM tickets
         JOIN events ON tickets.event_id = events.id
         WHERE tickets.id = $1

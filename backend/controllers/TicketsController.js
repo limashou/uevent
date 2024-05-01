@@ -10,6 +10,7 @@ const { PassThrough } = require('stream');
 const CompanyNotification = require('../models/company_notification');
 const {createPaymentIntent, checkPaymentStatus} = require("./StripeController");
 const cron = require('node-cron');
+const Promo_code = require('../models/promo_codes');
 
 /** /=======================/remove reserved tickets /=======================/ */
 
@@ -240,7 +241,7 @@ async function buyTicket(req, res){
 async function reservedTicket(req,res){
     try {
         const { ticket_id } = req.params;
-        const { successUrl, cancelUrl } = req.body;
+        const { successUrl, cancelUrl , promo_code} = req.body;
         const ticketUser = new TicketsUsers();
         if(req.senderData.id === undefined) {
             return res.json(new Response(false,"You need to authorize for buy or reserved ticket"))
@@ -249,18 +250,34 @@ async function reservedTicket(req,res){
             return res.json(new Response(false, "All tickets are sold out"));
         }
         const inf = await new Tickets().get(ticket_id);
+        if (promo_code !== undefined) {
+            let discounted_price;
+            const promo = await new Promo_code().find({ code: promo_code });
+            if (promo.length > 0 && promo[0].event_id === inf[0].event_id) {
+                if (promo[0].discount_type === 'fixed_amount') {
+                    const discount_amount = promo[0].discount;
+                    discounted_price = inf[0].price - discount_amount;
+                } else {
+                    const discount_percent = promo[0].discount;
+                    const discount_amount = (discount_percent / 100) * inf[0].price;
+                    discounted_price = inf[0].price - discount_amount;
+                }
+                inf[0].price = Math.max(0, discounted_price);
+            }
+        }
+
         const sessionId =
-            "dfdfdfdf";
-        //     await createPaymentIntent(
-        //         `${inf[0].ticket_type} ticket`,
-        //         `For event ${inf[0].name}`,
-        //         inf[0].price,
-        //         successUrl,
-        //         cancelUrl
-        // );
-        // if (sessionId === undefined){
-        //     return res.json(new Response(false, 'Error creating checkout session'));
-        // }
+            // "dfdfdfdf";
+            await createPaymentIntent(
+                `${inf[0].ticket_type} ticket`,
+                `For event ${inf[0].name}`,
+                inf[0].price,
+                successUrl,
+                cancelUrl
+        );
+        if (sessionId === undefined){
+            return res.json(new Response(false, 'Error creating checkout session'));
+        }
         const userTicketId = await ticketUser.buy('reserved', req.senderData.id, ticket_id, false, sessionId);
         res.json(new Response(true, "Ticket reserved successfully", {id: userTicketId, sessionId: sessionId}));
     } catch (error) {
