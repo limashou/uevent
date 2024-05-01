@@ -1,6 +1,6 @@
 import React, {useContext, useState} from "react";
 import {EventDataContext} from "./EventDataWrapper";
-import {List, ListItem, ListItemText, Stack, Tab, Tabs, Typography} from "@mui/material";
+import {Stack, Tab, Tabs, Typography} from "@mui/material";
 import MapView from "../../components/MapView";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
@@ -8,38 +8,45 @@ import Requests from "../../api/Requests";
 import Box from "@mui/material/Box";
 import {useParams} from "react-router-dom";
 import Comments from "../../components/Comments";
-import Visitor from "../../components/Visitor";
 import MenuOptions from "../../components/MenuOptions";
 import TicketCreationDialog from "../../components/dialogs/TicketCreationDialog";
-import TicketElement from "../../components/TicketElement";
+import TicketCard from "../../components/TicketCard";
 import Grid from "@mui/material/Grid";
 import UserTicketDialog from "../../components/dialogs/UserTicketDialog";
 import Button from "@mui/material/Button";
-import {continueBuyTicket} from "../../Utils/Utils";
+import {continueBuyTicket, formatDate} from "../../Utils/Utils";
+import Visitors from "../../components/Visitors";
+import Divider from "@mui/material/Divider";
 
 function Event() {
     const { event_id} = useParams();
-    const { eventData, loading } = useContext(EventDataContext);
+    const { eventData, loading, eventEditPermission } = useContext(EventDataContext);
     const [tabsValue, setTabsValue] = useState(0);
 
     const handleChange = (event, newValue) => {
         setTabsValue(newValue);
     };
 
-    const { ticketsInfo, setTicketsInfo} = useContext(EventDataContext);
-    const { visitorsWithName, setVisitorsWithName } = useContext(EventDataContext);
-    const { anonVisitors, setAnonVisitors } = useContext(EventDataContext);
+    const { ticketsInfo } = useContext(EventDataContext);
 
 
     if (!eventData || loading) {
         return <div>Loading...</div>;
     }
 
+    const menuOptions = [
+        <TicketCreationDialog event_id={eventData.id} />
+    ];
+
     return (
         <>
-            <Container maxWidth="md">
+            <Container maxWidth="md" sx={{
+                backgroundColor: "background.default", // Получение цвета фона из темы
+                padding: 2,
+                borderRadius: 2
+            }}>
                 <Stack spacing={2} alignItems="center">
-                    <Container sx={{display: 'flex', justifyContent: 'space-between'}}>
+                    <Container sx={{display: 'flex', justifyContent: 'space-between'}} disableGutters>
                         <Avatar
                             variant="rounded"
                             src={Requests.get_event_poster_link(eventData.id)}
@@ -54,7 +61,11 @@ function Event() {
                             </Typography>
                         </Stack>
                         <Stack direction="column" justifyContent="start">
-                            <MenuOptions options={[<TicketCreationDialog event_id={eventData.id} />]} />
+                            {/*TODO: розкоментить после фикса*/}
+                            {/*{eventEditPermission === true &&*/}
+                            {/*    <MenuOptions options={menuOptions} />*/}
+                            {/*}*/}
+                            <MenuOptions options={menuOptions} />
                         </Stack>
                     </Container>
                     <Box sx={{ width: '100%', }}>
@@ -65,12 +76,13 @@ function Event() {
                             <Tab label="Visitors" />
                             <Tab label="Comments" />
                         </Tabs>
+                        <Divider sx={{mb: 2}} />
                         {tabsValue === 0 &&
-                            <>
-                                <Typography><strong>Дата:</strong> {new Date(eventData.date).toLocaleString()}</Typography>
+                            <Container>
+                                <Typography><strong>Дата:</strong> {formatDate(eventData.date, true)}</Typography>
                                 <Typography><strong>Формат:</strong> {eventData.format}</Typography>
                                 <Typography><strong>Тема:</strong> {eventData.theme}</Typography>
-                            </>
+                            </Container>
                         }
                         <Box sx={{display: tabsValue === 1 ? '' : 'none'}}>
                             <Typography><strong>Местоположение:</strong> {eventData.location}</Typography>
@@ -86,15 +98,15 @@ function Event() {
                                                     continueBuyTicket(ticketsInfo.buyStatus.data.session_id);
                                                 }}>Continue payment</Button>
                                             ) : (
-                                                <UserTicketDialog user_ticket_id={ticketsInfo.buyStatus.data.ticket_id} />
+                                                <UserTicketDialog user_ticket_id={ticketsInfo.buyStatus.data.user_ticket_id} />
                                             )}
                                         </>
                                     }
                                     {ticketsInfo?.tickets && (
                                         <Grid container spacing={1} justifyContent="center" wrap="wrap">
                                             {ticketsInfo.tickets.map((ticketData) => (
-                                                <Grid item xs={12} sm={6} md={6} lg={6} key={`ticket-${ticketData.id}`}>
-                                                    <TicketElement
+                                                <Grid item xs={12} sm={12} md={6} lg={6} key={`ticket-${ticketData.id}`}>
+                                                    <TicketCard
                                                         ticketData={ticketData}
                                                         buyDisabled={ticketsInfo?.buyStatus?.exists === true}
                                                     />
@@ -107,25 +119,10 @@ function Event() {
                             </>
                         }
                         {tabsValue === 3 &&
-                            <>
-                            {visitorsWithName.map((visitorData) => (
-                                <Visitor visitorData={visitorData} />
-                            ))}
-                            {anonVisitors &&
-                                <List>
-                                    {Object.entries(anonVisitors).map(([visitor, count]) => (
-                                        <ListItem key={visitor}>
-                                            <ListItemText primary={visitor} secondary={`Count: ${count}`} />
-                                        </ListItem>
-                                    ))}
-                                </List>
-                            }
-                            </>
+                            <Visitors/>
                         }
                         {tabsValue === 4 &&
-                            <>
-                                <Comments event_id={event_id} />
-                            </>
+                            <Comments event_id={event_id} />
                         }
                     </Box>
                 </Stack>

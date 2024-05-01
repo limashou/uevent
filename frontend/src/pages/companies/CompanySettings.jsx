@@ -10,7 +10,6 @@ import {useParams} from "react-router-dom";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import {companyNameValidation, emailValidation, memberRoles} from "../../Utils/InputHandlers";
 import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
-import CustomTextArea from "../../components/inputs/CustomTextArea";
 import CustomSearch from "../../components/inputs/CustomSearch";
 import CustomSelector from "../../components/inputs/CustomSelector";
 import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
@@ -95,7 +94,7 @@ function CompanySettings() {
                     <>
                         <Stack direction="row" alignItems="center" spacing={2}>
                             <CustomImageDropzone
-                                imageLink={companyData.logo}
+                                imageLink={Requests.get_company_logo_link(companyData.id)}
                                 onFileSelected={(file) => {
                                     Requests.companyLogoUpload(company_id, file).then((resp) => {
                                         if (resp.state === true)
@@ -114,9 +113,12 @@ function CompanySettings() {
                                     label="Company name"
                                     type="text"
                                 />
-                                <CustomTextArea
+                                <CustomInputField
                                     defaultValue={companyData.description}
-                                    onChange={(newValue) => putEditedField('description', newValue)}
+                                    onChangeChecked={putEditedField}
+                                    id="description"
+                                    label="Description"
+                                    multiline
                                 />
                             </Box>
                         </Stack>

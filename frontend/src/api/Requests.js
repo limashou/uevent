@@ -215,7 +215,6 @@ export default class Requests {
         const resp = await axiosInstance.get(`companies/${company_id}/notifications`);
         return resp.data;
     }
-
     static async companySubscribe(company_id, update_events = true, new_news = true, new_events = true){
         const resp = await axiosInstance
             .post(`companies/${company_id}/subscribe`, {update_events, new_news, new_events});
@@ -230,12 +229,10 @@ export default class Requests {
         const resp = await axiosInstance.post(`/companies/${company_id}/create`, eventData);
         return resp.data;
     }
-
     static async eventById(event_id) {
         const resp = await axiosInstance.get(`/events/${event_id}`);
         return resp.data;
     }
-
     static async posterUpload(event_id, file) {
         const data = new FormData();
         data.append('photo', file);
@@ -247,7 +244,6 @@ export default class Requests {
         const resp = await axiosInstance.patch(`/events/${event_id}/upload`, data, config);
         return resp.data;
     }
-
     static async allEvents({page = 1, limit = 20, order = 'ASC',
                                searchValue = '', company_id = '',
                                dateFrom = '', dateTo = '',
@@ -288,18 +284,15 @@ export default class Requests {
             .post(`/events/${event_id}/comments/create`, {text});
         return resp.data;
     }
-
     static async eventUsers(event_id){
         const resp = await axiosInstance.get(`/events/${event_id}/visitors`);
         return resp.data;
     }
-
     static async createTicket(event_id, ticket_type, price = 0, available_tickets){
         const resp = await axiosInstance
             .post(`/events/${event_id}/create`, {ticket_type, price, available_tickets});
         return resp.data;
     }
-
     static async eventTickets(event_id){
         const resp = await axiosInstance.get(`/events/${event_id}/tickets`);
         return resp.data;
@@ -313,7 +306,6 @@ export default class Requests {
         });
         return resp.data;
     }
-
     static async newsPosterUpload(news_id, file) {
         const data = new FormData();
         data.append('photo', file);
@@ -325,7 +317,6 @@ export default class Requests {
         const resp = await axiosInstance.patch(`/news/${news_id}/posterUpload`, data, config);
         return resp.data;
     }
-
     static async companyNews(company_id, data = { page: 1, limit: 3, order: 'ASC' }){
         const config = {
             params: {
@@ -339,7 +330,6 @@ export default class Requests {
         );
         return resp.data;
     }
-
     static get_news_poster_link(news_id){
         return `${domain}/news/${news_id}/poster`;
     }
@@ -350,16 +340,26 @@ export default class Requests {
             .post(`/tickets/${ticket_id}/reserve`,{successUrl, cancelUrl});
         return resp.data;
     }
-
     static async buyTicket(ticket_id, show_username = false){
         const resp = await axiosInstance
             .post(`/tickets/${ticket_id}/buy`, {show_username});
         return resp.data;
     }
-
     static async informationTicket(user_ticket_id){
         const resp = await axiosInstance
             .get(`/tickets/information/${user_ticket_id}`);
+        return resp.data;
+    }
+
+    //COMMENTS
+    static async deleteComment(comment_id){
+        const resp = await axiosInstance
+            .delete(`comments/${comment_id}/delete`);
+        return resp.data;
+    }
+    static async editComment(comment_id, text){
+        const resp = await axiosInstance
+            .patch(`comments/${comment_id}/edit`, {text});
         return resp.data;
     }
 }

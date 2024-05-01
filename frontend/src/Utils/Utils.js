@@ -55,12 +55,14 @@ export function formatDateRecent(date) {
     return date.toLocaleString(undefined, options);
 }
 
-export function formatDate(dateString) {
+export function formatDate(dateString, minutes = false) {
     const date = new Date(dateString);
     const day = date.getDate();
     const month = date.toLocaleString('en-GB', { month: 'short' });
     const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    if (!minutes)
+        return `${day} ${month} ${year}`;
+    return `${day} ${month} ${year} in ${date.toLocaleTimeString('en-GB', {hour: "numeric", minute: "numeric"})}`;
 }
 
 export async function continueBuyTicket(sessionId) {

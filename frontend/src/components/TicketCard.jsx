@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import {Card, CardContent, Typography} from '@mui/material';
+import {Card, CardContent, Stack, Typography} from '@mui/material';
 import Requests from "../api/Requests";
 import Button from "@mui/material/Button";
 import {loadStripe} from "@stripe/stripe-js";
+import Divider from "@mui/material/Divider";
 
-function TicketElement({ ticketData, buyDisabled = true }) {
+function TicketCard({ ticketData, buyDisabled = true }) {
     const { id, ticket_type, price, available_tickets, status, event_id } = ticketData;
     const [processing, setProcessing] = useState(false);
 
@@ -32,28 +33,31 @@ function TicketElement({ ticketData, buyDisabled = true }) {
     }
 
     return (
-        <Card variant="outlined" style={{ minWidth: 275, margin: '10px' }}>
+        <Card variant="outlined" style={{ minWidth: 200, margin: '10px' }}>
             <CardContent>
-                <Typography variant="h2" color="textSecondary" gutterBottom>
+                <Typography variant="h2" color="textSecondary" sx={{textAlign: 'center'}} gutterBottom>
                     {ticket_type.toUpperCase()}
                 </Typography>
-                <Typography variant="body2" component="p">
-                    Price: ${price}
-                    <br />
-                    Available Tickets: {available_tickets}
-                    <br />
-                    Status: {status}
-                </Typography>
-                <Button
-                    disabled={processing || available_tickets === 0 || buyDisabled}
-                    onClick={onBuy}
-                    variant="contained"
-                >
-                    Buy
-                </Button>
+                <Divider sx={{mb: 2}} />
+                <Stack direction="row" gap={1} justifyContent="space-between">
+                    <Typography variant="body2" component="p">
+                        Price: ${price}
+                        <br />
+                        Available Tickets: {available_tickets}
+                        <br />
+                        Status: {status}
+                    </Typography>
+                    <Button
+                        disabled={processing || available_tickets === 0 || buyDisabled}
+                        onClick={onBuy}
+                        variant="contained"
+                    >
+                        Buy
+                    </Button>
+                </Stack>
             </CardContent>
         </Card>
     );
 }
 
-export default TicketElement;
+export default TicketCard;

@@ -1,22 +1,24 @@
 import React, {useEffect, useState} from "react";
 import Requests from "../api/Requests";
-import Button from "@mui/material/Button";
 import Comment from "./Comment";
 import Pagination from "@mui/material/Pagination";
 import CustomInputField from "./inputs/CustomInputField";
+import SendIcon from '@mui/icons-material/Send';
+import {Stack} from "@mui/material";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
 
 function Comments({ event_id }) {
     const [comments, setComments] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [ownCommentText, setOwnCommentText] = useState('');
-
     const [lastUpd, setLastUpd] = useState(new Date());
+
     useEffect(() => {
         const fetchData = async () => {
             const resp = await Requests.eventComments(event_id, page);
             if (resp.state === true){
-                // alert(JSON.stringify(resp));
                 setComments(resp.data.rows);
                 setTotalPages(resp.data.totalPages);
             }
@@ -35,7 +37,7 @@ function Comments({ event_id }) {
         setPage(value);
     };
     return (
-        <>
+        <Container disableGutters>
             {totalPages !== 0 &&
                 <Pagination
                     size="small"
@@ -46,24 +48,28 @@ function Comments({ event_id }) {
                 />
             }
             {comments.map((commentData) => (
-                <Comment commentData={commentData} />
+                <Comment
+                    commentData={commentData}
+                    key={commentData.id}
+                />
             ))}
-            <CustomInputField
-                label="Message"
-                placeholder="Write smth..."
-            />
-            {/*<CustomTextArea*/}
-            {/*    label="Message"*/}
-            {/*    placeholder="Write smth..."*/}
-            {/*    onChange={(value) => setOwnCommentText(value)}*/}
-            {/*/>*/}
-            <Button
-                variant="contained"
-                onClick={createMessage}
-            >
-                Create
-            </Button>
-        </>
+            <Stack direction="row" mt={1}>
+                <CustomInputField
+                    onChangeChecked={(key, value) => {setOwnCommentText(value)}}
+                    label="Message"
+                    placeholder="Write smth..."
+                    sx={{width: '100%'}}
+                    multiline
+                />
+                <Button
+                    variant="outlined"
+                    sx={{ml: 1}}
+                    onClick={createMessage}
+                >
+                    <SendIcon />
+                </Button>
+            </Stack>
+        </Container>
     )
 }
 

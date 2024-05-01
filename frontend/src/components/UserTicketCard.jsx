@@ -1,6 +1,7 @@
 import React from 'react';
 import {Chip, Paper, Stack, Typography} from "@mui/material";
 import {DateRange, Person} from "@mui/icons-material";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Container from "@mui/material/Container";
 
 function UserTicketCard({ ticket }) {
@@ -13,6 +14,7 @@ function UserTicketCard({ ticket }) {
             {/*    "date":"2024-05-03T19:36:00.000Z",*/}
             {/*    "format":"conferences",*/}
             {/*    "theme":"politics",*/}
+            {/*"location": "Romny, Sumy Oblast, Украина",*/}
             {/*    "ticket_type":"common",*/}
             {/*    "price":"10.00",*/}
             {/*    "ticket_status":"bought",*/}
@@ -33,9 +35,13 @@ function UserTicketCard({ ticket }) {
                 <Container sx={{ display: 'flex', width: 350 }}>
                     <Stack direction="column" gap={1} sx={{justifyContent: 'center', alignItems: 'center', margin: 'auto'}}>
                         <Typography variant="h6">{ticket.name}</Typography>
-                        <Stack direction="row" gap={1}>
+                        <Stack direction="row" alignItems='center'>
                             <DateRange sx={{ mr: 1 }} />
                             <Typography variant="body2">{new Date(ticket.date).toLocaleString()}</Typography>
+                        </Stack>
+                        <Stack direction="row" alignItems='center'>
+                            <LocationOnIcon sx={{ mr: 1 }} />
+                            <Typography variant="body2">{ticket.location}</Typography>
                         </Stack>
                         <Stack direction="row" gap={1}>
                             <Chip label={ticket.format.toUpperCase()} size="small" />

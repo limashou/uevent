@@ -23,7 +23,7 @@ function CompanyMini({ companyData }) {
                 <Avatar
                     alt={companyData.name}
                     src={Requests.get_company_logo_link(companyData.id)}
-                    sx={{ width: 100, height: 100 }}
+                    sx={{ width: 120, height: 120 }}
                 />
                 <Stack direction="column" sx={{display: 'flex', width: '100%', textAlign: 'center'}}>
                     <Link to={`/companies/${companyData.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>

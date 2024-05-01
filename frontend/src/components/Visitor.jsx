@@ -1,21 +1,21 @@
 import React from "react";
-import { Paper, Typography, Avatar } from "@mui/material";
+import {Avatar, Typography} from "@mui/material";
 import Requests from "../api/Requests";
+import Grid from "@mui/material/Grid";
 
 function Visitor({ visitorData }) {
-    const { ticket_type, full_name, user_id } = visitorData;
+    const { full_name, user_id } = visitorData;
     const avatarLink = Requests.get_avatar_link(user_id);
 
+    // const randomCols = Math.floor(Math.random() * 4) + 1;
+
     return (
-        <Paper style={{ padding: "16px", marginBottom: "16px" }}>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                <Avatar alt="Avatar" src={avatarLink} style={{ marginRight: "16px" }} />
-                <Typography variant="h6">Visitor: {full_name}</Typography>
-            </div>
-            <Typography style={{ marginBottom: "4px" }}>
-                <strong>Ticket Type:</strong> {ticket_type}
-            </Typography>
-        </Paper>
+        <Grid item xs={'auto'} >
+            <Grid container direction="column" alignItems="center">
+                <Avatar alt="Avatar" src={avatarLink} />
+                <Typography variant="h6" align="center">{full_name}</Typography>
+            </Grid>
+        </Grid>
     );
 }
 

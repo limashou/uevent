@@ -1,6 +1,5 @@
 import CustomInputField from "../../components/inputs/CustomInputField";
 import {useState} from "react";
-import CustomTextArea from "../../components/inputs/CustomTextArea";
 import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
 import CustomSelector from "../../components/inputs/CustomSelector";
 import {Stack} from "@mui/material";
@@ -67,8 +66,11 @@ function EventCreation() {
                             label="Event title"
                             type="text"
                         />
-                        <CustomTextArea
-                            onChange={(value) => setDescription(value)}
+                        <CustomInputField
+                            onChangeChecked={(key, value) => {setDescription(value)}}
+                            id="description"
+                            label="Description"
+                            multiline
                         />
                     </Stack>
                 </Stack>

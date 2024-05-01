@@ -4,7 +4,6 @@ import {useState} from "react";
 import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
 import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
-import CustomTextArea from "../../components/inputs/CustomTextArea";
 import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
 import {Stack} from "@mui/material";
 import {enqueueSnackbar} from "notistack";
@@ -91,8 +90,11 @@ function CompanyCreation() {
                         />
                         {/*<div>{JSON.stringify(locationObj)}</div>*/}
                         <GoogleMapsInput onChange={handleLocationSelect} />
-                        <CustomTextArea
-                            onChange={(value) => setDescription(value)}
+                        <CustomInputField
+                            onChangeChecked={(key, value) => setDescription(value)}
+                            id="description"
+                            label="Description"
+                            multiline
                         />
                         <Button
                             sx={{

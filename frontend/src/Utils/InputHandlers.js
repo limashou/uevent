@@ -93,15 +93,15 @@ export const memberRoles = [
 ];
 
 export const FORMATS = [
-    {value: 'conferences'},
-    {value: 'lectures'},
-    {value: 'workshops'},
-    {value: 'fests'}
+    {value: 'conferences', label: 'Conferences'},
+    {value: 'lectures', label: 'Lectures'},
+    {value: 'workshops', label: 'Workshops'},
+    {value: 'fests', label: 'Fests'}
 ];
 export const THEMES = [
-    {value: 'business'},
-    {value: 'politics'},
-    {value: 'psychology'}
+    {value: 'business', label: 'Business'},
+    {value: 'politics', label: 'Politics'},
+    {value: 'psychology', label: 'Psychology'}
 ];
 
 export const TICKET_TYPES = [

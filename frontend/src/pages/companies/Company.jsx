@@ -8,7 +8,7 @@ import Stack from "@mui/material/Stack";
 import Requests from "../../api/Requests";
 import React, {useContext, useEffect, useState} from "react";
 import {CompanyDataContext} from "./CompanyDataWrapper";
-import UsersLine from "../../components/UsersLine";
+import CompanyMembersTab from "../../components/CompanyMembersTab";
 import Box from "@mui/material/Box";
 import CompanyNewsElement from "../../components/CompanyNewsElement";
 import EventMini from "../../components/EventMini";
@@ -16,6 +16,7 @@ import {Tab, Tabs} from "@mui/material";
 import CompanyNotificationsMenu from "../../components/CompanyNotificationsMenu";
 import CompanySubscribeDialog from "../../components/dialogs/CompanySubscribeDialog";
 import MenuOptions from "../../components/MenuOptions";
+import Divider from "@mui/material/Divider";
 
 function Company() {
     const { company_id } = useParams();
@@ -57,9 +58,13 @@ function Company() {
     }
 
     return (
-        <Container maxWidth="md">
+        <Container disableGutters maxWidth="md" sx={{
+            backgroundColor: "background.default", // Получение цвета фона из темы
+            padding: 2,
+            borderRadius: 2
+        }}>
             <Stack spacing={2}>
-                <Container sx={{display: 'flex', justifyContent: 'space-between'}}>
+                <Container disableGutters sx={{display: 'flex', justifyContent: 'space-between'}}>
                     <Avatar
                         variant="rounded"
                         src={Requests.get_company_logo_link(companyData.id)}
@@ -67,7 +72,7 @@ function Company() {
                     >
                         {companyData.name}
                     </Avatar>
-                    <Stack justifyContent="center">
+                    <Stack justifyContent="center" textAlign="center">
                         <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
                             {companyData.name}
                         </Typography>
@@ -89,6 +94,7 @@ function Company() {
                         <Tab label="Members" />
                         <Tab label="About" />
                     </Tabs>
+                    <Divider sx={{mb: 2}} />
                     {tabsValue === 0 &&
                         companyEvents.map((event) => (
                             <EventMini eventData={event} />
@@ -98,13 +104,13 @@ function Company() {
                         <CompanyNewsElement company_id={company_id} />
                     }
                     {tabsValue === 2 &&
-                        <UsersLine users={companyMembers} />
+                        <CompanyMembersTab users={companyMembers} />
                     }
                     {tabsValue === 3 &&
-                        <>
+                        <Container>
                             <DescriptionInfo icon={<EmailIcon />} text={companyData.email} />
                             <DescriptionInfo icon={<LocationOnIcon />} text={companyData.location} />
-                        </>
+                        </Container>
                     }
                 </Box>
             </Stack>

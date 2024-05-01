@@ -3,7 +3,6 @@ import CustomImageDropzone from "../../../components/inputs/CustomImageDropzone"
 import Box from "@mui/material/Box";
 import CustomInputField from "../../../components/inputs/CustomInputField";
 import {companyNameValidation} from "../../../Utils/InputHandlers";
-import CustomTextArea from "../../../components/inputs/CustomTextArea";
 import Button from "@mui/material/Button";
 import {useState} from "react";
 import {useParams} from "react-router-dom";
@@ -48,8 +47,11 @@ function AnnouncementCreation() {
                         label="Title"
                         type="text"
                     />
-                    <CustomTextArea
-                        onChange={(value) => setContent(value)}
+                    <CustomInputField
+                        onChangeChecked={(key, value) => setContent(value)}
+                        id="content"
+                        label="Content"
+                        multiline
                     />
                 </Box>
             </Stack>

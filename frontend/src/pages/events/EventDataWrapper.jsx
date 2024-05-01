@@ -6,6 +6,8 @@ export const EventDataContext = createContext();
 function EventDataWrapper({ children }) {
     const { event_id } = useParams();
     const [eventData, setEventData] = useState(null);
+
+    const [eventEditPermission, setEventEditPermission] = useState(false);
     const [ticketsInfo, setTicketsInfo] = useState(undefined);
     const [loading, setLoading] = useState(true);
 
@@ -14,14 +16,11 @@ function EventDataWrapper({ children }) {
             try {
                 const eventDataResponse = await Requests.eventById(event_id);
                 if (eventDataResponse.state === true) {
-                    console.log(eventDataResponse);
-                    setEventData(eventDataResponse.data);
+                    setEventData(eventDataResponse.data.data);
+                    if (eventDataResponse?.data?.permissions?.company_edit === true){
+                        setEventEditPermission(true);
+                    }
                 }
-
-                // const companyMembersResponse = await Requests.companyMembers(company_id);
-                // if (companyMembersResponse.state === true) {
-                //     setCompanyMembers(companyMembersResponse.data);
-                // }
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching event data:", error);
@@ -57,6 +56,7 @@ function EventDataWrapper({ children }) {
     const contextValue = {
         eventData,
         setEventData,
+        eventEditPermission,
         ticketsInfo,
         setTicketsInfo,
         visitorsWithName,
