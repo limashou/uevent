@@ -373,7 +373,7 @@ async function generatePromoCode(req,res){
         if (codeSubscription) {
             const newNotification = await bdNotification.notification(
                 "The new promo code",
-                "The " + codeSubscription.name + " give you new promo code for event " +  name + ".",
+                "The " + codeSubscription[0].name + " give you new promo code for event " + (await new Events().find({id:event_id}))[0].name + " : " + (await new Promo_code().find({id: newPromoCode}))[0].code +  ".",
                 "")
             for (const editSubscriptionElement of codeSubscription) {
                 await new UserNotification().notification(editSubscriptionElement.user_subscribe_id, newNotification)
