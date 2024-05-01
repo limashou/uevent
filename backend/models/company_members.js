@@ -15,12 +15,12 @@ class Company_members extends Model {
 
     async  getAllCompanyUsers(company_id) {
         const query = `
-        SELECT users.id, users.full_name, 'founder' AS role_name, NULL AS worked_from
+        SELECT users.id, users.full_name, 'founder' AS role_name, NULL AS worked_from, NULL AS role_id 
         FROM users 
         JOIN companies c ON users.id = c.founder_id
         WHERE c.id = $1
         UNION
-        SELECT u.id, u.full_name, cr.role_name, company_members.worked_from
+        SELECT u.id, u.full_name, cr.role_name, company_members.worked_from, cr.id AS role_id
         FROM users u
         JOIN company_members ON u.id = company_members.member_id
         JOIN company_roles cr ON company_members.role_id = cr.id
