@@ -1,24 +1,42 @@
-import Skeleton from "@mui/material/Skeleton";
 import Container from "@mui/material/Container";
+import Skeleton from "@mui/material/Skeleton";
+import {Stack} from "@mui/material";
+import Divider from "@mui/material/Divider";
 
 function CompanyMiniSkeleton() {
     return (
         <Container
-                   sx={{ height: '175px', display: 'flex',
-                       alignItems: 'center', gap: 2, p: 2,
-                       boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.2)",
-                   }}
+            maxWidth="md"
+            sx={{
+                padding: "20px",
+            }}
         >
-            <Skeleton variant="circular" width={100} height={100} />
-            <Container sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <Skeleton variant="text" width="40%" height={40} />
-                <Skeleton variant="text" width="80%" height={20} />
-                <Skeleton variant="text" width="70%" height={20} />
-                <Skeleton variant="text" width="90%" height={20} />
-                <Skeleton variant="text" width="50%" height={20} />
-            </Container>
+            <Stack direction="row" alignItems="center" spacing={2}>
+                <Skeleton variant="circular" width={140} height={120} />
+                <Stack direction="column" sx={{ display: 'flex', width: '100%', textAlign: 'left' }}>
+                    <Container sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                        <Skeleton variant="text" width="70%" height={55} />
+                    </Container>
+                    <Divider sx={{ mt: 1 }} />
+                    <Container sx={{ display: 'flex', ml: 1 }}>
+                        <Skeleton variant="text" width="90%" height={25} />
+                    </Container>
+                    <Container sx={{ display: 'flex', gap: 1 }} disableGutters>
+                        <Skeleton variant="text" width="80%" height={25} />
+                    </Container>
+                    <Container sx={{ display: 'flex', gap: 1 }} disableGutters>
+                        <Skeleton variant="text" width="30%" height={25} />
+                    </Container>
+                    <Container sx={{ display: 'flex', gap: 1 }} disableGutters>
+                        <Skeleton variant="text" width="50%" height={25} />
+                    </Container>
+                    <Container sx={{ display: 'flex', gap: 1, justifyContent: 'right' }}>
+                        <Skeleton variant="text" width="20%" height={30} />
+                    </Container>
+                </Stack>
+            </Stack>
         </Container>
-    )
+    );
 }
 
 export default CompanyMiniSkeleton;

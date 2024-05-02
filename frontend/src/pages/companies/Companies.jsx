@@ -12,6 +12,7 @@ import {debounce} from 'lodash';
 import {FounderSearch} from "../../components/inputs/FounderSearch";
 import Grid from "@mui/material/Grid";
 import CompanyMiniSkeleton from "../../components/skeletons/CompanyMiniSkeleton";
+import Divider from "@mui/material/Divider";
 
 function Companies() {
     const [companies, setCompanies] = useState([]);
@@ -24,6 +25,7 @@ function Companies() {
     const [founderIdFilter, setFounderIdFilter] = useState(undefined);
     const ONE_PAGE_LIMIT = 4;
     const [loading, setLoading] = useState(true);
+    const [searchLoading, setSearchLoading] = useState(false);
 
     const debouncedFetchData = debounce(async () => {
         setLoading(true); // Установка состояния загрузки перед запросом данных
@@ -42,6 +44,7 @@ function Companies() {
             if (page > totalPages)
                 setPage(1);
         }
+        setSearchLoading(false);
         setLoading(false);
     }, 1000);
 
@@ -57,43 +60,70 @@ function Companies() {
 
     const handleSearchChange = (event, newValue) => {
         setSearchValue(newValue);
+        setSearchLoading(true);
     };
 
     return (
         <Grid container spacing={1}>
             <Grid item xs={12} md={2}>
-                <Stack direction="column" gap={2}>
-                    <Link to="/companies/creation">
-                        <Button sx={{width: '100%'}} variant="outlined">
-                            Create company
-                        </Button>
-                    </Link>
-                    <FounderSearch handleIdSelect={setFounderIdFilter} />
-                </Stack>
+                <Container sx={{
+                    backgroundColor: "background.default",
+                    padding: 2,
+                    borderRadius: 2
+                }}>
+                    <Stack direction="column" gap={2}>
+                        <Link to="/companies/creation">
+                            <Button sx={{width: '100%'}} variant="outlined">
+                                Create company
+                            </Button>
+                        </Link>
+                        <FounderSearch handleIdSelect={setFounderIdFilter} />
+                    </Stack>
+                </Container>
             </Grid>
             <Grid item xs={12} md={8}>
-                <Container>
-                    <Container sx={{ display: 'flex' }}>
-                        <CustomSearch value={searchValue} options={searchOptions} handleSearchChange={handleSearchChange} />
+                <Container sx={{
+                    backgroundColor: "background.default",
+                    padding: 2,
+                    borderRadius: 2
+                }}>
+                    <Container sx={{ display: 'flex' }} disableGutters>
+                        <CustomSearch
+                            value={searchValue}
+                            options={searchOptions}
+                            handleSearchChange={handleSearchChange}
+                            loading={searchLoading}
+                        />
                     </Container>
-                    <Container maxWidth="xl">
+                    <Container maxWidth="xl" disableGutters>
                         {loading ? (
                             Array.from({ length: ONE_PAGE_LIMIT }).map((_, index) => (
-                                <CompanyMiniSkeleton key={index} />
+                                <>
+                                    <CompanyMiniSkeleton key={index} />
+                                    {index < ONE_PAGE_LIMIT - 1 && <Divider />}
+                                </>
                             ))
                         ) : (
-                            companies.map(company => (
-                                <CompanyMini
-                                    companyData={company}
-                                    key={company.id}
-                                />
+                            companies.map((company, index) => (
+                                <>
+                                    <CompanyMini
+                                        companyData={company}
+                                        key={company.id}
+                                    />
+                                    {index < companies.length - 1 && <Divider />}
+                                </>
                             ))
                         )}
                     </Container>
                 </Container>
             </Grid>
             <Grid item xs={12} md={2}>
-                <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Container maxWidth="sm" sx={{
+                    backgroundColor: "background.default",
+                    padding: 2,
+                    borderRadius: 2,
+                    display: 'flex', flexDirection: 'column', gap: 2
+                }}>
                     <Stack direction="row" spacing={2} justifyContent="center">
                         <Pagination
                             size="small"

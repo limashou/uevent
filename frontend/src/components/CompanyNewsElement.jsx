@@ -1,6 +1,7 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import Requests from "../api/Requests";
 import {Announcement} from "./Announcement";
+import Typography from "@mui/material/Typography";
 
 function CompanyNewsElement({ company_id }) {
     const [news, setNews] = useState([]);
@@ -21,12 +22,22 @@ function CompanyNewsElement({ company_id }) {
     }, [company_id, page]);
 
     return (
-        news.map((announcement) => (
-            <Announcement
-                key={`announcement-${announcement.id}`}
-                announcementData={announcement}
-            />
-        ))
+        <>
+            {news.length === 0 &&
+                <Typography>There is no news...</Typography>
+            }
+            {news.length > 0 &&
+                news.map((announcement) => (
+                    <Announcement
+                        key={`announcement-${announcement.id}`}
+                        announcementData={announcement}
+                        onDelete={(id) => {
+                            setNews(news.filter(announcement => announcement.id !== id));
+                        }}
+                    />
+                ))
+            }
+        </>
     )
 }
 

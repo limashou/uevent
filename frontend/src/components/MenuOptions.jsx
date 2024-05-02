@@ -1,7 +1,6 @@
 import * as React from 'react';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 const ITEM_HEIGHT = 48;
@@ -34,18 +33,12 @@ function MenuOptions({options = []}) {
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
-                PaperProps={{
-                    style: {
-                        maxHeight: ITEM_HEIGHT * 4.5,
-                        width: '20ch',
-                    },
+                sx={{
+                    textDecoration: 'none',
+                    color: 'inherit'
                 }}
             >
-                {options.map((option, index) => (
-                    <MenuItem key={`option-${index}`}>
-                        {option}
-                    </MenuItem>
-                ))}
+                {options.map((option) => option)}
             </Menu>
         </div>
     );

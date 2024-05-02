@@ -3,28 +3,54 @@ import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Requests from "../api/Requests";
 import {Stack} from "@mui/material";
+import MenuOptions from "./MenuOptions";
+import {useContext} from "react";
+import {CompanyDataContext} from "../pages/companies/CompanyDataWrapper";
+import {customAlert, formatDate} from "../Utils/Utils";
+import MenuItem from "@mui/material/MenuItem";
 
-export function Announcement({ announcementData }) {
+export function Announcement({ announcementData, onDelete }) {
     //{"id":1,
     // "company_id":2,
     // "poster":null,
     // "title":"рррр",
     // "content":"рррррр",
     // "created_at":"2024-04-20T11:46:31.706Z"}
-    const formatDate = (date) => {
-        const options = { year: "numeric", month: "long", day: "numeric", hour: 'numeric', minute: 'numeric' };
-        return new Date(date).toLocaleDateString(undefined, options);
-    };
+
+    const { permissions } = useContext(CompanyDataContext);
+    const menuOptions = [];
+    if (permissions.news_creation === true){
+        menuOptions.push(
+            <MenuItem onClick={() => {
+                Requests.deleteAnnouncement(announcementData.id).then((resp) => {
+                    if (resp.state === true){
+                        customAlert('Success', 'success');
+                        onDelete(announcementData.id);
+                    }
+                    else
+                        customAlert(resp.message || 'Error', 'error');
+                })
+            }}>
+                Delete
+            </MenuItem>
+        )
+    }
 
     return (
         <Container maxWidth="md"
                    sx={{
                        padding: "20px",
-                       borderRadius: "10px",
-                       boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.2)",
                    }}
         >
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack direction="row" justifyContent="space-between" spacing={2}>
+                <Container>
+                    <Typography variant="h3" sx={{ marginBottom: "10px" }}>
+                        {announcementData.title}
+                    </Typography>
+                    <Typography variant="body1" sx={{ marginBottom: "10px" }}>
+                        {announcementData.content}
+                    </Typography>
+                </Container>
                 {announcementData.poster && (
                     <Avatar
                         variant="rounded"
@@ -33,18 +59,12 @@ export function Announcement({ announcementData }) {
                         sx={{ width: 100, height: 100 }}
                     />
                 )}
-                <Container>
-                    <Typography variant="h5" sx={{ marginBottom: "10px" }}>
-                        {announcementData.title}
-                    </Typography>
-
-                    <Typography variant="body1" sx={{ marginBottom: "10px" }}>
-                        {announcementData.content}
-                    </Typography>
+                <Stack direction="column" justifyContent="space-between" alignContent="flex-end" alignItems="flex-end" textAlign="end">
+                    <MenuOptions options={menuOptions} />
                     <Typography variant="body2" sx={{ color: "#666" }}>
-                        Дата публикации: {formatDate(announcementData.created_at)}
+                        {formatDate(announcementData.created_at, true)}
                     </Typography>
-                </Container>
+                </Stack>
             </Stack>
         </Container>
     );

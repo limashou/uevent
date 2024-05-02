@@ -14,13 +14,16 @@ import CompanyNewsElement from "../../components/CompanyNewsElement";
 import EventMini from "../../components/EventMini";
 import {Tab, Tabs} from "@mui/material";
 import CompanyNotificationsMenu from "../../components/CompanyNotificationsMenu";
-import CompanySubscribeDialog from "../../components/dialogs/CompanySubscribeDialog";
 import MenuOptions from "../../components/MenuOptions";
 import Divider from "@mui/material/Divider";
+import {customAlert} from "../../Utils/Utils";
+import CompanySubscribeDialog from "../../components/dialogs/CompanySubscribeDialog";
+import MenuItem from "@mui/material/MenuItem";
+import {CompanySubscribeEditDialog} from "../../components/dialogs/CompanySubscribeEditDialog";
 
 function Company() {
     const { company_id } = useParams();
-    const { companyData, companyMembers, loading, permissions, notificationsEnable } = useContext(CompanyDataContext);
+    const { companyData, companyMembers, loading, permissions, actions, setActions, notificationsEnable } = useContext(CompanyDataContext);
     const [companyEvents, setCompanyEvents] = useState([]);
     useEffect(() => {
         const fetchData = async () => {
@@ -43,15 +46,59 @@ function Company() {
         setTabsValue(newValue);
     };
 
-    const menuOptions = [
-        <CompanySubscribeDialog company_id={company_id} />,
-    ];
-    if (permissions.company_edit)
-        menuOptions.push(<Link to={`/companies/${company_id}/settings`}>Settings</Link>)
-    if (permissions.news_creation)
-        menuOptions.push(<Link to={`/companies/${company_id}/newsCreation`}>Create news</Link>)
-    if (permissions.event_creation)
-        menuOptions.push(<Link to={`/companies/${company_id}/eventCreation`}>Create event</Link>)
+
+    const [menuOptions, setMenuOptions] = useState([]);
+
+
+    useEffect(() => {
+        const newOptions = [];
+        if ('subscribe_id' in actions)
+            newOptions.push(
+                <CompanySubscribeEditDialog subscribe_id={actions.subscribe_id} />
+            );
+        if ('subscribe_id' in actions)
+            newOptions.push(
+                <MenuItem key={'unsub'} onClick={() => {
+                    Requests.unsubscribe(actions.subscribe_id).then((resp) => {
+                        if (resp.state === true) {
+                            customAlert('You successfully unsubscribed from this company', 'success');
+                            setActions({canSubscribe: true});
+                        } else {
+                            customAlert(resp.message || 'Error', 'error');
+                        }
+                    })
+                }}>
+                    Unsubscribe
+                </MenuItem>
+            );
+        else
+            newOptions.push(<CompanySubscribeDialog company_id={company_id} />);
+        if (permissions.company_edit)
+            newOptions.push(
+                <Link key={'settings'} to={`/companies/${company_id}/settings`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <MenuItem>
+                        Settings
+                    </MenuItem>
+                </Link>
+            )
+        if (permissions.news_creation)
+            newOptions.push(
+                <Link key={'newscreate'} to={`/companies/${company_id}/newsCreation`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <MenuItem>
+                        Create news
+                    </MenuItem>
+                </Link>
+            )
+        if (permissions.event_creation)
+            newOptions.push(
+                <Link key={'evcreate'} to={`/companies/${company_id}/eventCreation`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <MenuItem>
+                        Create event
+                    </MenuItem>
+                </Link>
+            )
+        setMenuOptions(newOptions);
+    }, [actions, permissions]);
 
     if (!companyData || loading) {
         return <div>Loading...</div>;
@@ -59,7 +106,7 @@ function Company() {
 
     return (
         <Container disableGutters maxWidth="md" sx={{
-            backgroundColor: "background.default", // Получение цвета фона из темы
+            backgroundColor: "background.default",
             padding: 2,
             borderRadius: 2
         }}>
@@ -96,9 +143,16 @@ function Company() {
                     </Tabs>
                     <Divider sx={{mb: 2}} />
                     {tabsValue === 0 &&
-                        companyEvents.map((event) => (
-                            <EventMini eventData={event} />
-                        ))
+                        <>
+                            {companyEvents.length === 0 &&
+                                <Typography>There is no events...</Typography>
+                            }
+                            {companyEvents.length > 0 &&
+                                companyEvents.map((event) => (
+                                    <EventMini eventData={event} />
+                                ))
+                            }
+                        </>
                     }
                     {tabsValue === 1 &&
                         <CompanyNewsElement company_id={company_id} />

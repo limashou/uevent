@@ -50,7 +50,11 @@ function CompanyCreation() {
     }
 
     return (
-        <Container maxWidth="md">
+        <Container maxWidth="md" sx={{
+            backgroundColor: "background.default",
+            padding: 2,
+            borderRadius: 2
+        }}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={3}>
                     <Stack spacing={5}>

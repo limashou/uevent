@@ -5,10 +5,10 @@ import Requests from "../../api/Requests";
 export const EventDataContext = createContext();
 function EventDataWrapper({ children }) {
     const { event_id } = useParams();
-    const [eventData, setEventData] = useState(null);
+    const [eventData, setEventData] = useState();
 
     const [eventEditPermission, setEventEditPermission] = useState(false);
-    const [ticketsInfo, setTicketsInfo] = useState(undefined);
+    const [tickets, setTickets] = useState(undefined);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -37,7 +37,7 @@ function EventDataWrapper({ children }) {
             try {
                 const resp = await Requests.eventTickets(event_id);
                 if (resp.state === true) {
-                    setTicketsInfo(resp.data);
+                    setTickets(resp.data);
                 }
 
                 const respUsers = await Requests.eventUsers(event_id);
@@ -57,8 +57,8 @@ function EventDataWrapper({ children }) {
         eventData,
         setEventData,
         eventEditPermission,
-        ticketsInfo,
-        setTicketsInfo,
+        tickets,
+        setTickets,
         visitorsWithName,
         setVisitorsWithName,
         anonVisitors,

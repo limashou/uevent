@@ -1,14 +1,11 @@
-import React, {useContext, useEffect, useState} from "react";
-import {Badge, List, Popover} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Badge, List, ListItem, Popover} from "@mui/material";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import {Notification} from "./Notification";
 import IconButton from "@mui/material/IconButton";
-import {UserContext} from "../pages/RootLayout";
 import Requests from "../api/Requests";
-import Typography from "@mui/material/Typography";
 
 function UserNotificationsMenu() {
-    const [ userData ] = useContext(UserContext);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [lastReadNotificationId, setLastReadNotificationId] = useState(undefined);
@@ -80,7 +77,7 @@ function UserNotificationsMenu() {
             >
                 <List>
                     {notifications.length === 0 &&
-                        <Typography>Nothing here</Typography>
+                        <ListItem>Nothing here</ListItem>
                     }
                     {notifications.map((notification) => (
                         <Notification notificationData={notification} handleClose={handleClose} />

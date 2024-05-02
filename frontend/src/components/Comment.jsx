@@ -6,26 +6,35 @@ import Requests from "../api/Requests";
 import {customAlert, formatDate} from "../Utils/Utils";
 import {UserContext} from "../pages/RootLayout";
 import MenuOptions from "./MenuOptions";
+import MenuItem from "@mui/material/MenuItem";
 
-function Comment({ commentData, onDeleted = (comment_id) => {}, onEditorCalled = (value) => {} }) {
+function Comment({ commentData, onUpdate, onEdit = (commentText, comment_id) => {} }) {
     const [userData] = useContext(UserContext);
 
     const menuOptions = [];
 
     if (userData.id === commentData.user_id){
-        menuOptions.push(<Typography onClick={() => {
-            Requests.deleteComment(commentData.id).then((resp) => {
+        menuOptions.push(
+            <MenuItem key={'delete'} onClick={() => {Requests.deleteComment(commentData.id).then((resp) => {
                 if (resp.state === true){
                     customAlert('Comment deleted', 'success');
-                    onDeleted();
+                    onUpdate();
                 }
                 else
                     customAlert(resp.message || 'Error deleting comment', 'error');
-            })
-        }}>Delete</Typography>);
-        menuOptions.push(<Typography onClick={() => {
+            })}}>
+                Delete
+            </MenuItem>
+        );
 
-        }}>Edit</Typography>)
+        menuOptions.push(
+            <MenuItem
+                key={'edit'}
+                onClick={() => {onEdit(commentData.comment, commentData.id)}}
+            >
+                Edit
+            </MenuItem>
+        )
     }
 
     return (

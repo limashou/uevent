@@ -13,9 +13,7 @@ class Users extends Model{
         return this.insert();
     }
     async findByFullName(user_ids_to_exclude, stringValue) {
-        const selectColumns = ['id', 'email', 'full_name'];
-        const idPlaceholders = user_ids_to_exclude.map(() => '?').join(',');
-
+        const selectColumns = ['id', 'full_name'];
         let query = `
         SELECT ${selectColumns.join(', ')}
         FROM users
@@ -25,10 +23,8 @@ class Users extends Model{
 
         if (user_ids_to_exclude.length > 0) {
             query += `
-            AND id <> ANY($2::int[])
-            LIMIT 5
-        `;
-            values.push(user_ids_to_exclude);
+            AND id NOT IN (${user_ids_to_exclude.join(',')})
+            LIMIT 5`;
         } else {
             query += `
             LIMIT 5
@@ -39,9 +35,12 @@ class Users extends Model{
             const { rows } = await client.query(query, values);
             return rows;
         } catch (error) {
+            console.error(error);
             throw error;
         }
     }
+
+
 
     async userCompanies(user_id) {
         const query = `

@@ -86,6 +86,22 @@ export const companyNameValidation = (event) => {
         helper: helperText,
     }
 }
+export const eventNameValidation = (event) => {
+    const inputValue = event.target.value;
+    let isError = false;
+    let helperText = '';
+
+    if (inputValue.length < 3) {
+        isError = true;
+        helperText = 'The event name must be at least 3 characters long';
+    }
+
+    return {
+        input: inputValue,
+        error: isError,
+        helper: helperText,
+    }
+}
 export const memberRoles = [
     { value: 4, label: 'Worker' },
     { value: 3, label: 'News Maker' },

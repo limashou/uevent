@@ -22,7 +22,7 @@ import Event from "./pages/events/Event";
 import EventSettings from "./pages/events/EventSettings";
 import EventDataWrapper from "./pages/events/EventDataWrapper";
 import AnnouncementCreation from "./pages/companies/news/AnnouncementCreation";
-import TicketBuyConfirm from "./pages/tickets/TicketBuyConfirm";
+import TicketBuyConfirm from "./pages/events/TicketBuyConfirm";
 import {SnackbarProvider} from "notistack";
 
 const Login = lazy(() => import("./pages/auth/Login"));
@@ -60,9 +60,9 @@ function App() {
                     <Route path=":event_id" element={<EventDataWrapper />} >
                         <Route index element={<Event />} />
                         <Route path="settings" element={<EventSettings />} />
+                        <Route path="tickets/:ticket_id/checkPayment" element={<TicketBuyConfirm />} />
                     </Route>
                 </Route>
-                <Route path="ticketbuyconfirm/:ticket_id" element={<TicketBuyConfirm />} />
                 <Route path="accept-invitation/:invitationCode" element={<AcceptInvitation />}/>
             </Route>
         )

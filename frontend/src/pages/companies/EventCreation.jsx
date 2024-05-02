@@ -9,6 +9,8 @@ import Button from "@mui/material/Button";
 import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
 import {FORMATS, THEMES} from "../../Utils/InputHandlers";
 import {enqueueSnackbar} from "notistack";
+import {customAlert} from "../../Utils/Utils";
+import Container from "@mui/material/Container";
 
 function EventCreation() {
     const { company_id } = useParams();
@@ -43,23 +45,30 @@ function EventCreation() {
             if (poster){
                 const resp2 = await Requests.posterUpload(resp.data, poster);
                 if (resp2.state === true){
-                    enqueueSnackbar('Poster upload', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+                    customAlert('Poster upload', 'success');
                 }
                 else
-                    enqueueSnackbar(resp2?.message || 'Error uploading poster', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+                    customAlert(resp2?.message || 'Error uploading poster', 'error');
             }
             window.location.href = `/events/${resp.data}`;
         }
         else
-            enqueueSnackbar(resp?.message || 'Error creating event', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+            customAlert(resp?.message || 'Error creating event', 'error');
 
     }
     return (
-        <>
+        <Container maxWidth="md" sx={{
+            backgroundColor: "background.default",
+            padding: 2,
+            borderRadius: 2
+        }}>
             <Stack spacing={2}>
                 <Stack spacing={2} direction="row">
-                    <CustomImageDropzone onFileSelected={(file) => setPoster(file)} />
-                    <Stack spacing={2}>
+                    <CustomImageDropzone
+                        alt="Drop poster here"
+                        onFileSelected={(file) => setPoster(file)}
+                    />
+                    <Stack spacing={2} direction="column" sx={{width: '100%'}}>
                         <CustomInputField
                             onChangeChecked={(key, value) => setTitle(value)}
                             id="title"
@@ -82,19 +91,23 @@ function EventCreation() {
                     InputLabelProps={{ shrink: true }}
                 />
                 <CustomSelector
+                    defaultValue={FORMATS[0].value}
                     onChange={(value) => setFormat(value)}
                     label="Format"
                     options={FORMATS}
                 />
                 <CustomSelector
+                    defaultValue={THEMES[0].value}
                     onChange={(value) => setTheme(value)}
                     label="Theme"
                     options={THEMES}
                 />
                 <GoogleMapsInput onChange={setLocationObj} />
-                <Button onClick={createEvent}>Create</Button>
+                <Button
+                    variant="contained"
+                    onClick={createEvent}>Create</Button>
             </Stack>
-        </>
+        </Container>
     )
 }
 

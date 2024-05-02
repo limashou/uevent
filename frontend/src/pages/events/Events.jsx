@@ -3,7 +3,6 @@ import {debounce} from "lodash";
 import Requests from "../../api/Requests";
 import Container from "@mui/material/Container";
 import CustomSearch from "../../components/inputs/CustomSearch";
-import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Pagination from "@mui/material/Pagination";
 import EventMini from "../../components/EventMini";
@@ -12,6 +11,8 @@ import CustomMultiSelect from "../../components/inputs/CustomMultiSelect";
 import {FORMATS, THEMES} from "../../Utils/InputHandlers";
 import {CompaniesSearch} from "../../components/inputs/CompaniesSearch";
 import Grid from "@mui/material/Grid";
+import Divider from "@mui/material/Divider";
+import EventMiniSkeleton from "../../components/skeletons/EventMiniSkeleton";
 
 function Events() {
     const [events, setEvents] = useState([]);
@@ -22,6 +23,7 @@ function Events() {
     const [searchOptions, setSearchOptions] = useState([]);
     const ONE_PAGE_LIMIT = 4;
     const [loading, setLoading] = useState(true);
+    const [searchLoading, setSearchLoading] = useState(false);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
 
@@ -61,11 +63,12 @@ function Events() {
             if (page > totalPages)
                 setPage(1);
         }
-        setLoading(false); // Установка состояния загрузки после получения данных
-    }, 1000); // Задержка в 2000 миллисекунд (2 секунды)
+        setLoading(false);
+        setSearchLoading(false);
+    }, 1000);
 
     useEffect(() => {
-        setLoading(true); // Установка состояния загрузки после получения данных
+        setLoading(true);
         debouncedFetchData();
         return debouncedFetchData.cancel; // Отмена предыдущего вызова debouncedFetchData при изменении page или searchValue
     }, [page, searchValue, dateFrom, dateTo, formatsFilter, themesFilter, companyIdFilter]);
@@ -76,69 +79,79 @@ function Events() {
 
     const handleSearchChange = (event, newValue) => {
         setSearchValue(newValue);
+        setSearchLoading(true);
     };
 
     return (
         <Grid container spacing={1}>
             <Grid item xs={12} md={2}>
-                <Stack direction="column" gap={2}>
-                    <CompaniesSearch handleIdSelect={setCompanyIdFilter} />
-                    <CustomMultiSelect options={FORMATS} label="Formats" onChange={(values) => {
-                        setFormatsFilter(values.map(({value}) => value));
-                    }} />
-                    <CustomMultiSelect options={THEMES} label="Themes" onChange={(values) => {
-                        setThemesFilter(values.map(({value}) => value));
-                    }} />
-                    <CustomInputField
-                        onChangeChecked={(key, value) => setDateFrom(value)}
-                        id="eventDateFrom"
-                        label="Date from"
-                        type="datetime-local"
-                        InputLabelProps={{ shrink: true }}
-                    />
-                    <CustomInputField
-                        onChangeChecked={(key, value) => setDateTo(value)}
-                        id="eventDateTo"
-                        label="Date to"
-                        type="datetime-local"
-                        InputLabelProps={{ shrink: true }}
-                    />
-                </Stack>
+                <Container sx={{
+                    backgroundColor: "background.default",
+                    padding: 2,
+                    borderRadius: 2,
+                    display: 'flex', flexDirection: 'column', gap: 2
+                }}>
+                    <Stack direction="column" gap={2}>
+                        <CompaniesSearch handleIdSelect={setCompanyIdFilter} />
+                        <CustomMultiSelect options={FORMATS} label="Formats" onChange={(values) => {
+                            setFormatsFilter(values.map(({value}) => value));
+                        }} />
+                        <CustomMultiSelect options={THEMES} label="Themes" onChange={(values) => {
+                            setThemesFilter(values.map(({value}) => value));
+                        }} />
+                        <CustomInputField
+                            onChangeChecked={(key, value) => setDateFrom(value)}
+                            id="eventDateFrom"
+                            label="Date from"
+                            type="datetime-local"
+                            InputLabelProps={{ shrink: true }}
+                        />
+                        <CustomInputField
+                            onChangeChecked={(key, value) => setDateTo(value)}
+                            id="eventDateTo"
+                            label="Date to"
+                            type="datetime-local"
+                            InputLabelProps={{ shrink: true }}
+                        />
+                    </Stack>
+                </Container>
             </Grid>
             <Grid item xs={12} md={8}>
-                <Container>
-                    <Container sx={{ display: 'flex' }}>
+                <Container sx={{
+                    backgroundColor: "background.default",
+                    padding: 2,
+                    borderRadius: 2,
+                    display: 'flex', flexDirection: 'column', gap: 2
+                }}>
+                    <Container sx={{ display: 'flex' }} disableGutters>
                         <CustomSearch value={searchValue} options={searchOptions} handleSearchChange={handleSearchChange} />
                     </Container>
-                    <Container maxWidth="xl">
-                        {loading ? ( // Отображение скелетона во время загрузки
+                    <Container maxWidth="xl" disableGutters>
+                        {loading ? (
                             Array.from({ length: ONE_PAGE_LIMIT }).map((_, index) => (
-                                <Container key={index}
-                                           sx={{ height: '175px', display: 'flex',
-                                               alignItems: 'center',
-                                               boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.2)",
-                                           }}
-                                >
-                                    <Skeleton variant="circular" width={100} height={100} />
-                                    <Container sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                                        <Skeleton variant="text" width="40%" height={40} />
-                                        <Skeleton variant="text" width="80%" height={20} />
-                                        <Skeleton variant="text" width="70%" height={20} />
-                                        <Skeleton variant="text" width="90%" height={20} />
-                                        <Skeleton variant="text" width="50%" height={20} />
-                                    </Container>
-                                </Container>
+                                <>
+                                    <EventMiniSkeleton />
+                                    {index < ONE_PAGE_LIMIT - 1 && <Divider />}
+                                </>
                             ))
                         ) : (
-                            events.map(event => (
-                                <EventMini eventData={event} />
+                            events.map((event, index) => (
+                                <>
+                                    <EventMini eventData={event} key={event.id} />
+                                    {index < events.length - 1 && <Divider />}
+                                </>
                             ))
                         )}
                     </Container>
                 </Container>
             </Grid>
             <Grid item xs={12} md={2}>
-                <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Container maxWidth="sm" sx={{
+                    backgroundColor: "background.default",
+                    padding: 2,
+                    borderRadius: 2,
+                    display: 'flex', flexDirection: 'column', gap: 2
+                }}>
                     <Stack direction="row" spacing={2} justifyContent="center">
                         <Pagination
                             size="small"

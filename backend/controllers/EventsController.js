@@ -70,7 +70,7 @@ async function editEvent(req,res){
                 await new UserNotification().notification(editSubscriptionElement.user_subscribe_id, newNotification)
             }
         }
-        res.json(new Response(true,"Successfully update"),foundEvent[0].id);
+        res.json(new Response(true,"Successfully update",foundEvent[0].id));
     }catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -298,7 +298,7 @@ async function editComment(req,res){
             return res.json(new Response(false, "You cant creat comment without text"));
         }
         await comment.updateById( { id: foundComment[0].id, comment: text });
-        res.json(new Response(true,"Successfully update"), foundComment[0].id);
+        res.json(new Response(true,"Successfully update", foundComment[0].id));
     }catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));

@@ -3,10 +3,9 @@ import Avatar from "@mui/material/Avatar";
 import Requests from "../api/Requests";
 import {Link} from "react-router-dom";
 import Typography from "@mui/material/Typography";
-import DescriptionIcon from "@mui/icons-material/Description";
-import WatchLaterIcon from '@mui/icons-material/WatchLater';
 import {Chip, Stack} from "@mui/material";
-import {memberRoles} from "../Utils/InputHandlers";
+import Divider from "@mui/material/Divider";
+import {formatDate} from "../Utils/Utils";
 
 function EventMini({eventData}) {
     return (
@@ -14,8 +13,6 @@ function EventMini({eventData}) {
             key={`event-mini-${eventData.id}`}
             sx={{
                 padding: "20px",
-                borderRadius: "10px",
-                boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.2)",
             }}
         >
             <Stack direction="row" alignItems="center" spacing={2}>
@@ -23,42 +20,38 @@ function EventMini({eventData}) {
                     variant="rounded"
                     alt={eventData.name}
                     src={Requests.get_event_poster_link(eventData.id)}
-                    sx={{ width: 100, height: 100 }}
+                    sx={{ width: 120, height: 120 }}
                 />
-                <Container>
-                    <Link to={`/events/${eventData.id}`}>
-                        <Typography variant="h4" component="div" sx={{ textAlign: 'left',
-                            fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 'bold' }}>
+                <Stack direction="column" sx={{display: 'flex', textAlign: 'left', width: '100%'}}>
+                    <Link to={`/events/${eventData.id}`} style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center' }}>
+                        <Typography variant="h3" sx={{ fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 'bold' }}>
                             {eventData.name}
                         </Typography>
                     </Link>
-                    {eventData.description &&
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{mb: 1, mt: 1}}>
-                            <DescriptionIcon />
-                            <Typography variant="p" component="div">
-                                {eventData.description}
-                            </Typography>
-                        </Stack>
-                    }
-                    <Stack direction="row" spacing={1} alignItems="center" sx={{mb: 1, mt: 1}}>
-                        <WatchLaterIcon />
-                        <Typography variant="p" component="div">
-                            {new Date(eventData.date).toLocaleString()}
-                        </Typography>
-                    </Stack>
+                    <Divider sx={{mt: 1}} />
+                    <Typography variant="body1" sx={{mb: 1}}>
+                        {eventData.description}
+                    </Typography>
                     <Stack direction="row" spacing={1} alignItems="center">
                         <Chip
                             label={eventData.theme.toUpperCase()}
-                            variant="filled"
+                            variant="outlined"
+                            sx={{borderRadius: 2}}
                             size="medium"
                         />
                         <Chip
                             label={eventData.format.toUpperCase()}
-                            variant="filled"
+                            variant="outlined"
+                            sx={{borderRadius: 2}}
                             size="medium"
                         />
                     </Stack>
-                </Container>
+                    <Container sx={{ display: 'flex', gap: 1, justifyContent: 'right' }}>
+                        <Typography variant="body1" sx={{ opacity: 0.8 }}>
+                            {`${formatDate(eventData.date, true)}`}
+                        </Typography>
+                    </Container>
+                </Stack>
             </Stack>
         </Container>
     )

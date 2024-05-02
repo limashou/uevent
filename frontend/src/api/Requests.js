@@ -3,7 +3,7 @@ import {logout} from "../Utils/Utils";
 
 const ip = new URL(window.location.origin).hostname;
 // const ip = '192.168.1.2';
-const domain = `http://${ip}:3001/api`;
+const domain = `https://${ip}:3001/api`;
 
 const axiosInstance = axios.create({
     baseURL: domain,
@@ -24,7 +24,7 @@ axiosInstance.interceptors.response.use(
             await logout();
         }
         if (error.response?.data?.message) {
-            return Promise.resolve(error.response); // Возвращаем обычный ответ, если есть данные JSON
+            return Promise.resolve(error.response);
         }
         return Promise.reject(error);
     }
@@ -211,8 +211,9 @@ export default class Requests {
             axiosInstance.patch(`/companies/${company_id}/logo`, data, config);
         return resp.data;
     }
-    static async companyNotifications(company_id) {
-        const resp = await axiosInstance.get(`companies/${company_id}/notifications`);
+    static async companyNotifications(company_id, notification_id) {
+        const queryParams = notification_id ? `?from_id=${notification_id}` : '';
+        const resp = await axiosInstance.get(`companies/${company_id}/notifications${queryParams}`);
         return resp.data;
     }
     static async companySubscribe(company_id, update_events = true, new_news = true, new_events = true){
@@ -220,10 +221,30 @@ export default class Requests {
             .post(`companies/${company_id}/subscribe`, {update_events, new_news, new_events});
         return resp.data;
     }
+    static async getSubscribeDetails(subscribe_id){
+        const resp = await axiosInstance.get(`subscribe/${subscribe_id}`);
+        return resp.data;
+        // return {state: true, data: {update_events: true, new_news: true, new_events: true}};
+    }
+    static async changeSubscribe(subscribe_id, update_events = true, new_news = true, new_events = true){
+        const resp = await axiosInstance
+            .patch(`subscribe/${subscribe_id}/changeSubscribe`, {update_events, new_news, new_events});
+        return resp.data;
+    }
+    static async unsubscribe(subscribe_id){
+        const resp = await axiosInstance
+            .delete(`subscribe/${subscribe_id}/unsubscribe`);
+        return resp.data;
+    }
 
     //EVENTS
     static get_event_poster_link(event_id){
         return `${domain}/events/${event_id}/poster`;
+    }
+    static async editEvent(event_id, editedFields) {
+        const resp = await
+            axiosInstance.patch(`events/${event_id}/edit`, editedFields);
+        return resp.data;
     }
     static async eventCreation(company_id, eventData){
         const resp = await axiosInstance.post(`/companies/${company_id}/create`, eventData);
@@ -317,6 +338,10 @@ export default class Requests {
         const resp = await axiosInstance.patch(`/news/${news_id}/posterUpload`, data, config);
         return resp.data;
     }
+    static async deleteAnnouncement(news_id){
+        const resp = await axiosInstance.delete(`news/${news_id}/delete`);
+        return resp.data;
+    }
     static async companyNews(company_id, data = { page: 1, limit: 3, order: 'ASC' }){
         const config = {
             params: {
@@ -335,19 +360,41 @@ export default class Requests {
     }
 
     //TICKETS
-    static async reserveTicket(ticket_id, successUrl = window.location.href, cancelUrl = window.location.href){
+    static async reserveTicket(ticket_id,
+                               successUrl = window.location.href,
+                               cancelUrl = window.location.href,
+                               promo_code = '',
+                               show_username = true){
+        let data = {
+            successUrl, cancelUrl, show_username
+        }
+        if (promo_code.trim() !== ''){
+            data.promo_code = promo_code;
+        }
         const resp = await axiosInstance
-            .post(`/tickets/${ticket_id}/reserve`,{successUrl, cancelUrl});
+            .post(`/tickets/${ticket_id}/reserve`,data);
         return resp.data;
     }
-    static async buyTicket(ticket_id, show_username = false){
+    static async checkTicketPayment(ticket_id){
         const resp = await axiosInstance
-            .post(`/tickets/${ticket_id}/buy`, {show_username});
+            .get(`/tickets/${ticket_id}/checkPayment`);
         return resp.data;
     }
     static async informationTicket(user_ticket_id){
         const resp = await axiosInstance
             .get(`/tickets/information/${user_ticket_id}`);
+        return resp.data;
+    }
+    static async checkDiscount(event_id, promoCode) {
+        const resp = await axiosInstance
+            .post(`events/${event_id}/check_promo`, { promoCode });
+        return resp.data;
+    }
+
+    static async generatePromo(event_id, discount = 10, discount_type = 'percentage', valid_to = new Date(Date.now() + 10 * 60 * 60 * 1000).toISOString()){
+        //'percentage', 'fixed_amount'
+        const body = {discount, discount_type, valid_to}
+        const resp = await axiosInstance.post(`events/${event_id}/generate_promo`, body);
         return resp.data;
     }
 

@@ -52,8 +52,12 @@ function Profile() {
     return (
         <Container
             maxWidth={'sm'}
-            gap={4}
-            p={2}
+            sx={{
+                backgroundColor: "background.default",
+                padding: 2,
+                borderRadius: 2,
+                display: 'flex', flexDirection: 'column', gap: 2
+            }}
         >
             <Stack direction="row">
                 <Avatar

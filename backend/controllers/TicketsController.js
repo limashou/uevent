@@ -108,22 +108,31 @@ async function removeTickets(req,res){
 async function getTicketsByEvent(req,res) {
     try {
         const { event_id } = req.params;
-        const ticketsUsers = new TicketsUsers();
-        const check = await  ticketsUsers.check(req.senderData.id, event_id);
-        let buyStatus = check;
-        if(check.exists === true) {
-             buyStatus = {
-                 exists: true,
-                 message: "You've already bought a ticket to this event",
-                 data: check
-            };
-        }
         const tickets = new Tickets();
         const ticketsFound = await tickets.find({event_id: event_id});
-        if(ticketsFound.length === null) {
-            return res.json(new Response(true, "Not found tickets"));
+        if(ticketsFound.length === 0) {
+            return res.json(new Response(true, "Not found tickets", []));
         }
-        res.json(new Response(true, "All tickets by event_id " + event_id, {tickets: ticketsFound, buyStatus }));
+
+        const ticketsUsers = new TicketsUsers();
+        const check = await ticketsUsers.check(req.senderData.id, event_id);
+        if(check.exists === true) {
+            for (let ticketsFoundElement of ticketsFound) {
+                if (ticketsFoundElement.id === check.ticket_id){
+                    if ('session_id' in check){
+                        ticketsFoundElement.session_id = check.session_id;
+                        ticketsFoundElement.status = check.ticket_status;
+                    }
+                    else{
+                        ticketsFoundElement.status = 'bought';
+                        ticketsFoundElement.user_ticket_id = check.user_ticket_id
+                    }
+                }
+                else
+                    ticketsFoundElement.status = 'unavailable';
+            }
+        }
+        res.json(new Response(true, "All tickets by event_id " + event_id, ticketsFound));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));
@@ -197,9 +206,6 @@ async function generateTicketPdf(user_id, ticket_id, ticket_status) {
 
 async function buyTicket(req, res){
     try {
-        if(Object.keys(req.body).length === 0) {
-            return res.json(new Response(false, "Empty body"));
-        }
         const { ticket_id } = req.params;
         const ticketUser = new TicketsUsers();
         if(req.senderData.id === undefined) {
@@ -246,7 +252,8 @@ function isPromoCodeValid(valid_from,valid_to) {
 
 async function promoCode(req,res){
     try {
-        const { event_id ,promoCode } = req.params;
+        const { event_id } = req.params;
+        const { promoCode } = req.body;
         const promo = await new Promo_code().find({ code: promoCode });
         if( promo.length === 0 || promoCode !== promo[0].code){
             return res.json(new Response(false,"Wrong promo code"));

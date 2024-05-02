@@ -17,6 +17,10 @@ function CompanyDataWrapper({ children }) {
         event_creation: false
     });
 
+
+    const [actions, setActions] = useState({
+        canSubscribe: false,
+    });
     const [companyMembers, setCompanyMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [notificationsEnable, setNotificationsEnable] = useState(false);
@@ -24,17 +28,18 @@ function CompanyDataWrapper({ children }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const companyDataResponse = await Requests.companyById(company_id);
-                if (companyDataResponse.state === true) {
-                    companyDataResponse.data.data.logo = Requests.get_company_logo_link(companyDataResponse.data.data.id);
-                    setCompanyData(companyDataResponse.data.data);
-                    setPermissions(companyDataResponse.data.permissions);
+                const resp = await Requests.companyById(company_id);
+                if (resp.state === true) {
+                    resp.data.data.logo = Requests.get_company_logo_link(resp.data.data.id);
+                    setCompanyData(resp.data.data);
+                    setPermissions(resp.data.permissions);
+                    setActions(resp.data.actions);
                 }
 
-                const companyMembersResponse = await Requests.companyMembers(company_id);
-                if (companyMembersResponse.state === true) {
-                    setCompanyMembers(companyMembersResponse.data);
-                    if (companyMembersResponse.data.some(member => member.id === userData.id)){
+                const resp2 = await Requests.companyMembers(company_id);
+                if (resp2.state === true) {
+                    setCompanyMembers(resp2.data);
+                    if (resp2.data.some(member => member.id === userData.id)){
                         setNotificationsEnable(true);
                     }
                 }
@@ -54,6 +59,8 @@ function CompanyDataWrapper({ children }) {
         loading,
         setLoading,
         permissions,
+        actions,
+        setActions,
         notificationsEnable
     };
 

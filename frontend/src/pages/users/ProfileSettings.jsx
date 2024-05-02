@@ -55,7 +55,12 @@ function ProfileSettings() {
     }
 
     return (
-        <Container maxWidth="md" sx={{ marginTop: 1 }}>
+        <Container maxWidth="md" sx={{
+            backgroundColor: "background.default",
+            padding: 2,
+            borderRadius: 2,
+            display: 'flex', flexDirection: 'column', gap: 2
+        }}>
             <Grid container spacing={1}>
                 <Grid item xs={12} sm={3}>
                     <Grid container spacing={5}>

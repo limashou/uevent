@@ -8,11 +8,18 @@ const client = require("./db");
 const sessionMiddleware = require("./middleware/session");
 const tokenMiddleware = require("./middleware/token");
 const sessionLimiter = require("./middleware/sessionLimiter");
+const fs = require("fs");
+const https = require("https");
 
 const app = express();
 
+const options = {
+    key: fs.readFileSync('../localhost-key.pem'),
+    cert: fs.readFileSync('../localhost.pem')
+};
+
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://192.168.1.2:3000', 'http://192.168.1.3:3000'],
+    origin: ['https://localhost:3000', 'https://192.168.1.2:3000', 'https://192.168.1.3:3000'],
     credentials: true,
 }));
 
@@ -39,6 +46,6 @@ client.connect()
 
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
-    console.log(`Сервер запущен http://localhost:${PORT}`);
+https.createServer(options, app).listen(PORT, () => {
+    console.log(`Server started on https://localhost:${PORT}`);
 });

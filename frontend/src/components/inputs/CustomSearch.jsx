@@ -1,14 +1,15 @@
 import SearchIcon from "@mui/icons-material/Search";
-import {Autocomplete, TextField} from "@mui/material";
+import {Autocomplete, CircularProgress, TextField} from "@mui/material";
 
-function CustomSearch({value, options = [], handleSearchChange, label = 'Search'}) {
+function CustomSearch({ value, options = [], handleSearchChange, label = 'Search', loading = false }) {
     return (
         <Autocomplete
-            sx={{width: '100%'}}
+            sx={{ width: '100%' }}
             filterOptions={(x) => x}
             options={options}
             value={value}
             freeSolo
+            loading={loading}
             onInputChange={(event, newInputValue) => {
                 handleSearchChange(event, newInputValue); // Вызываем функцию handleSearchChange
             }}
@@ -25,7 +26,7 @@ function CustomSearch({value, options = [], handleSearchChange, label = 'Search'
                             ...props.InputProps,
                             startAdornment: (
                                 <>
-                                    <SearchIcon />
+                                    {loading ? <CircularProgress size={24} /> : <SearchIcon />}
                                     {props.InputProps.startAdornment}
                                 </>
                             )

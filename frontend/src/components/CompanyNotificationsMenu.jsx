@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {List, Popover} from "@mui/material";
+import {Badge, List, Popover} from "@mui/material";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import {Notification} from "./Notification";
 import Requests from "../api/Requests";
@@ -8,23 +8,38 @@ import IconButton from "@mui/material/IconButton";
 function CompanyNotificationsMenu({ company_id }) {
 
     const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [lastReadNotificationId, setLastReadNotificationId] = useState(undefined);
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const resp = await Requests.companyNotifications(company_id);
-                if (resp.state === true) {
-                    setNotifications(resp.data.rows);
-                }
-            } catch (error) {
-                console.error("Error fetching company data:", error);
+        async function updateNotifications() {
+            const resp = await Requests.companyNotifications(company_id, lastReadNotificationId);
+            if (resp.state === true) {
+                setUnreadCount(resp.data.length);
+                setNotifications(prevNotifications => {
+                    // Создаем новый массив, объединяя предыдущие уведомления и новые
+                    const updatedNotifications = [...prevNotifications, ...resp.data];
+                    // Затем удаляем дубликаты, оставляя только уникальные уведомления по их идентификаторам
+                    return updatedNotifications.filter((notification, index, self) =>
+                        index === self.findIndex(n => n.id === notification.id)
+                    );
+                });
             }
-        };
-        fetchData();
-    }, []);
+        }
+
+        updateNotifications();
+
+        const intervalId = setInterval(updateNotifications, 10000);
+
+        return () => clearInterval(intervalId);
+    }, [lastReadNotificationId]);
+
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
+        if (notifications.length > 0)
+            setLastReadNotificationId(Math.max(...notifications.map(({ id }) => id)))
     };
 
     const handleClose = () => {
@@ -39,7 +54,9 @@ function CompanyNotificationsMenu({ company_id }) {
             <IconButton
                 onClick={handleClick}
             >
-                <NotificationsIcon />
+                <Badge color="secondary" badgeContent={unreadCount}>
+                    <NotificationsIcon />
+                </Badge>
             </IconButton>
             <Popover
                 id={id}
@@ -55,7 +72,7 @@ function CompanyNotificationsMenu({ company_id }) {
                     horizontal: 'right',
                 }}
                 PaperProps={{
-                    style: { marginTop: "8px", width: "300px" } // Добавляем отступ от верхней границы и ширину
+                    style: { marginTop: "8px", width: "300px" }
                 }}
             >
                 <List>

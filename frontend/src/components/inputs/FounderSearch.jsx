@@ -56,14 +56,12 @@ export function FounderSearch({handleIdSelect = (founder_id) => {}}) {
 
     return (
         <>
-            {loading &&
-                <div>...</div>
-            }
             <CustomSearch
                 value={founderSearch}
                 options={founderSearchOptions.map(({name}) => name)}
                 handleSearchChange={handleCompaniesSearchChange}
                 label="Founder search"
+                loading={loading}
             />
         </>
     )

@@ -1,6 +1,5 @@
 import {Avatar, Box, Chip, Stack, Typography} from '@mui/material';
 import Requests from '../api/Requests';
-import {memberRoles} from "../Utils/InputHandlers";
 import Container from "@mui/material/Container";
 import {Link} from "react-router-dom";
 
@@ -22,7 +21,7 @@ function CompanyMembersTab({ users }) {
                                 </Typography>
                             </Link>
                             <Chip
-                                label={memberRoles.find(role => role.value === userData.role)?.label || userData.role}
+                                label={userData.role_name.toUpperCase()}
                                 variant="outlined"
                                 size="medium"
                             />

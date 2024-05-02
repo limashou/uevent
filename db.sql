@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(256) NOT NULL UNIQUE,
     show_email BOOLEAN DEFAULT FALSE,
     full_name VARCHAR(60) NOT NULL,
-    last_read_notification INTEGER DEFAULT NULL
+    last_read_notification INTEGER DEFAULT 0
 
 );
 

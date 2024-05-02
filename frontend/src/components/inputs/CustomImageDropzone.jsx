@@ -36,7 +36,7 @@ function CustomImageDropzone({ imageLink = '', onFileSelected, alt= 'Drop logo h
                 src={imageSrc}
                 sx={{ width: 150, height: 150 }}
             >
-                {imageSrc || alt}
+                {alt}
             </Avatar>
         </Box>
     );

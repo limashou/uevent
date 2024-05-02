@@ -15,8 +15,6 @@ function CompanyMini({ companyData }) {
             maxWidth="md"
             sx={{
                 padding: "20px",
-                borderRadius: "10px",
-                boxShadow: "0px 3px 15px rgba(0, 0, 0, 0.2)",
             }}
         >
             <Stack direction="row" alignItems="center" spacing={2}>
@@ -25,17 +23,19 @@ function CompanyMini({ companyData }) {
                     src={Requests.get_company_logo_link(companyData.id)}
                     sx={{ width: 120, height: 120 }}
                 />
-                <Stack direction="column" sx={{display: 'flex', width: '100%', textAlign: 'center'}}>
+                <Stack direction="column" sx={{display: 'flex', width: '100%', textAlign: 'left'}}>
                     <Link to={`/companies/${companyData.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <Typography variant="h3" sx={{ fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 'bold' }}>
+                        <Typography variant="h3" sx={{ fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 'bold', textAlign: 'center' }}>
                             {companyData.name}
                         </Typography>
                     </Link>
-                    <Divider/>
-                    <Typography variant="body1" sx={{mb: 1}}>
-                        {companyData.description}
-                    </Typography>
-                    <Container sx={{ display: 'flex', gap: 1 }}>
+                    <Divider sx={{mt: 1}} />
+                    <Container sx={{ display: 'flex', ml: 1 }}>
+                        <Typography variant="body1" sx={{mb: 1}}>
+                            {companyData.description}
+                        </Typography>
+                    </Container>
+                    <Container sx={{ display: 'flex', gap: 1 }} disableGutters>
                         <Avatar
                             alt={companyData.founder_name}
                             src={Requests.get_avatar_link(companyData.founder_id)}
@@ -45,13 +45,13 @@ function CompanyMini({ companyData }) {
                             {`${companyData.founder_name}`}
                         </Typography>
                     </Container>
-                    <Container sx={{ display: 'flex', gap: 1 }}>
+                    <Container sx={{ display: 'flex', gap: 1 }} disableGutters>
                         <GroupIcon />
                         <Typography variant="body1" component="div">
                             {companyData.members ? companyData.members.length + 1 : 1}
                         </Typography>
                     </Container>
-                    <Container sx={{ display: 'flex', gap: 1 }}>
+                    <Container sx={{ display: 'flex', gap: 1 }} disableGutters>
                         <PinDropIcon />
                         <Typography variant="body1" component="div">
                             {companyData.location}

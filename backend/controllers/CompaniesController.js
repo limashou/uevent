@@ -589,13 +589,12 @@ async function allNews(req, res) {
 async function getNotification(req, res) {
     try {
         const { company_id } = req.params;
-        const { from_id } = req.query;
+        const { from_id, page = 1, limit = 20, field = 'date', order = 'DESC' } = req.query;
         let from_notification_id = Number.parseInt(from_id);
         if (!from_notification_id){
-            const companiesData = await new Companies().find({id: req.senderData.id});
+            const companiesData = await new Companies().find({id: company_id});
             from_notification_id = companiesData[0].last_read_notification;
         }
-        const { page = 1, limit = 20, field = 'date', order = 'DESC' } = req.query;
         if (req.senderData.id === undefined) {
             return res.json(new Response(false, "Unauthorized. Please log in."));
         }
@@ -612,11 +611,8 @@ async function getNotification(req, res) {
             size: limit,
             order,
             field,
-            filters: [`WHERE company_notification.id > ${from_notification_id}`]
+            filters: [`id > ${from_notification_id}`]
         });
-        if (!companyNotifications.rows || companyNotifications.rows.length === 0) {
-            return res.status(200).json(new Response(true, "No notifications found for this company."));
-        }
         if (from_id){
             const lastReadNotificationId = Math.max(Number.parseInt(from_id), from_notification_id);
             await client.query(
@@ -624,8 +620,11 @@ async function getNotification(req, res) {
                 [lastReadNotificationId, company_id]
             );
         }
+        if (!companyNotifications.rows || companyNotifications.rows.length === 0) {
+            return res.status(200).json(new Response(true, "No notifications found for this company.", []));
+        }
         return res.json(new Response(true,
-            "Company notifications retrieved and last read notification updated successfully.", companyNotifications));
+            "Company notifications retrieved and last read notification updated successfully.", companyNotifications.rows));
 
     } catch (error) {
         console.error("Error in getCompanyNotification:", error);
@@ -689,8 +688,8 @@ async function userChangeSubscribe(req, res) {
         }
         const { subscribe_id } = req.params;
         const { update_events, new_news, new_events } = req.body;
-        const subscribe = new UserSubscribe();
-        const foundSubscribe = await subscribe.find({ id: subscribe_id });
+        const userSubscribe = new UserSubscribe();
+        const foundSubscribe = await userSubscribe.find({ id: subscribe_id });
         if (foundSubscribe.length === 0) {
             return res.json(new Response(false, "Wrong subscribe_id"));
         }
@@ -698,7 +697,7 @@ async function userChangeSubscribe(req, res) {
             return res.json(new Response(false, "It's not your subscribe"));
         }
         let updatedFields = { update_events, new_news, new_events  };
-        await subscribe.updateById({ id: foundSubscribe[0].id, ...updatedFields });
+        await userSubscribe.updateById({ id: foundSubscribe[0].id, ...updatedFields });
         res.json(new Response(true, 'Subscribe successfully update', foundSubscribe[0].id));
     } catch (error) {
         console.error(error);

@@ -5,7 +5,7 @@ const ticket = require("../controllers/TicketsController");
 const {uploadEvent} = require("./multer");
 const {uploadNews} = require("./multer");
 const validateRequest = require("../middleware/validateRequest");
-const {eventValidationChain, eventEditValidationChain} = require("../validators/events");
+const {eventEditValidationChain} = require("../validators/events");
 const {ticketValidationChain} = require("../validators/tickets");
 
 //event
@@ -27,7 +27,7 @@ router.get('/:event_id/tickets', ticket.getTicketsByEvent);
 router.get('/:event_id/visitors', ticket.getUsers);
 
 //promo code
-router.post('/:event_id/promo_code', events_controller.generatePromoCode);
-router.post('/:event_id/promocodes/:promoCode',ticket.promoCode);
+router.post('/:event_id/generate_promo', events_controller.generatePromoCode);
+router.post('/:event_id/check_promo',ticket.promoCode);
 
 module.exports = router;

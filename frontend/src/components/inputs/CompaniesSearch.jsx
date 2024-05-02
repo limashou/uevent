@@ -56,14 +56,12 @@ export function CompaniesSearch({handleIdSelect = (company_id) => {}}) {
 
     return (
         <>
-            {loading &&
-                <div>...</div>
-            }
             <CustomSearch
                 value={companiesSearch}
                 options={companiesSearchOptions.map(({name}) => name)}
                 handleSearchChange={handleCompaniesSearchChange}
                 label="Search for company"
+                loading={loading}
             />
         </>
     )
