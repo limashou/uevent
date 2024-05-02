@@ -8,6 +8,7 @@ import Container from "@mui/material/Container";
 import {Stack} from "@mui/material";
 import Divider from '@mui/material/Divider';
 import {getRoleLabel} from "../../Utils/InputHandlers";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function Profile() {
     const { user_id} = useParams();
@@ -46,7 +47,7 @@ function Profile() {
     }, []);
 
     if (!profileData)
-        return <div>Loading...</div>
+        return <CircularProgress />
 
     return (
         <Container

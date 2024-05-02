@@ -17,6 +17,7 @@ import Visitors from "../../components/Visitors";
 import Divider from "@mui/material/Divider";
 import PromoGenerateDialog from "../../components/dialogs/PromoGenerateDialog";
 import MenuItem from "@mui/material/MenuItem";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function Event() {
     const { event_id} = useParams();
@@ -31,7 +32,7 @@ function Event() {
 
 
     if (!eventData || loading) {
-        return <div>Loading...</div>;
+        return <CircularProgress />;
     }
 
     const menuOptions = [

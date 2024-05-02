@@ -21,6 +21,7 @@ import CompanySubscribeDialog from "../../components/dialogs/CompanySubscribeDia
 import MenuItem from "@mui/material/MenuItem";
 import {CompanySubscribeEditDialog} from "../../components/dialogs/CompanySubscribeEditDialog";
 import {NewsCreationDialog} from "../../components/dialogs/NewsCreationDialog";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function Company() {
     const { company_id } = useParams();
@@ -98,7 +99,7 @@ function Company() {
     }, [actions, permissions]);
 
     if (!companyData || loading) {
-        return <div>Loading...</div>;
+        return <CircularProgress />;
     }
 
     return (

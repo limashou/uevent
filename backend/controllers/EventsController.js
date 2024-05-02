@@ -372,14 +372,14 @@ async function generatePromoCode(req,res){
         const codeSubscription = await bdNotification.isUpdateEvents((await new Events().find({id: event_id}))[0].company_id);
         if (codeSubscription) {
             const newNotification = await bdNotification.notification(
-                "The new promo code",
-                "The " + codeSubscription[0].name + " give you new promo code for event " + (await new Events().find({id:event_id}))[0].name + " : " + (await new Promo_code().find({id: newPromoCode}))[0].code +  ".",
+                "Promo code",
+                "The " + codeSubscription[0].name + " give you new promo code for event " + (await new Events().find({id:event_id}))[0].name + ": " + (await new Promo_code().find({id: newPromoCode}))[0].code +  ".",
                 "")
             for (const editSubscriptionElement of codeSubscription) {
                 await new UserNotification().notification(editSubscriptionElement.user_subscribe_id, newNotification)
             }
         }
-        res.json(new Response(true,"New promo code",newPromoCode));
+        res.json(new Response(true,"New promo code", newPromoCode));
     } catch (error) {
         console.error(error);
         res.json(new Response(false, error.toString()));

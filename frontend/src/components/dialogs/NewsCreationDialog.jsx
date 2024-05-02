@@ -13,7 +13,7 @@ import CustomInputField from "../inputs/CustomInputField";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import CustomImageDropzone from "../inputs/CustomImageDropzone";
-import {companyNameValidation} from "../../Utils/InputHandlers";
+import {contentValidation, titleNameValidation} from "../../Utils/InputHandlers";
 
 export function NewsCreationDialog() {
     const { company_id } = useParams();
@@ -70,13 +70,14 @@ export function NewsCreationDialog() {
                         />
                         <Stack direction="column" spacing={2}>
                             <CustomInputField
-                                handleInput={companyNameValidation}
+                                handleInput={titleNameValidation}
                                 onChangeChecked={(key, value) => setTitle(value)}
                                 id="title"
                                 label="Title"
                                 type="text"
                             />
                             <CustomInputField
+                                handleInput={contentValidation}
                                 onChangeChecked={(key, value) => setContent(value)}
                                 id="content"
                                 label="Content"

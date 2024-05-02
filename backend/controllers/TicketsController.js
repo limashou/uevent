@@ -237,8 +237,8 @@ async function buyTicket(req, res){
             const currentTime = new Date();
             let notification = new CompanyNotification();
             const information = await ticketUser.getInformation(ticket_id, req.senderData.id);
-            await notification.create("Event ticket purchase " + information[0].name,
-                "The " + information[0].full_name + " bought a " + information[0].ticket_type + " ticket to the event",
+            await notification.create(information[0].name,
+                "The " + information[0].full_name + " bought a " + information[0].ticket_type + " ticket to ",
                 information[0].company_id, currentTime);
         }
         await generateTicketPdf(req.senderData.id,ticket_id,'bought');

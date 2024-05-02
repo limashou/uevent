@@ -107,9 +107,41 @@ export const descriptionValidation = (event) => {
     let isError = false;
     let helperText = '';
 
-    if (inputValue.length < 1) {
+    if (inputValue.length < 3) {
         isError = true;
         helperText = 'Description must be at least 3 characters';
+    }
+
+    return {
+        input: inputValue,
+        error: isError,
+        helper: helperText,
+    }
+}
+export const titleNameValidation = (event) => {
+    const inputValue = event.target.value;
+    let isError = false;
+    let helperText = '';
+
+    if (inputValue.length < 3) {
+        isError = true;
+        helperText = 'Title must be at least 3 characters long';
+    }
+
+    return {
+        input: inputValue,
+        error: isError,
+        helper: helperText,
+    }
+}
+export const contentValidation = (event) => {
+    const inputValue = event.target.value;
+    let isError = false;
+    let helperText = '';
+
+    if (inputValue.length < 3) {
+        isError = true;
+        helperText = 'Content must be at least 3 characters';
     }
 
     return {

@@ -10,6 +10,7 @@ import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
 import {customAlert} from "../../Utils/Utils";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function EventSettings() {
     const { eventData, setEventData } = useContext(EventDataContext);
@@ -36,7 +37,7 @@ function EventSettings() {
     }
 
     if (!eventData){
-        return <div>Loading</div>
+        return <CircularProgress />
     }
 
     return (

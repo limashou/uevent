@@ -20,6 +20,9 @@ import Grid from "@mui/material/Grid";
 import {Chip} from "@mui/material";
 import {ExitToApp} from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
+import CircularProgress from "@mui/material/CircularProgress";
+import {debounce} from "lodash";
+import {DisableOnClickButton} from "../../components/DisableOnClickButton";
 
 function CompanySettings() {
     const { company_id } = useParams();
@@ -33,33 +36,43 @@ function CompanySettings() {
     const [usersFound, setUsersFound] = useState([]);
 
     const [searchOptions, setSearchOptions] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false);
 
+
+    const fetchData = async () => {
+        try {
+            const body = {
+                username_part: invitesSearchInput,
+                user_ids_to_exclude: companyMembers.map(member => member.id),
+            };
+            const usersResp = await Requests.findUsername(body);
+            if (usersResp.state === true) {
+                setUsersFound(usersResp.data);
+                setSearchOptions([...new Set(usersResp.data.map(user => user.full_name))]);
+            } else {
+                enqueueSnackbar(usersResp?.message || 'Error finding users', { variant: 'error', anchorOrigin: { horizontal: "right", vertical: 'bottom' } });
+            }
+        } catch (error) {
+            enqueueSnackbar(error.message, { variant: 'error', anchorOrigin: { horizontal: "right", vertical: 'bottom' } });
+            console.error("Error finding users:", error);
+        }
+        setSearchLoading(false);
+    };
+
+    const debouncedFetchData = debounce(fetchData, 1000);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const body = {
-                    username_part: invitesSearchInput,
-                    user_ids_to_exclude: companyMembers.map(member => member.id),
-                };
-                const usersResp = await Requests.findUsername(body);
-                if (usersResp.state === true) {
-                    setUsersFound(usersResp.data);
-                    setSearchOptions([...new Set(usersResp.data.map(user => user.full_name))]);
-                }
-                else
-                    enqueueSnackbar(usersResp?.message || 'Error finding users', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
-            } catch (error) {
-                enqueueSnackbar(error.message, { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
-                console.error("Error finding users:", error);
-            }
-        };
-        if (invitesSearchInput === ''){
+        if (invitesSearchInput.trim() === '') {
             setSearchOptions([]);
             setUsersFound([]);
+        } else {
+            setSearchLoading(true);
+            debouncedFetchData();
         }
-        else
-            fetchData();
+
+        return () => {
+            debouncedFetchData.cancel();
+        };
     }, [invitesSearchInput]);
 
     function putEditedField(key, value) {
@@ -100,6 +113,9 @@ function CompanySettings() {
                     borderRadius: 2,
                     boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
                 }}>
+                    {loading &&
+                        <CircularProgress />
+                    }
                     {!loading &&
                         <>
                             <Stack direction="row" alignItems="center" spacing={2} mb={2}>
@@ -235,6 +251,7 @@ function CompanySettings() {
                                 label="Found for new member"
                                 options={searchOptions}
                                 handleSearchChange={(event, newValue) => setInvitesSearchInput(newValue)}
+                                loading={searchLoading}
                             />
                             <Box>
                                 {usersFound.map((user) =>(
@@ -245,17 +262,15 @@ function CompanySettings() {
                                         <Typography variant="p" component="div">
                                             {user.full_name}
                                         </Typography>
-                                        <Button
-                                            onClick={() => {
-                                                Requests.memberInvite(companyData.id, user.id).then((resp) => {
-                                                    if (resp.state === true){
-                                                        enqueueSnackbar('Invitation send', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
-                                                    }
-                                                    else
-                                                        enqueueSnackbar(resp?.message || 'error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
-                                                })
-                                            }}
-                                        >Invite</Button>
+                                        <DisableOnClickButton onClick={() => {
+                                            Requests.memberInvite(companyData.id, user.id).then((resp) => {
+                                                if (resp.state === true){
+                                                    enqueueSnackbar('Invitation send', { variant: 'success', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+                                                }
+                                                else
+                                                    enqueueSnackbar(resp?.message || 'error', { variant: 'error', anchorOrigin: {horizontal: "right", vertical: 'bottom'} });
+                                            })
+                                        }} text="Invite"/>
                                     </Stack>
                                 ))}
                             </Box>
