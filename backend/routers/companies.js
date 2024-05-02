@@ -35,8 +35,6 @@ router.get('/:company_id/notifications', company_controller.getNotification);
 // router.delete('/:company_id/notification/:notification_id/delete', company_controller.deleteNotification);
 //user
 router.post('/:company_id/subscribe', company_controller.userSubscribe);
-router.delete('/:company_id/unsubscribe', company_controller.userUnsubscribe);
-router.patch('/:company_id/changeSubscribe', company_controller.userChangeSubscribe);
 //events
 router.get('/:company_id/events', events_controller.allEventsByCompany);
 router.post('/:company_id/create', eventValidationChain, validateRequest, events_controller.createEvent);
