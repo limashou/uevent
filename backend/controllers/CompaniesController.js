@@ -589,6 +589,12 @@ async function allNews(req, res) {
 async function getNotification(req, res) {
     try {
         const { company_id } = req.params;
+        const { from_id } = req.query;
+        let from_notification_id = Number.parseInt(from_id);
+        if (!from_notification_id){
+            const companiesData = await new Companies().find({id: req.senderData.id});
+            from_notification_id = companiesData[0].last_read_notification;
+        }
         const { page = 1, limit = 20, field = 'date', order = 'DESC' } = req.query;
         if (req.senderData.id === undefined) {
             return res.json(new Response(false, "Unauthorized. Please log in."));
@@ -606,15 +612,18 @@ async function getNotification(req, res) {
             size: limit,
             order,
             field,
+            filters: [`WHERE company_notification.id > ${from_notification_id}`]
         });
         if (!companyNotifications.rows || companyNotifications.rows.length === 0) {
             return res.status(200).json(new Response(true, "No notifications found for this company."));
         }
-        const lastReadNotificationId = companyNotifications.rows[0].id;
-        await client.query(
-            'UPDATE companies SET last_read_notification = $1 WHERE id = $2',
-            [lastReadNotificationId, company_id]
-        );
+        if (from_id){
+            const lastReadNotificationId = Math.max(Number.parseInt(from_id), from_notification_id);
+            await client.query(
+                'UPDATE companies SET last_read_notification = $1 WHERE id = $2',
+                [lastReadNotificationId, company_id]
+            );
+        }
         return res.json(new Response(true,
             "Company notifications retrieved and last read notification updated successfully.", companyNotifications));
 
@@ -651,7 +660,7 @@ async function getSubscribeData(req,res){
         const { subscribe_id } = req.params;
         const foundSubscribe = await new UserSubscribe().find({ id: subscribe_id });
         let subscribeData = foundSubscribe.map(({ id, user_id, company_id,new_news, update_events, new_events }) => ({  new_news, update_events, new_events }));
-        res.json(new Response(true," ",subscribeData));
+        res.json(new Response(true," ", subscribeData[0]));
     }catch (error) {
         console.log(error);
         res.json(new Response(false,error.toString()))
@@ -719,7 +728,7 @@ async function userUnsubscribe(req, res) {
     }
 }
 
-/** /=======================/ module exports /=======================/ */
+/** /=======================/ filters /=======================/ */
 
 async function filtersByCompany(req,res){
     try {
