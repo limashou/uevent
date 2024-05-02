@@ -20,6 +20,7 @@ import {customAlert} from "../../Utils/Utils";
 import CompanySubscribeDialog from "../../components/dialogs/CompanySubscribeDialog";
 import MenuItem from "@mui/material/MenuItem";
 import {CompanySubscribeEditDialog} from "../../components/dialogs/CompanySubscribeEditDialog";
+import {NewsCreationDialog} from "../../components/dialogs/NewsCreationDialog";
 
 function Company() {
     const { company_id } = useParams();
@@ -71,7 +72,7 @@ function Company() {
                     Unsubscribe
                 </MenuItem>
             );
-        else
+        if (actions.canSubscribe === true)
             newOptions.push(<CompanySubscribeDialog company_id={company_id} />);
         if (permissions.company_edit)
             newOptions.push(
@@ -83,11 +84,7 @@ function Company() {
             )
         if (permissions.news_creation)
             newOptions.push(
-                <Link key={'newscreate'} to={`/companies/${company_id}/newsCreation`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <MenuItem>
-                        Create news
-                    </MenuItem>
-                </Link>
+                <NewsCreationDialog />
             )
         if (permissions.event_creation)
             newOptions.push(
@@ -131,12 +128,14 @@ function Company() {
                         {notificationsEnable &&
                             <CompanyNotificationsMenu company_id={company_id} />
                         }
-                        <MenuOptions options={menuOptions} />
+                        {menuOptions.length > 0 &&
+                            <MenuOptions options={menuOptions} />
+                        }
                     </Stack>
                 </Container>
                 <Box sx={{ width: '100%', }}>
                     <Tabs value={tabsValue} onChange={handleChange} centered>
-                        <Tab label="Events" />
+                        <Tab label="Upcoming events" />
                         <Tab label="News" />
                         <Tab label="Members" />
                         <Tab label="About" />

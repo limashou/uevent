@@ -1,7 +1,7 @@
 import Container from "@mui/material/Container";
 import CustomSearch from "../../components/inputs/CustomSearch";
 import {Link} from "react-router-dom";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
 import CompanyMini from "../../components/CompanyMini";
@@ -13,8 +13,10 @@ import {FounderSearch} from "../../components/inputs/FounderSearch";
 import Grid from "@mui/material/Grid";
 import CompanyMiniSkeleton from "../../components/skeletons/CompanyMiniSkeleton";
 import Divider from "@mui/material/Divider";
+import {UserContext} from "../RootLayout";
 
 function Companies() {
+    const [userData] = useContext(UserContext);
     const [companies, setCompanies] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -28,7 +30,7 @@ function Companies() {
     const [searchLoading, setSearchLoading] = useState(false);
 
     const debouncedFetchData = debounce(async () => {
-        setLoading(true); // Установка состояния загрузки перед запросом данных
+        setLoading(true);
         const params = {
             limit: ONE_PAGE_LIMIT,
             searchValue: searchValue
@@ -69,14 +71,17 @@ function Companies() {
                 <Container sx={{
                     backgroundColor: "background.default",
                     padding: 2,
-                    borderRadius: 2
+                    borderRadius: 2,
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
                 }}>
                     <Stack direction="column" gap={2}>
-                        <Link to="/companies/creation">
-                            <Button sx={{width: '100%'}} variant="outlined">
-                                Create company
-                            </Button>
-                        </Link>
+                        {userData &&
+                            <Link to="/companies/creation">
+                                <Button sx={{width: '100%'}} variant="outlined">
+                                    Create company
+                                </Button>
+                            </Link>
+                        }
                         <FounderSearch handleIdSelect={setFounderIdFilter} />
                     </Stack>
                 </Container>
@@ -85,7 +90,8 @@ function Companies() {
                 <Container sx={{
                     backgroundColor: "background.default",
                     padding: 2,
-                    borderRadius: 2
+                    borderRadius: 2,
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
                 }}>
                     <Container sx={{ display: 'flex' }} disableGutters>
                         <CustomSearch
@@ -122,7 +128,8 @@ function Companies() {
                     backgroundColor: "background.default",
                     padding: 2,
                     borderRadius: 2,
-                    display: 'flex', flexDirection: 'column', gap: 2
+                    display: 'flex', flexDirection: 'column', gap: 2,
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
                 }}>
                     <Stack direction="row" spacing={2} justifyContent="center">
                         <Pagination

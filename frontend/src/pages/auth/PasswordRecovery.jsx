@@ -5,6 +5,7 @@ import Requests from "../../api/Requests";
 import {emailValidation} from "../../Utils/InputHandlers";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import {enqueueSnackbar} from "notistack";
+import Container from "@mui/material/Container";
 
 function PasswordRecovery() {
     const [email, setEmail] = useState('');
@@ -46,7 +47,13 @@ function PasswordRecovery() {
     }
 
     return (
-        <>
+        <Container maxWidth="sm" sx={{
+            backgroundColor: "background.default",
+            padding: 2,
+            borderRadius: 2,
+            display: 'flex', flexDirection: 'column', gap: 2,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
+        }}>
             <h1>Password recovery</h1>
             <CustomInputField
                 handleInput={emailValidation}
@@ -56,7 +63,7 @@ function PasswordRecovery() {
                 type="email"
             />
             <div>
-                <p>Don't have an account? <Link to="/auth/registration">Register</Link></p>
+                <p>Don't have an account? <Link to="/auth/registration" style={{ textDecoration: 'none', color: 'inherit' }}>Register</Link></p>
             </div>
             <Button
                 variant="contained"
@@ -66,7 +73,7 @@ function PasswordRecovery() {
                     checkEntities();
                 }}
             >{isButtonDisabled ? `Retry after ${timer}s` : 'Check'}</Button>
-        </>
+        </Container>
     )
 }
 

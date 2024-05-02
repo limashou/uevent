@@ -5,7 +5,7 @@ import {Stack} from "@mui/material";
 import CustomImageDropzone from "../../components/inputs/CustomImageDropzone";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import CustomSelector from "../../components/inputs/CustomSelector";
-import {eventNameValidation, FORMATS, THEMES} from "../../Utils/InputHandlers";
+import {descriptionValidation, eventNameValidation, FORMATS, THEMES} from "../../Utils/InputHandlers";
 import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
 import Button from "@mui/material/Button";
 import Requests from "../../api/Requests";
@@ -43,7 +43,8 @@ function EventSettings() {
         <Container maxWidth="md" sx={{
             backgroundColor: "background.default",
             padding: 2,
-            borderRadius: 2
+            borderRadius: 2,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
         }}>
             <Stack spacing={2}>
                 <Stack spacing={2} direction="row">
@@ -72,6 +73,7 @@ function EventSettings() {
                         />
                         <CustomInputField
                             defaultValue={eventData.description}
+                            handleInput={descriptionValidation}
                             onChangeChecked={(key, value) => {
                                 setEditedFields({...editedFields, description: value});
                             }}

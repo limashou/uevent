@@ -68,19 +68,19 @@ function CompanySubscribeDialog({ company_id }) {
                             control={
                                 <Switch checked={update_events} onChange={() => {setUpdate_events(!update_events)}} />
                             }
-                            label="update_events"
+                            label="Events update"
                         />
                         <FormControlLabel
                             control={
                                 <Switch checked={new_news} onChange={() => {setNew_news(!new_news)}} />
                             }
-                            label="new_news"
+                            label="News"
                         />
                         <FormControlLabel
                             control={
                                 <Switch checked={new_events} onChange={() => {setNew_events(!new_events)}} />
                             }
-                            label="new_events"
+                            label="New events"
                         />
                     </Stack>
                 </DialogContent>

@@ -63,7 +63,7 @@ async function getById(req,res){
             return NOT_FOUND_ERROR(res, 'User');
         }
         let filteredUser;
-        if(req.senderData.id !== undefined && req.senderData.id === usersFoundById[0].id ) {
+        if(req.senderData?.id && req.senderData.id === usersFoundById[0].id ) {
             filteredUser = usersFoundById.map(({ id, email,full_name }) => ({ id, email,full_name }));
         }else {
             filteredUser = usersFoundById.map(({ id, full_name }) => ({ id, full_name }));

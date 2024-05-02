@@ -15,7 +15,7 @@ function CompanyMembersTab({ users }) {
                             sx={{width: 70, height: 70}}
                         />
                         <Stack direction="column" sx={{alignItems: 'center'}} ml={1} gap={1}>
-                            <Link to={`/users/${userData.id}`}>
+                            <Link to={`/users/${userData.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                                 <Typography variant="h5">
                                     {userData.full_name}
                                 </Typography>

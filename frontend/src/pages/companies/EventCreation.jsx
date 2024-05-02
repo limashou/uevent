@@ -7,7 +7,7 @@ import {useParams} from "react-router-dom";
 import Requests from "../../api/Requests";
 import Button from "@mui/material/Button";
 import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
-import {FORMATS, THEMES} from "../../Utils/InputHandlers";
+import {descriptionValidation, eventNameValidation, FORMATS, THEMES} from "../../Utils/InputHandlers";
 import {enqueueSnackbar} from "notistack";
 import {customAlert} from "../../Utils/Utils";
 import Container from "@mui/material/Container";
@@ -60,7 +60,8 @@ function EventCreation() {
         <Container maxWidth="md" sx={{
             backgroundColor: "background.default",
             padding: 2,
-            borderRadius: 2
+            borderRadius: 2,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
         }}>
             <Stack spacing={2}>
                 <Stack spacing={2} direction="row">
@@ -70,12 +71,14 @@ function EventCreation() {
                     />
                     <Stack spacing={2} direction="column" sx={{width: '100%'}}>
                         <CustomInputField
+                            handleInput={eventNameValidation}
                             onChangeChecked={(key, value) => setTitle(value)}
                             id="title"
                             label="Event title"
                             type="text"
                         />
                         <CustomInputField
+                            handleInput={descriptionValidation}
                             onChangeChecked={(key, value) => {setDescription(value)}}
                             id="description"
                             label="Description"

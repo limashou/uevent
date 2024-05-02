@@ -61,27 +61,24 @@ function TicketBuyDialog({ ticketData }) {
 
     useEffect(() => {
         async function checkPromoCode() {
-            const resp = await Requests.checkDiscount(promoCode);
+            const resp = await Requests.checkDiscount(event_id, promoCode);
             if (resp.state === true){
-                if (resp.data.valid === true){
-                    setError(false);
-                    if (resp.data.discount_type !== 'percentage')
-                        setDiscountPercent(false);
-                    setDiscountValue(resp.data.discount);
-                    setTotal(resp.data.discount_type === 'percentage'
-                        ? price * (1 - resp.data.discount / 100)
-                        : price - resp.data.discount);
-                }
-                else {
-                    setError(true);
-                    setHelperText('Promocode invalid');
-                    setDiscountValue(0);
-                    setDiscountPercent(true);
-                    setTotal(price);
-                }
+                setError(false);
+                setHelperText('');
+                if (resp.data.discount_type !== 'percentage')
+                    setDiscountPercent(false);
+                setDiscountValue(resp.data.discount);
+                setTotal(resp.data.discount_type === 'percentage'
+                    ? price * (1 - resp.data.discount / 100)
+                    : price - resp.data.discount);
             }
-            else
-                customAlert(resp.message || 'Error', 'error')
+            else {
+                setError(true);
+                setHelperText('Promocode invalid');
+                setDiscountValue(0);
+                setDiscountPercent(true);
+                setTotal(price);
+            }
         }
         if (promoCode.trim() === ''){
             setDiscountPercent(true);

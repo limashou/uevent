@@ -21,7 +21,6 @@ import Events from "./pages/events/Events";
 import Event from "./pages/events/Event";
 import EventSettings from "./pages/events/EventSettings";
 import EventDataWrapper from "./pages/events/EventDataWrapper";
-import AnnouncementCreation from "./pages/companies/news/AnnouncementCreation";
 import TicketBuyConfirm from "./pages/events/TicketBuyConfirm";
 import {SnackbarProvider} from "notistack";
 
@@ -48,7 +47,6 @@ function App() {
                         <Route index element={<Company />} />
                         <Route path="settings" element={<CompanySettings />} />
                         <Route path="eventCreation" element={<EventCreation />} />
-                        <Route path="newsCreation" element={<AnnouncementCreation />} />
                     </Route>
                 </Route>
                 <Route path="users" element={<UserLayout />}>

@@ -13,7 +13,7 @@ function Comment({ commentData, onUpdate, onEdit = (commentText, comment_id) => 
 
     const menuOptions = [];
 
-    if (userData.id === commentData.user_id){
+    if (userData?.id === commentData.user_id){
         menuOptions.push(
             <MenuItem key={'delete'} onClick={() => {Requests.deleteComment(commentData.id).then((resp) => {
                 if (resp.state === true){

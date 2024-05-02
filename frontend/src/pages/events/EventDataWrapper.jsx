@@ -8,7 +8,7 @@ function EventDataWrapper({ children }) {
     const [eventData, setEventData] = useState();
 
     const [eventEditPermission, setEventEditPermission] = useState(false);
-    const [tickets, setTickets] = useState(undefined);
+    const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

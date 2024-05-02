@@ -3,11 +3,9 @@ import {Suspense} from "react";
 
 function AuthLayout() {
     return (
-        <div className="center-block">
-            <Suspense fallback={<h1>Loading...</h1>}>
-                <Outlet />
-            </Suspense>
-        </div>
+        <Suspense fallback={<h1>Loading...</h1>}>
+            <Outlet />
+        </Suspense>
     );
 }
 

@@ -39,7 +39,7 @@ function CompanyDataWrapper({ children }) {
                 const resp2 = await Requests.companyMembers(company_id);
                 if (resp2.state === true) {
                     setCompanyMembers(resp2.data);
-                    if (resp2.data.some(member => member.id === userData.id)){
+                    if (userData && resp2.data.some(member => member.id === userData.id)){
                         setNotificationsEnable(true);
                     }
                 }

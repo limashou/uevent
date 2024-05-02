@@ -89,7 +89,8 @@ function Events() {
                     backgroundColor: "background.default",
                     padding: 2,
                     borderRadius: 2,
-                    display: 'flex', flexDirection: 'column', gap: 2
+                    display: 'flex', flexDirection: 'column', gap: 2,
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
                 }}>
                     <Stack direction="column" gap={2}>
                         <CompaniesSearch handleIdSelect={setCompanyIdFilter} />

@@ -5,6 +5,7 @@ import Requests from "../../api/Requests";
 import {passwordValidation, usernameValidation} from "../../Utils/InputHandlers";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import {enqueueSnackbar} from "notistack";
+import Container from "@mui/material/Container";
 
 function Login() {
     const [username, setUsername] = useState('');
@@ -30,7 +31,13 @@ function Login() {
     }
 
     return (
-        <>
+        <Container maxWidth="sm" sx={{
+            backgroundColor: "background.default",
+            padding: 2,
+            borderRadius: 2,
+            display: 'flex', flexDirection: 'column', gap: 2,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
+        }}>
             <h1>Login</h1>
             <CustomInputField
                 handleInput={usernameValidation}
@@ -47,13 +54,13 @@ function Login() {
                 type="password"
             />
             <div>
-                <p>Don't have an account? <Link to='/auth/registration'>Register</Link></p>
-                <p>Forgot your password? <Link to={"/auth/password-recovery"}>Recovery</Link></p>
+                <p>Don't have an account? <Link to='/auth/registration' style={{ textDecoration: 'none', color: 'inherit' }}>Register</Link></p>
+                <p>Forgot your password? <Link to={"/auth/password-recovery"} style={{ textDecoration: 'none', color: 'inherit' }}>Recovery</Link></p>
             </div>
             <Button variant="contained"
                     onClick={checkEntities}
             >Login</Button>
-        </>
+        </Container>
     )
 }
 

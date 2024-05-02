@@ -1,4 +1,4 @@
-import {companyNameValidation, emailValidation} from "../../Utils/InputHandlers";
+import {companyNameValidation, descriptionValidation, emailValidation} from "../../Utils/InputHandlers";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import {useState} from "react";
 import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
@@ -53,7 +53,8 @@ function CompanyCreation() {
         <Container maxWidth="md" sx={{
             backgroundColor: "background.default",
             padding: 2,
-            borderRadius: 2
+            borderRadius: 2,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
         }}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={3}>
@@ -95,6 +96,7 @@ function CompanyCreation() {
                         {/*<div>{JSON.stringify(locationObj)}</div>*/}
                         <GoogleMapsInput onChange={handleLocationSelect} />
                         <CustomInputField
+                            handleInput={descriptionValidation}
                             onChangeChecked={(key, value) => setDescription(value)}
                             id="description"
                             label="Description"

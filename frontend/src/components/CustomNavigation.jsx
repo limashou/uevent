@@ -56,6 +56,7 @@ function CustomNavigation() {
                             fontWeight: 700,
                             letterSpacing: '.3rem',
                             textDecoration: 'none',
+                            color: 'inherit'
                         }}
                     >
                         uEvent
@@ -121,7 +122,11 @@ function CustomNavigation() {
                                 </Box>
                             </>
                         ) : (
-                            <Link to="/auth/login">sign in</Link>
+                            <Link to="/auth/login" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <Button>
+                                    Sign in
+                                </Button>
+                            </Link>
                         )
                     }
                 </Toolbar>

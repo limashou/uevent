@@ -5,6 +5,7 @@ import Requests from "../../api/Requests";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import {emailValidation, fullNameValidation, passwordValidation, usernameValidation} from "../../Utils/InputHandlers";
 import {enqueueSnackbar} from "notistack";
+import Container from "@mui/material/Container";
 
 function Registration() {
     const [username, setUsername] = useState('');
@@ -34,7 +35,13 @@ function Registration() {
     }
 
     return (
-        <>
+        <Container maxWidth="sm" sx={{
+            backgroundColor: "background.default",
+            padding: 2,
+            borderRadius: 2,
+            display: 'flex', flexDirection: 'column', gap: 2,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
+        }}>
             <h1>Registration</h1>
             <CustomInputField
                 handleInput={usernameValidation}
@@ -65,7 +72,7 @@ function Registration() {
                 type="text"
             />
             <div>
-                <p>Already have an account? <Link to="/auth/login">Login</Link></p>
+                <p>Already have an account? <Link to="/auth/login" style={{ textDecoration: 'none', color: 'inherit' }}>Login</Link></p>
             </div>
             <Button
                 variant="contained"
@@ -73,7 +80,7 @@ function Registration() {
             >
                 Register
             </Button>
-        </>
+        </Container>
     )
 }
 

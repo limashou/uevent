@@ -1,10 +1,10 @@
-import { createTheme } from '@mui/material/styles';
+import {createTheme} from '@mui/material/styles';
 
 const theme = createTheme({
     palette: {
         mode: "dark",
         primary: {
-            main: '#00f56a', // Основной цвет
+            main: '#F2ECFF', // Основной цвет
         },
         // secondary: {
         //     main: '#1f1d1e', // Вторичный цвет

@@ -8,7 +8,7 @@ import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import {useParams} from "react-router-dom";
 import CustomInputField from "../../components/inputs/CustomInputField";
-import {companyNameValidation, emailValidation, memberRoles} from "../../Utils/InputHandlers";
+import {companyNameValidation, descriptionValidation, emailValidation, memberRoles} from "../../Utils/InputHandlers";
 import GoogleMapsInput from "../../components/inputs/GoogleMapsInput";
 import CustomSearch from "../../components/inputs/CustomSearch";
 import CustomSelector from "../../components/inputs/CustomSelector";
@@ -97,7 +97,8 @@ function CompanySettings() {
                 <Container maxWidth="md" sx={{
                     backgroundColor: "background.default",
                     padding: 2,
-                    borderRadius: 2
+                    borderRadius: 2,
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
                 }}>
                     {!loading &&
                         <>
@@ -123,6 +124,7 @@ function CompanySettings() {
                                         type="text"
                                     />
                                     <CustomInputField
+                                        handleInput={descriptionValidation}
                                         defaultValue={companyData.description}
                                         onChangeChecked={putEditedField}
                                         id="description"
@@ -170,7 +172,8 @@ function CompanySettings() {
                 <Container maxWidth="md" sx={{
                     backgroundColor: "background.default",
                     padding: 2,
-                    borderRadius: 2
+                    borderRadius: 2,
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
                 }}>
                     <Typography>Company members:</Typography>
                     <Stack direction="column" spacing={1} mb={2} mt={2}>

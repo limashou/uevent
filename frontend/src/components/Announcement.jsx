@@ -4,7 +4,7 @@ import Avatar from "@mui/material/Avatar";
 import Requests from "../api/Requests";
 import {Stack} from "@mui/material";
 import MenuOptions from "./MenuOptions";
-import {useContext} from "react";
+import React, {useContext} from "react";
 import {CompanyDataContext} from "../pages/companies/CompanyDataWrapper";
 import {customAlert, formatDate} from "../Utils/Utils";
 import MenuItem from "@mui/material/MenuItem";
@@ -43,7 +43,7 @@ export function Announcement({ announcementData, onDelete }) {
                    }}
         >
             <Stack direction="row" justifyContent="space-between" spacing={2}>
-                <Container>
+                <Container sx={{width: 'max-content'}}>
                     <Typography variant="h3" sx={{ marginBottom: "10px" }}>
                         {announcementData.title}
                     </Typography>
@@ -51,16 +51,27 @@ export function Announcement({ announcementData, onDelete }) {
                         {announcementData.content}
                     </Typography>
                 </Container>
-                {announcementData.poster && (
-                    <Avatar
-                        variant="rounded"
-                        src={Requests.get_news_poster_link(announcementData.id)}
-                        alt="poster"
-                        sx={{ width: 100, height: 100 }}
-                    />
-                )}
-                <Stack direction="column" justifyContent="space-between" alignContent="flex-end" alignItems="flex-end" textAlign="end">
-                    <MenuOptions options={menuOptions} />
+                <Container>
+                    {announcementData.poster && (
+                        <Avatar
+                            variant="rounded"
+                            src={Requests.get_news_poster_link(announcementData.id)}
+                            alt="poster"
+                            sx={{ height: 100, width: 200 }}
+                        />
+                    )}
+                </Container>
+                <Stack direction="column"
+                       justifyContent="space-between"
+                       alignContent="flex-end"
+                       alignItems="flex-end"
+                       textAlign="end"
+                       minWidth="100px"
+                       sx={{margin: 0}}
+                >
+                    {menuOptions.length > 0 &&
+                        <MenuOptions options={menuOptions} />
+                    }
                     <Typography variant="body2" sx={{ color: "#666" }}>
                         {formatDate(announcementData.created_at, true)}
                     </Typography>

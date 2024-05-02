@@ -31,7 +31,7 @@ function TicketBuyConfirm() {
                     <>
                         <Typography variant="h3">Your ticket:</Typography>
                         <UserTicketCard ticket={userTicketData}/>
-                        <a href={`/events/${event_id}`}>To event</a>
+                        <a href={`/events/${event_id}`} style={{ textDecoration: 'none', color: 'inherit' }}>To event</a>
                     </>
                 }
                 {!userTicketData &&

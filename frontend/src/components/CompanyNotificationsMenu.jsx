@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Badge, List, Popover} from "@mui/material";
+import {Badge, List, ListItem, Popover} from "@mui/material";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import {Notification} from "./Notification";
 import Requests from "../api/Requests";
@@ -76,6 +76,9 @@ function CompanyNotificationsMenu({ company_id }) {
                 }}
             >
                 <List>
+                    {notifications.length === 0 &&
+                        <ListItem>Nothing here</ListItem>
+                    }
                     {notifications.map((notification) => (
                         <Notification notificationData={notification} handleClose={handleClose} />
                     ))}

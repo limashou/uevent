@@ -31,8 +31,7 @@ function Profile() {
                 alert(resp.message || 'Error');
             }
         };
-        if (userData?.id)
-            fetchData();
+        fetchData();
     }, [user_id, userData]);
 
     useEffect(() => {
@@ -56,7 +55,8 @@ function Profile() {
                 backgroundColor: "background.default",
                 padding: 2,
                 borderRadius: 2,
-                display: 'flex', flexDirection: 'column', gap: 2
+                display: 'flex', flexDirection: 'column', gap: 2,
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
             }}
         >
             <Stack direction="row">
@@ -91,7 +91,7 @@ function Profile() {
                                     sx={{ width: 100, height: 100 }}
                                 />
                                 <Stack direction="column">
-                                    <Link to={`/companies/${company.company_id}`}>
+                                    <Link to={`/companies/${company.company_id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                                         <Typography variant="h3">{company.name}</Typography>
                                     </Link>
                                     {company.role === 'founder' ? (

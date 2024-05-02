@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import Requests from "../api/Requests";
 import Comment from "./Comment";
 import Pagination from "@mui/material/Pagination";
@@ -8,8 +8,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import {Button, Container, Stack, TextField} from "@mui/material";
 import {customAlert} from "../Utils/Utils";
 import Typography from "@mui/material/Typography";
+import {UserContext} from "../pages/RootLayout";
 
 function Comments({ event_id }) {
+    const [userData] = useContext(UserContext);
     const [comments, setComments] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -68,7 +70,7 @@ function Comments({ event_id }) {
 
     return (
         <Container disableGutters maxWidth="md" style={{ position: 'relative', paddingBottom: comments.length > 5 ? fixedContainerHeight : 0 }}>
-            {totalPages !== 0 && !editCommentId &&
+            {totalPages > 1 && !editCommentId &&
                 <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
                     <Pagination
                         size="small"
@@ -98,70 +100,74 @@ function Comments({ event_id }) {
                     />
                 ))
             }
-
-            <Container maxWidth="md" sx={{
-                position: comments.length > 5 ? 'fixed' : 'relative', bottom: 0, left: 0, right: 0,
-                backgroundColor: "background.default",
-                padding: comments.length > 5 ? 3 : 0,
-                pt: 0,
-                pb: 0,
-                borderRadius: 2
-            }} id="fixedContainer" disableGutters>
-                <Stack direction="row" mt={1}>
-                    <TextField
-                        autoFocus
-                        sx={{ display: 'flex', width: '100%' }}
-                        variant="filled"
-                        label="Message"
-                        value={ownCommentText}
-                        onChange={(event) => {
-                            setOwnCommentText(event.target.value);
-                        }}
-                        placeholder="Write smth..."
-                        onKeyDown={(event) => {
-                            if (event.key === 'Enter') {
-                                if (editCommentId) {
-                                    editMessage();
-                                } else {
-                                    createMessage();
+            {!userData &&
+                <Typography>You need authorize for writing comments</Typography>
+            }
+            {userData &&
+                <Container maxWidth="md" sx={{
+                    position: comments.length > 5 ? 'fixed' : 'relative', bottom: 0, left: 0, right: 0,
+                    backgroundColor: "background.default",
+                    padding: comments.length > 5 ? 3 : 0,
+                    pt: 0,
+                    pb: 0,
+                    borderRadius: 2
+                }} id="fixedContainer" disableGutters>
+                    <Stack direction="row" mt={1}>
+                        <TextField
+                            autoFocus
+                            sx={{ display: 'flex', width: '100%' }}
+                            variant="filled"
+                            label="Message"
+                            value={ownCommentText}
+                            onChange={(event) => {
+                                setOwnCommentText(event.target.value);
+                            }}
+                            placeholder="Write smth..."
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    if (editCommentId) {
+                                        editMessage();
+                                    } else {
+                                        createMessage();
+                                    }
                                 }
-                            }
-                        }}
-                        multiline
-                    />
-                    {editCommentId &&
-                        <>
+                            }}
+                            multiline
+                        />
+                        {editCommentId &&
+                            <>
+                                <Button
+                                    variant="outlined"
+                                    sx={{ ml: 1 }}
+                                    onClick={() => {
+                                        setEditCommentId(undefined);
+                                        setLastUpd(new Date());
+                                        setOwnCommentText('');
+                                    }}
+                                >
+                                    <CloseIcon />
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    sx={{ ml: 1 }}
+                                    onClick={editMessage}
+                                >
+                                    <EditNoteIcon />
+                                </Button>
+                            </>
+                        }
+                        {!editCommentId &&
                             <Button
                                 variant="outlined"
                                 sx={{ ml: 1 }}
-                                onClick={() => {
-                                    setEditCommentId(undefined);
-                                    setLastUpd(new Date());
-                                    setOwnCommentText('');
-                                }}
+                                onClick={createMessage}
                             >
-                                <CloseIcon />
+                                <SendIcon />
                             </Button>
-                            <Button
-                                variant="outlined"
-                                sx={{ ml: 1 }}
-                                onClick={editMessage}
-                            >
-                                <EditNoteIcon />
-                            </Button>
-                        </>
-                    }
-                    {!editCommentId &&
-                        <Button
-                            variant="outlined"
-                            sx={{ ml: 1 }}
-                            onClick={createMessage}
-                        >
-                            <SendIcon />
-                        </Button>
-                    }
-                </Stack>
-            </Container>
+                        }
+                    </Stack>
+                </Container>
+            }
         </Container>
     )
 }

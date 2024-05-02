@@ -31,8 +31,6 @@ function TicketCard({ ticketData }) {
                         Price: ${price}
                         <br />
                         Available Tickets: {available_tickets}
-                        <br />
-                        Status: {status}
                     </Typography>
                     {ticketData.status === 'reserved' &&
                         <Button onClick={() => {

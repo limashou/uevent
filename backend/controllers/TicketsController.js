@@ -114,22 +114,29 @@ async function getTicketsByEvent(req,res) {
             return res.json(new Response(true, "Not found tickets", []));
         }
 
-        const ticketsUsers = new TicketsUsers();
-        const check = await ticketsUsers.check(req.senderData.id, event_id);
-        if(check.exists === true) {
-            for (let ticketsFoundElement of ticketsFound) {
-                if (ticketsFoundElement.id === check.ticket_id){
-                    if ('session_id' in check){
-                        ticketsFoundElement.session_id = check.session_id;
-                        ticketsFoundElement.status = check.ticket_status;
+        if (req?.senderData?.id){
+            const ticketsUsers = new TicketsUsers();
+            const check = await ticketsUsers.check(req.senderData.id, event_id);
+            if(check.exists === true) {
+                for (let ticketsFoundElement of ticketsFound) {
+                    if (ticketsFoundElement.id === check.ticket_id){
+                        if ('session_id' in check){
+                            ticketsFoundElement.session_id = check.session_id;
+                            ticketsFoundElement.status = check.ticket_status;
+                        }
+                        else{
+                            ticketsFoundElement.status = 'bought';
+                            ticketsFoundElement.user_ticket_id = check.user_ticket_id
+                        }
                     }
-                    else{
-                        ticketsFoundElement.status = 'bought';
-                        ticketsFoundElement.user_ticket_id = check.user_ticket_id
-                    }
+                    else
+                        ticketsFoundElement.status = 'unavailable';
                 }
-                else
-                    ticketsFoundElement.status = 'unavailable';
+            }
+        }
+        else {
+            for (let ticketsFoundElement of ticketsFound) {
+                ticketsFoundElement.status = 'unavailable';
             }
         }
         res.json(new Response(true, "All tickets by event_id " + event_id, ticketsFound));

@@ -102,6 +102,22 @@ export const eventNameValidation = (event) => {
         helper: helperText,
     }
 }
+export const descriptionValidation = (event) => {
+    const inputValue = event.target.value;
+    let isError = false;
+    let helperText = '';
+
+    if (inputValue.length < 1) {
+        isError = true;
+        helperText = 'Description must be at least 3 characters';
+    }
+
+    return {
+        input: inputValue,
+        error: isError,
+        helper: helperText,
+    }
+}
 export const memberRoles = [
     { value: 4, label: 'Worker' },
     { value: 3, label: 'News Maker' },

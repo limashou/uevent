@@ -48,7 +48,8 @@ function Event() {
         <Container maxWidth="md" sx={{
             backgroundColor: "background.default",
             padding: 2,
-            borderRadius: 2
+            borderRadius: 2,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
         }}>
             <Stack spacing={2} alignItems="center">
                 <Container sx={{display: 'flex', justifyContent: 'space-between'}} disableGutters>
@@ -82,10 +83,10 @@ function Event() {
                     <Divider sx={{mb: 2}} />
                     {tabsValue === 0 &&
                         <Container>
-                            <Typography><strong>Дата:</strong> {formatDate(eventData.date, true)}</Typography>
-                            <Typography><strong>Формат:</strong> {eventData.format}</Typography>
-                            <Typography><strong>Тема:</strong> {eventData.theme}</Typography>
-                            <Typography><strong>Местоположение:</strong> {eventData.location}</Typography>
+                            <Typography><strong>Will start in:</strong> {formatDate(eventData.date, true)}</Typography>
+                            <Typography><strong>Format:</strong> {eventData.format}</Typography>
+                            <Typography><strong>Theme:</strong> {eventData.theme}</Typography>
+                            <Typography><strong>Location:</strong> {eventData.location}</Typography>
                         </Container>
                     }
                     <Box sx={{display: tabsValue === 1 ? '' : 'none'}}>

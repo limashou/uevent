@@ -5,6 +5,7 @@ import Requests from "../../api/Requests";
 import CustomInputField from "../../components/inputs/CustomInputField";
 import {passwordValidation} from "../../Utils/InputHandlers";
 import {enqueueSnackbar} from "notistack";
+import Container from "@mui/material/Container";
 
 function PasswordRecovery() {
     const { token } = useParams();
@@ -36,7 +37,13 @@ function PasswordRecovery() {
     }
 
     return (
-        <>
+        <Container maxWidth="sm" sx={{
+            backgroundColor: "background.default",
+            padding: 2,
+            borderRadius: 2,
+            display: 'flex', flexDirection: 'column', gap: 2,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
+        }}>
             <h1>{status ? 'You can close this page' : 'Enter new password'}</h1>
             {!status &&
                 <>
@@ -66,10 +73,10 @@ function PasswordRecovery() {
             }
             {status &&
                 <div>
-                    <p><Link to="/auth/login">To login page</Link></p>
+                    <p><Link to="/auth/login" style={{ textDecoration: 'none', color: 'inherit' }}>To login page</Link></p>
                 </div>
             }
-        </>
+        </Container>
     )
 }
 
