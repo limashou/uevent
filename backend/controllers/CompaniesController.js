@@ -646,6 +646,18 @@ async function deleteNotification(req,res){
 }
 /** /=======================/ user subscribe /=======================/ */
 
+async function getSubscribeData(req,res){
+    try {
+        const { subscribe_id } = req.params;
+        const foundSubscribe = await new UserSubscribe().find({ id: subscribe_id });
+        let subscribeData = foundSubscribe.map(({ id, user_id, company_id,new_news, update_events, new_events }) => ({  new_news, update_events, new_events }));
+        res.json(new Response(true," ",subscribeData));
+    }catch (error) {
+        console.log(error);
+        res.json(new Response(false,error.toString()))
+    }
+}
+
 async function userSubscribe(req,res){
     try {
         const { company_id } = req.params;
@@ -669,7 +681,7 @@ async function userChangeSubscribe(req, res) {
         const { subscribe_id } = req.params;
         const { update_events, new_news, new_events } = req.body;
         const subscribe = new UserSubscribe();
-        const foundSubscribe = await userSubscribe.find({ id: subscribe_id });
+        const foundSubscribe = await subscribe.find({ id: subscribe_id });
         if (foundSubscribe.length === 0) {
             return res.json(new Response(false, "Wrong subscribe_id"));
         }
@@ -771,6 +783,7 @@ module.exports = {
     userSubscribe,
     userUnsubscribe,
     userChangeSubscribe,
+    getSubscribeData,
     //filters
     filtersByCompany,
     filtersByFounder
