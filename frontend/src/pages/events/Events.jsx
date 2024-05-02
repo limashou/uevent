@@ -13,6 +13,7 @@ import {CompaniesSearch} from "../../components/inputs/CompaniesSearch";
 import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
 import EventMiniSkeleton from "../../components/skeletons/EventMiniSkeleton";
+import Typography from "@mui/material/Typography";
 
 function Events() {
     const [events, setEvents] = useState([]);
@@ -38,7 +39,10 @@ function Events() {
         const data = {
             limit: ONE_PAGE_LIMIT,
             searchValue: searchValue,
-            page: page
+            page: 1
+        }
+        if (searchValue === null || searchValue.trim() === '') {
+            data.page = page;
         }
         if (new Date(dateFrom).toString() !== 'Invalid Date')
             data.dateFrom = new Date(dateFrom).toISOString()
@@ -136,33 +140,40 @@ function Events() {
                                 </>
                             ))
                         ) : (
-                            events.map((event, index) => (
-                                <>
-                                    <EventMini eventData={event} key={event.id} />
-                                    {index < events.length - 1 && <Divider />}
-                                </>
-                            ))
+                            <>
+                                {events.length === 0 &&
+                                    <Typography>No events found</Typography>
+                                }
+                                {events.map((event, index) => (
+                                    <>
+                                        <EventMini eventData={event} key={event.id} />
+                                        {index < events.length - 1 && <Divider />}
+                                    </>
+                                ))}
+                            </>
                         )}
                     </Container>
                 </Container>
             </Grid>
             <Grid item xs={12} md={2}>
-                <Container maxWidth="sm" sx={{
-                    backgroundColor: "background.default",
-                    padding: 2,
-                    borderRadius: 2,
-                    display: 'flex', flexDirection: 'column', gap: 2
-                }}>
-                    <Stack direction="row" spacing={2} justifyContent="center">
-                        <Pagination
-                            size="small"
-                            count={totalPages}
-                            page={page}
-                            onChange={handlePageChange}
-                            color="primary"
-                        />
-                    </Stack>
-                </Container>
+                {totalPages > 1 &&
+                    <Container maxWidth="sm" sx={{
+                        backgroundColor: "background.default",
+                        padding: 2,
+                        borderRadius: 2,
+                        display: 'flex', flexDirection: 'column', gap: 2
+                    }}>
+                        <Stack direction="row" spacing={2} justifyContent="center">
+                            <Pagination
+                                size="small"
+                                count={totalPages}
+                                page={page}
+                                onChange={handlePageChange}
+                                color="primary"
+                            />
+                        </Stack>
+                    </Container>
+                }
             </Grid>
         </Grid>
     )

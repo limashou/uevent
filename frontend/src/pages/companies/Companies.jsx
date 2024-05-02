@@ -14,6 +14,7 @@ import Grid from "@mui/material/Grid";
 import CompanyMiniSkeleton from "../../components/skeletons/CompanyMiniSkeleton";
 import Divider from "@mui/material/Divider";
 import {UserContext} from "../RootLayout";
+import Typography from "@mui/material/Typography";
 
 function Companies() {
     const [userData] = useContext(UserContext);
@@ -46,8 +47,9 @@ function Companies() {
             if (page > totalPages)
                 setPage(1);
         }
-        setSearchLoading(false);
         setLoading(false);
+        setSearchLoading(false);
+
     }, 1000);
 
     useEffect(() => {
@@ -110,37 +112,44 @@ function Companies() {
                                 </>
                             ))
                         ) : (
-                            companies.map((company, index) => (
-                                <>
-                                    <CompanyMini
-                                        companyData={company}
-                                        key={company.id}
-                                    />
-                                    {index < companies.length - 1 && <Divider />}
-                                </>
-                            ))
+                            <>
+                                {companies.length === 0 &&
+                                    <Typography sx={{mt: 1}}>No one company found</Typography>
+                                }
+                                {companies.map((company, index) => (
+                                    <>
+                                        <CompanyMini
+                                            companyData={company}
+                                            key={company.id}
+                                        />
+                                        {index < companies.length - 1 && <Divider />}
+                                    </>
+                                ))}
+                            </>
                         )}
                     </Container>
                 </Container>
             </Grid>
             <Grid item xs={12} md={2}>
-                <Container maxWidth="sm" sx={{
-                    backgroundColor: "background.default",
-                    padding: 2,
-                    borderRadius: 2,
-                    display: 'flex', flexDirection: 'column', gap: 2,
-                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
-                }}>
-                    <Stack direction="row" spacing={2} justifyContent="center">
-                        <Pagination
-                            size="small"
-                            count={totalPages}
-                            page={page}
-                            onChange={handlePageChange}
-                            color="primary"
-                        />
-                    </Stack>
-                </Container>
+                {totalPages > 1 &&
+                    <Container maxWidth="sm" sx={{
+                        backgroundColor: "background.default",
+                        padding: 2,
+                        borderRadius: 2,
+                        display: 'flex', flexDirection: 'column', gap: 2,
+                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)'
+                    }}>
+                        <Stack direction="row" spacing={2} justifyContent="center">
+                            <Pagination
+                                size="small"
+                                count={totalPages}
+                                page={page}
+                                onChange={handlePageChange}
+                                color="primary"
+                            />
+                        </Stack>
+                    </Container>
+                }
             </Grid>
         </Grid>
     )

@@ -72,16 +72,17 @@ export function NewsCreationDialog() {
                             <CustomInputField
                                 handleInput={titleNameValidation}
                                 onChangeChecked={(key, value) => setTitle(value)}
-                                id="title"
                                 label="Title"
                                 type="text"
+                                autoFocus
+                                onKeyDown={(e) => e.stopPropagation()}
                             />
                             <CustomInputField
                                 handleInput={contentValidation}
                                 onChangeChecked={(key, value) => setContent(value)}
-                                id="content"
                                 label="Content"
                                 multiline
+                                onKeyDown={(e) => e.stopPropagation()}
                             />
                         </Stack>
                     </Stack>

@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {TextField} from "@mui/material";
+import {debounce} from "lodash";
 
 function CustomInputField({
                               defaultValue = '',
@@ -13,9 +14,7 @@ function CustomInputField({
         error: false
     });
 
-    let blurTimer;
-
-    const setValue = (event) => {
+    const setValueWithCheck = (event) => {
         const new_fields = handleInput(event);
         setFields(new_fields);
         if (new_fields.error === false){
@@ -25,17 +24,26 @@ function CustomInputField({
             onChangeChecked(event.target.id, '');
     };
 
+    const debounceCheckValue = debounce(setValueWithCheck, 3000);
+
     const handleChange = (event) => {
         setFields({
             input: event.target.value,
             helper: '',
             error: false
         });
-        clearTimeout(blurTimer);
-        blurTimer = setTimeout(() => {
-            setValue(event);
-        }, 3000);
     };
+
+    useEffect(() => {
+        if (typeof fields.input === 'string' && fields.input.trim() !== '' && fields.input.trim() !== defaultValue){
+            debounceCheckValue({
+                target: {
+                    value: fields.input
+                }}
+            );
+            return debounceCheckValue.cancel;
+        }
+    }, [fields]);
 
     return (
         <TextField
@@ -44,11 +52,11 @@ function CustomInputField({
             error={fields.error}
             helperText={fields.helper}
             defaultValue={fields.input}
-            onBlur={setValue}
+            onBlur={setValueWithCheck}
             onChange={handleChange}
             onKeyDown={(event) => {
                 if (event.key === 'Enter') {
-                    setValue(event);
+                    setValueWithCheck(event);
                 }
             }}
             {...otherProps}

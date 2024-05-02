@@ -62,7 +62,7 @@ function PromoGenerateDialog({event_id}) {
                     </DialogContentText>
                     <Stack gap={1} mt={1}>
                         <CustomSelector
-                            label="Promo type"
+                            label="Type"
                             onChange={(value) => setPromo_type(value)}
                             options={types}
                             defaultValue={types[0].value}
@@ -70,7 +70,7 @@ function PromoGenerateDialog({event_id}) {
                         <CustomInputField
                             defaultValue={10}
                             onChangeChecked={(key, value) => {setDiscountValue(value)}}
-                            label="Price"
+                            label="Value"
                             type="number"
                         />
                         <CustomInputField

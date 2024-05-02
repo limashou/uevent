@@ -56,7 +56,7 @@ async function login(req, res) {
                         res.cookie('auth_token', token_controller.generateToken({ id: usersFound[0].id }), { httpOnly: true, session: true });
                         res.json(new Response(true, 'Успешный вход', { user_id: usersFound[0].id }));
                     } else {
-                        res.json(new Response(false, 'Неправильный пароль!'));
+                        res.json(new Response(false, 'Incorrect password!'));
                     }
                 } catch (error) {
                     console.error(error);

@@ -85,7 +85,7 @@ function TicketCreationDialog({event_id, onTicketCreated}) {
                             label="Ticket type"
                             onChange={(value) => setTicket_type(value)}
                             options={TICKET_TYPES}
-                            defaultValue={TICKET_TYPES[0]}
+                            // defaultValue={TICKET_TYPES[0].value}
                         />
                         <CustomInputField
                             defaultValue={price}
